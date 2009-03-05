@@ -14,6 +14,10 @@ for file in os.listdir(root):
         else:
             tests.append(file)
 
+print "-"*68
+
+os.environ["PYTHONPATH"] = "."
+
 for test in tests:
     print test, "..."
     file = os.path.join(root, test)
@@ -28,6 +32,8 @@ for test in tests:
         if result:
             print result
         failed.append(test)
+
+print "-"*68
 
 if failed:
     print "*** %s tests of %d failed." % (len(failed), len(tests))
