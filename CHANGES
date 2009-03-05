@@ -25,6 +25,8 @@ Dan Wolfe, and Ka-Ping Yee.
 
 *** Changes from release 1.1.6 to 1.1.7 ***
 
++ Fixed JPEG CMYK handling (from Kevin Cazabon)
+
 + Added resolution save option for PDF files (from Andreas Kostyrka).
 
 + Look for Tcl/Tk files in /usr/include/tclX.X (from Encolpe Degoute)

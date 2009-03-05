@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: JpegImagePlugin.py 2763 2006-06-22 21:43:28Z fredrik $
+# $Id$
 #
 # JPEG (JFIF) file handling
 #
@@ -32,7 +32,7 @@
 __version__ = "0.5"
 
 import array, string
-import Image, ImageFile
+import Image, ImageFile, ImageChops
 
 def i16(c,o=0):
     return ord(c[o+1]) + (ord(c[o])<<8)
@@ -270,8 +270,11 @@ class JpegImageFile(ImageFile.ImageFile):
                     handler(self, i)
                 if i == 0xFFDA: # start of scan
                     rawmode = self.mode
-                    if self.mode == "CMYK":
-                        rawmode = "CMYK;I"
+                    # patch by Kevin Cazabon to comment this out - nobody should be using Photoshop 2.5 any more (and it breaks newer versions)
+                    # CMYK images are still inverted, we'll fix that just before returning.
+                    #if self.mode == "CMYK" and self.info.has_key("adobe"):
+                    #    rawmode = "CMYK;I" # Photoshop 2.5 is broken!
+
                     self.tile = [("jpeg", (0,0) + self.size, 0, (rawmode, ""))]
                     # self.__offset = self.fp.tell()
                     break
@@ -281,6 +284,10 @@ class JpegImageFile(ImageFile.ImageFile):
                 s = "\xff"
             else:
                 raise SyntaxError("no marker found")
+
+        # patch by Kevin Cazabon to re-invert CMYK JPEG files
+        if self.mode == "CMYK":
+            self.im = ImageChops.invert(self).im
 
     def draft(self, mode, size):
 
@@ -378,7 +385,7 @@ RAWMODE = {
     "RGB": "RGB",
     "RGBA": "RGB",
     "RGBX": "RGB",
-    "CMYK": "CMYK;I",
+    "CMYK": "CMYK",
     "YCbCr": "YCbCr",
 }
 
@@ -405,6 +412,10 @@ def _save(im, fp, filename):
         info.get("streamtype", 0),
         dpi[0], dpi[1]
         )
+
+    if im.mode == "CMYK":
+        # invert it so it's handled correctly in Photoshop/etc. - Kevin Cazabon.
+        im = ImageChops.invert(im)
 
     ImageFile._save(im, fp, [("jpeg", (0,0)+im.size, 0, rawmode)])
 
