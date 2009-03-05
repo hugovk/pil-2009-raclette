@@ -1,41 +1,38 @@
 # minimal test runner
 
-import os, sys
+import glob, os, sys
 
 root = os.path.dirname(__file__)
-
-tests = []
-failed = []
-
-for file in os.listdir(root):
-    if file[:5] == "test_" and file[-3:] == ".py":
-        if file == "test_sanity.py":
-            tests.insert(0, file)
-        else:
-            tests.append(file)
 
 print "-"*68
 
 os.environ["PYTHONPATH"] = "."
 
-for test in tests:
+files = glob.glob(os.path.join(root, "test_*.py"))
+files.sort()
+
+success = failure = 0
+
+for file in files:
+    test = os.path.basename(file)
     print test, "..."
-    file = os.path.join(root, test)
-    out = os.popen(sys.executable + " -u " + file + " 2>&1")
+    out = os.popen("%s -u %s 2>&1" % (sys.executable, file))
     result = out.read()
     if result.strip() == "ok":
         result = None
     status = out.close()
     if status or result:
         if status:
-            print "- error", status
+            print "=== error", status
         if result:
             print result
-        failed.append(test)
+        failure = failure + 1
+    else:
+        success = success + 1
 
 print "-"*68
 
-if failed:
-    print "*** %s tests of %d failed." % (len(failed), len(tests))
+if failure:
+    print "*** %s tests of %d failed." % (failure, success + failure)
 else:
-    print "%s tests passed." % len(tests)
+    print "%s tests passed." % success
