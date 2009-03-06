@@ -286,7 +286,7 @@ class JpegImageFile(ImageFile.ImageFile):
                 raise SyntaxError("no marker found")
 
         # patch by Kevin Cazabon to re-invert CMYK JPEG files
-        if self.mode == "CMYK":
+        if self.im and self.mode == "CMYK":
             self.im = ImageChops.invert(self).im
 
     def draft(self, mode, size):
