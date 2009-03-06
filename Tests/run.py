@@ -12,10 +12,13 @@ files = glob.glob(os.path.join(root, "test_*.py"))
 files.sort()
 
 success = failure = 0
+include = sys.argv[1:]
 
 for file in files:
-    test = os.path.basename(file)
-    print "testing", test, "..."
+    test, ext = os.path.splitext(os.path.basename(file))
+    if include and test not in include:
+        continue
+    print "running", test, "..."
     # 2>&1 works on unix and on modern windowses.  we might care about
     # very old Python versions, but not ancient microsoft products :-)
     out = os.popen("%s -S -u %s 2>&1" % (sys.executable, file))
