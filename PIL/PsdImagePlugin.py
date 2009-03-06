@@ -108,6 +108,8 @@ class PsdImageFile(ImageFile.ImageFile):
                 if (len(data) & 1):
                     read(1) # padding
                 self.resources.append((id, name, data))
+                if id == 1039: # ICC profile
+                    self.info["icc_profile"] = data
 
         #
         # layer and mask information

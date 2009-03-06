@@ -102,6 +102,9 @@ JPEGTABLES = 347
 COPYRIGHT = 33432
 IPTC_NAA_CHUNK = 33723 # newsphoto properties
 PHOTOSHOP_CHUNK = 34377 # photoshop properties
+ICCPROFILE = 34675
+EXIFIFD = 34665
+XMP = 700
 
 COMPRESSION_INFO = {
     # Compression => pil compression name
@@ -180,6 +183,7 @@ class ImageFileDirectory:
     def reset(self):
         self.tags = {}
         self.tagdata = {}
+        self.tagtype = {} # added 2008-06-05 by Florian Hoech
         self.next = None
 
     # dictionary API (sort of)
@@ -337,9 +341,10 @@ class ImageFileDirectory:
                 raise IOError, "not enough data"
 
             self.tagdata[tag] = typ, data
+            self.tagtype[tag] = typ
 
             if Image.DEBUG:
-                if tag in (COLORMAP, IPTC_NAA_CHUNK, PHOTOSHOP_CHUNK):
+                if tag in (COLORMAP, IPTC_NAA_CHUNK, PHOTOSHOP_CHUNK, ICCPROFILE, XMP):
                     print "- value: <table: %d bytes>" % size
                 else:
                     print "- value:", self[tag]
@@ -369,17 +374,21 @@ class ImageFileDirectory:
         # pass 1: convert tags to binary format
         for tag, value in tags:
 
-            if Image.DEBUG:
-                import TiffTags
-                tagname = TiffTags.TAGS.get(tag, "unknown")
-                print "save: %s (%d)" % (tagname, tag),
-                print "- value:", value
+            typ = None
 
-            if type(value[0]) is type(""):
+            if self.tagtype.has_key(tag):
+                typ = self.tagtype[tag]
+
+            if typ == 1:
+                # byte data
+                data = value = string.join(map(chr, value), "")
+            elif typ == 7:
+                # untyped data
+                data = value = string.join(value, "")
+            elif type(value[0]) is type(""):
                 # string data
                 typ = 2
                 data = value = string.join(value, "\0") + "\0"
-
             else:
                 # integer data
                 if tag == STRIPOFFSETS:
@@ -388,7 +397,7 @@ class ImageFileDirectory:
                 elif tag in (X_RESOLUTION, Y_RESOLUTION):
                     # identify rational data fields
                     typ = 5
-                else:
+                elif not typ:
                     typ = 3
                     for v in value:
                         if v >= 65536:
@@ -397,6 +406,18 @@ class ImageFileDirectory:
                     data = string.join(map(o16, value), "")
                 else:
                     data = string.join(map(o32, value), "")
+
+            if Image.DEBUG:
+                import TiffTags
+                tagname = TiffTags.TAGS.get(tag, "unknown")
+                typname = TiffTags.TYPES.get(typ, "unknown")
+                print "save: %s (%d)" % (tagname, tag),
+                print "- type: %s (%d)" % (typname, typ),
+                if tag in (COLORMAP, IPTC_NAA_CHUNK, PHOTOSHOP_CHUNK, ICCPROFILE, XMP):
+                    size = len(data)
+                    print "- value: <table: %d bytes>" % size
+                else:
+                    print "- value:", value
 
             # figure out if data fits into the directory
             if len(data) == 4:
@@ -515,6 +536,9 @@ class TiffImageFile(ImageFile.ImageFile):
             if self.tag.has_key(317):
                 # Section 14: Differencing Predictor
                 self.decoderconfig = (self.tag[PREDICTOR][0],)
+
+        if self.tag.has_key(ICCPROFILE):
+            self.info['icc_profile'] = self.tag[ICCPROFILE]
 
         return args
 
@@ -696,6 +720,16 @@ def _save(im, fp, filename):
         for key in (RESOLUTION_UNIT, X_RESOLUTION, Y_RESOLUTION):
             if im.tag.tagdata.has_key(key):
                 ifd[key] = im.tag.tagdata.get(key)
+        # preserve some more tags from original TIFF image file
+        # -- 2008-06-06 Florian Hoech
+        ifd.tagtype = im.tag.tagtype
+        for key in (IPTC_NAA_CHUNK, PHOTOSHOP_CHUNK, XMP):
+            if im.tag.has_key(key):
+                ifd[key] = im.tag[key]
+        # preserve ICC profile (should also work when saving other formats
+        # which support profiles as TIFF) -- 2008-06-06 Florian Hoech
+        if im.info.has_key("icc_profile"):
+            ifd[ICCPROFILE] = im.info["icc_profile"]
     if im.encoderinfo.has_key("description"):
         ifd[IMAGEDESCRIPTION] = im.encoderinfo["description"]
     if im.encoderinfo.has_key("resolution"):

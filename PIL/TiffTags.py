@@ -132,11 +132,20 @@ TAGS = {
     531: "YCbCrPositioning",
     532: "ReferenceBlackWhite",
 
+    # XMP
+    700: "XMP",
+
     33432: "Copyright",
 
     # various extensions (should check specs for "official" names)
     33723: "IptcNaaInfo",
     34377: "PhotoshopInfo",
+
+    # Exif IFD
+    34665: "ExifIFD",
+
+    # ICC Profile
+    34675: "ICCProfile",
 
     # Adobe DNG
     50706: "DNGVersion",

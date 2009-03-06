@@ -81,6 +81,28 @@ def APP(self, marker):
     elif marker == 0xFFE2 and s[:5] == "FPXR\0":
         # extract FlashPix information (incomplete)
         self.info["flashpix"] = s # FIXME: value will change
+    elif marker == 0xFFE2 and s[:12] == "ICC_PROFILE\0":
+        # Since an ICC profile can be larger than the maximum size of
+        # a JPEG marker (64K), we need provisions to split it into
+        # multiple markers. The format defined by the ICC specifies
+        # one or more APP2 markers containing the following data:
+        #   Identifying string      ASCII "ICC_PROFILE\0"  (12 bytes)
+        #   Marker sequence number  1, 2, etc (1 byte)
+        #   Number of markers       Total of APP2's used (1 byte)
+        #   Profile data            (remainder of APP2 data)
+        # Decoders should use the marker sequence numbers to
+        # reassemble the profile, rather than assuming that the APP2
+        # markers appear in the correct sequence.
+        if not self.info.has_key("icc_profile"):
+            self.icc_profile_marker_prev = "\0"
+            self.info["icc_profile"] = ""
+        icc_profile_marker_curr = s[12]
+        if self.icc_profile_marker_prev < icc_profile_marker_curr:
+            self.info["icc_profile"] += s[14:]
+        else:
+            self.info["icc_profile"] = s[14:] + \
+            self.info["icc_profile"]
+        self.icc_profile_marker_prev = icc_profile_marker_curr
     elif marker == 0xFFEE and s[:5] == "Adobe":
         self.info["adobe"] = i16(s, 5)
         # extract Adobe custom properties
@@ -418,6 +440,40 @@ def _save(im, fp, filename):
         im = ImageChops.invert(im)
 
     ImageFile._save(im, fp, [("jpeg", (0,0)+im.size, 0, rawmode)])
+
+    # ICC profile writing support -- 2008-06-06 Florian Hoech
+    # (this is a hack: add the profile after the file has been written)
+    if im.info.has_key("icc_profile"):
+        try:
+            import os, struct
+            if os.path.exists(fp.name):
+                fp = open(fp.name, "rb")
+                header = fp.read(6) # SOI, JFIF or Adobe marker, and size of the latter
+                header_size = struct.unpack(">H", header[4:])[0] - 2
+                header += fp.read(header_size)
+                data = fp.read()
+                fp.close()
+                fp = open(fp.name, "wb")
+                fp.write(header)
+                icc_profile = im.info["icc_profile"]
+                markers = []
+                ICC_OVERHEAD_LEN = 14
+                MAX_BYTES_IN_MARKER = 65533
+                MAX_DATA_BYTES_IN_MARKER = MAX_BYTES_IN_MARKER - ICC_OVERHEAD_LEN
+                while icc_profile:
+                    markers.append(icc_profile[:MAX_DATA_BYTES_IN_MARKER])
+                    icc_profile = icc_profile[MAX_DATA_BYTES_IN_MARKER:]
+                i = 1
+                for marker in markers:
+                    size = struct.pack(">H", 2 + ICC_OVERHEAD_LEN + len(marker))
+                    fp.write("\xFF\xE2" + size + "ICC_PROFILE\0" + chr(i) + chr(len(markers)) + marker)
+                    i += 1
+                fp.write(data)
+            else:
+                if Image.DEBUG:
+                    print "Unable to write ICC Profile: Image file not found"
+        except:
+            pass
 
 def _save_cjpeg(im, fp, filename):
     # ALTERNATIVE: handle JPEGs via the IJG command line utilities.

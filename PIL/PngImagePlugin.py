@@ -32,7 +32,7 @@ __version__ = "0.8.3"
 
 import re, string
 
-import Image, ImageFile, ImagePalette
+import Image, ImageFile, ImagePalette, zlib
 
 
 def i16(c):
@@ -175,6 +175,22 @@ class PngStream(ChunkStream):
         self.im_mode = None
         self.im_tile = None
         self.im_palette = None
+
+    def chunk_iCCP(self, pos, len):
+
+        # ICC profile
+        s = ImageFile._safe_read(self.fp, len)
+        # according to PNG spec, the iCCP chunk contains:
+        # Profile name 	1-79 bytes (character string)
+        # Null separator 	1 byte (null character)
+        # Compression method 	1 byte (0)
+        # Compressed profile 	n bytes (zlib with deflate compression)
+        i = string.find(s, chr(0))
+        if Image.DEBUG:
+            print "iCCP profile name", s[:i]
+            print "Compression method", ord(s[i])
+        self.im_info["icc_profile"] = zlib.decompress(s[i+2:])
+        return s
 
     def chunk_IHDR(self, pos, len):
 
@@ -512,6 +528,23 @@ def _save(im, fp, filename, chunk=putchunk, check=0):
     if info:
         for cid, data in info.chunks:
             chunk(fp, cid, data)
+
+    # ICC profile writing support -- 2008-06-06 Florian Hoech
+    if im.info.has_key("icc_profile"):
+        # ICC profile
+        # according to PNG spec, the iCCP chunk contains:
+        # Profile name 	1-79 bytes (character string)
+        # Null separator 	1 byte (null character)
+        # Compression method 	1 byte (0)
+        # Compressed profile 	n bytes (zlib with deflate compression)
+        try:
+            import ICCProfile
+            p = ICCProfile.ICCProfile(im.info["icc_profile"])
+            name = p.tags.desc.get("ASCII", p.tags.desc.get("Unicode", p.tags.desc.get("Macintosh", p.tags.desc.get("en", {}).get("US", "ICC Profile")))).encode("latin1", "replace")[:79]
+        except ImportError:
+            name = "ICC Profile"
+        data = name + "\0\0" + zlib.compress(im.info["icc_profile"])
+        chunk(fp, "iCCP", data)
 
     ImageFile._save(im, _idat(fp, chunk), [("zip", (0,0)+im.size, 0, rawmode)])
 
