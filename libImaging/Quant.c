@@ -653,8 +653,8 @@ median_cut(PixelList *hl[3],
       ImagingQuantHeapAdd(h,(void *)(thisNode->l));
       ImagingQuantHeapAdd(h,(void *)(thisNode->r));
    }
-   ImagingQuantHeapFree(h);
 done:
+   ImagingQuantHeapFree(h);
    return root;
 }
 
