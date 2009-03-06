@@ -27,7 +27,6 @@ def register(viewer, order=1):
         _viewers.append(viewer)
     elif order < 0:
         _viewers.insert(0, viewer)
-    print _viewers
 
 ##
 # Displays a given image.

@@ -30,3 +30,5 @@ assert ImageColor.getcolor("white", "L") == 255
 
 assert ImageColor.getcolor("black", "1") == 0
 assert ImageColor.getcolor("white", "1") == 255
+
+print "ok"

@@ -17,9 +17,13 @@ for file in files:
     test = os.path.basename(file)
     print test, "..."
     out = os.popen("%s -u %s 2>&1" % (sys.executable, file))
-    result = out.read()
-    if result.strip() == "ok":
+    result = out.read().strip()
+    if result == "ok":
         result = None
+    elif result == "skip":
+        continue
+    elif not result:
+        result = "(no output)"
     status = out.close()
     if status or result:
         if status:
