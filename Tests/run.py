@@ -16,6 +16,8 @@ success = failure = 0
 for file in files:
     test = os.path.basename(file)
     print "testing", test, "..."
+    # 2>&1 works on unix and on modern windowses.  we might care about
+    # very old Python versions, but not ancient microsoft products :-)
     out = os.popen("%s -S -u %s 2>&1" % (sys.executable, file))
     result = out.read().strip()
     if result == "ok":
