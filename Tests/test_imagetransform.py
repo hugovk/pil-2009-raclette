@@ -1,9 +1,12 @@
 from PIL import Image
 from PIL import ImageTransform
 
-ImageTransform.AffineTransform((1, 2, 3, 4, 5, 6))
-ImageTransform.ExtentTransform((1, 2, 3, 4))
-ImageTransform.QuadTransform((1, 2, 3, 4, 5, 6, 7, 8))
-ImageTransform.MeshTransform(((1, 2, 3, 4), (5, 6, 7, 8, 9, 10, 11, 12)))
+im = Image.new("L", (100, 100))
+seq = tuple(range(10))
+
+im.transform((100, 100), ImageTransform.AffineTransform(seq[:6]))
+im.transform((100, 100), ImageTransform.ExtentTransform(seq[:4]))
+im.transform((100, 100), ImageTransform.QuadTransform(seq[:8]))
+im.transform((100, 100), ImageTransform.MeshTransform([(seq[:4], seq[:8])]))
 
 print "ok"

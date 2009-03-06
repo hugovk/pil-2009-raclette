@@ -1,7 +1,8 @@
 import PIL
 import PIL.Image
 
-import _imaging
+# Make sure we have the binary extension
+im = PIL.Image.core.new("L", (100, 100))
 
 assert PIL.Image.VERSION[:3] == '1.1'
 
