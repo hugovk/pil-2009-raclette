@@ -25,7 +25,10 @@ Dan Wolfe, and Ka-Ping Yee.
 
 *** Changes from release 1.1.6 to 1.1.7 ***
 
-+ Fixed JPEG CMYK handling (from Kevin Cazabon)
++ Fixed OverflowError when reading top-to-bottom BMP images (reported
+  by Wichert Akkerman, who also provided samples).
+
++ Fixed JPEG CMYK handling (from Kevin Cazabon and Paul Egan).
 
 + Added resolution save option for PDF files (from Andreas Kostyrka).
 
