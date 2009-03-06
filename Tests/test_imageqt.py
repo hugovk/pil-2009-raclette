@@ -1,8 +1,8 @@
+import tester
+
 from PIL import Image
 try:
     from PIL import ImageQt
-except ImportError:
-    print "skip"
-else:
-    print "ok"
+except ImportError, v:
+    tester.skip(v)
 

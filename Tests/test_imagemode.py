@@ -1,3 +1,5 @@
+import tester
+
 from PIL import Image
 from PIL import ImageMode
 
@@ -19,5 +21,3 @@ assert m.mode == "RGB"
 assert m.bands == ("R", "G", "B")
 assert m.basemode == "RGB"
 assert m.basetype == "L"
-
-print "ok"

@@ -15,7 +15,7 @@ success = failure = 0
 
 for file in files:
     test = os.path.basename(file)
-    print test, "..."
+    print "testing", test, "..."
     out = os.popen("%s -S -u %s 2>&1" % (sys.executable, file))
     result = out.read().strip()
     if result == "ok":

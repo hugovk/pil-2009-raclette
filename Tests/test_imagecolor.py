@@ -1,34 +1,31 @@
+from tester import *
+
 from PIL import Image
 from PIL import ImageColor
 
 # --------------------------------------------------------------------
 # sanity
 
-assert ImageColor.getrgb("#f00") == (255, 0, 0)
-assert ImageColor.getrgb("#ff0000") == (255, 0, 0)
-assert ImageColor.getrgb("rgb(255,0,0)") == (255, 0, 0)
-assert ImageColor.getrgb("rgb(100%,0%,0%)") == (255, 0, 0)
-assert ImageColor.getrgb("hsl(0, 100%, 50%)") == (255, 0, 0)
-assert ImageColor.getrgb("red") == (255, 0, 0)
+assert_equal((255, 0, 0), ImageColor.getrgb("#f00"))
+assert_equal((255, 0, 0), ImageColor.getrgb("#ff0000"))
+assert_equal((255, 0, 0), ImageColor.getrgb("rgb(255,0,0)"))
+assert_equal((255, 0, 0), ImageColor.getrgb("rgb(100%,0%,0%)"))
+assert_equal((255, 0, 0), ImageColor.getrgb("hsl(0, 100%, 50%)"))
+assert_equal((255, 0, 0), ImageColor.getrgb("red"))
 
 # --------------------------------------------------------------------
 # look for rounding errors (based on code by Tim Hatch)
 
-def verify_color(color):
+for color in ImageColor.colormap.keys():
     expected = Image.new("RGB", (1, 1), color).convert("L").getpixel((0, 0))
     actual = Image.new("L", (1, 1), color).getpixel((0, 0))
-    assert expected == actual, "%r: %r != %r" % (color, expected, actual)
+    assert_equal(expected, actual)
 
-for name in ImageColor.colormap:
-    verify_color(name)
+assert_equal((0, 0, 0), ImageColor.getcolor("black", "RGB"))
+assert_equal((255, 255, 255), ImageColor.getcolor("white", "RGB"))
 
-assert ImageColor.getcolor("black", "RGB") == (0, 0, 0)
-assert ImageColor.getcolor("white", "RGB") == (255, 255, 255)
+assert_equal(0, ImageColor.getcolor("black", "L"))
+assert_equal(255, ImageColor.getcolor("white", "L"))
 
-assert ImageColor.getcolor("black", "L") == 0
-assert ImageColor.getcolor("white", "L") == 255
-
-assert ImageColor.getcolor("black", "1") == 0
-assert ImageColor.getcolor("white", "1") == 255
-
-print "ok"
+assert_equal(0, ImageColor.getcolor("black", "1"))
+assert_equal(255, ImageColor.getcolor("white", "1"))
