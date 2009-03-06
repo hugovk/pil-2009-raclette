@@ -161,4 +161,3 @@ else:
 if __name__ == "__main__":
     # usage: python ImageShow.py imagefile [title]
     print show(Image.open(sys.argv[1]), *sys.argv[2:])
-
