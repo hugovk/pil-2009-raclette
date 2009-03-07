@@ -22,6 +22,8 @@
 # 2003-04-25 fl   Added experimental EXIF decoder (0.5)
 # 2003-06-06 fl   Added experimental EXIF GPSinfo decoder
 # 2003-09-13 fl   Extract COM markers
+# 2009-09-06 fl   Added icc_profile support (from Florian Hoech)
+# 2009-03-06 fl   Changed CMYK handling; always use Adobe polarity (0.6)
 #
 # Copyright (c) 1997-2003 by Secret Labs AB.
 # Copyright (c) 1995-1996 by Fredrik Lundh.
@@ -29,10 +31,10 @@
 # See the README file for information on usage and redistribution.
 #
 
-__version__ = "0.5"
+__version__ = "0.6"
 
 import array, string
-import Image, ImageFile, ImageChops
+import Image, ImageFile
 
 def i16(c,o=0):
     return ord(c[o+1]) + (ord(c[o])<<8)
@@ -292,11 +294,8 @@ class JpegImageFile(ImageFile.ImageFile):
                     handler(self, i)
                 if i == 0xFFDA: # start of scan
                     rawmode = self.mode
-                    # patch by Kevin Cazabon to comment this out - nobody should be using Photoshop 2.5 any more (and it breaks newer versions)
-                    # CMYK images are still inverted, we'll fix that just before returning.
-                    #if self.mode == "CMYK" and self.info.has_key("adobe"):
-                    #    rawmode = "CMYK;I" # Photoshop 2.5 is broken!
-
+                    if self.mode == "CMYK":
+                        rawmode = "CMYK;I" # assume adobe conventions
                     self.tile = [("jpeg", (0,0) + self.size, 0, (rawmode, ""))]
                     # self.__offset = self.fp.tell()
                     break
@@ -306,10 +305,6 @@ class JpegImageFile(ImageFile.ImageFile):
                 s = "\xff"
             else:
                 raise SyntaxError("no marker found")
-
-        # patch by Kevin Cazabon to re-invert CMYK JPEG files
-        if self.im and self.mode == "CMYK":
-            self.im = ImageChops.invert(self).im
 
     def draft(self, mode, size):
 
@@ -407,7 +402,7 @@ RAWMODE = {
     "RGB": "RGB",
     "RGBA": "RGB",
     "RGBX": "RGB",
-    "CMYK": "CMYK",
+    "CMYK": "CMYK;I", # assume adobe conventions
     "YCbCr": "YCbCr",
 }
 
@@ -434,10 +429,6 @@ def _save(im, fp, filename):
         info.get("streamtype", 0),
         dpi[0], dpi[1]
         )
-
-    if im.mode == "CMYK":
-        # invert it so it's handled correctly in Photoshop/etc. - Kevin Cazabon.
-        im = ImageChops.invert(im)
 
     ImageFile._save(im, fp, [("jpeg", (0,0)+im.size, 0, rawmode)])
 
