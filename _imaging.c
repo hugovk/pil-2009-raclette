@@ -807,16 +807,22 @@ _filter(ImagingObject* self, PyObject* args)
 static PyObject* 
 _gaussian_blur(ImagingObject* self, PyObject* args)
 {
-    long idIn, idOut;
+    Imaging imIn;
+    Imaging imOut;
+
     float radius = 0;
-    if (!PyArg_ParseTuple(args, "llf", &idIn, &idOut, &radius))
+    if (!PyArg_ParseTuple(args, "f", &radius))
         return NULL;
 
-    if (!ImagingGaussianBlur((Imaging) idIn, (Imaging) idOut, radius))
+    imIn = self->image;
+    imOut = ImagingNew(imIn->mode, imIn->xsize, imIn->ysize);
+    if (!imOut)
         return NULL;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    if (!ImagingGaussianBlur(imIn, imOut, radius))
+        return NULL;
+
+    return PyImagingNew(imOut);
 }
 #endif
 
@@ -1674,19 +1680,24 @@ _transpose(ImagingObject* self, PyObject* args)
 static PyObject* 
 _unsharp_mask(ImagingObject* self, PyObject* args)
 {
-    long idIn, idOut;
+    Imaging imIn;
+    Imaging imOut;
+
     float radius;
     int percent, threshold;
-    if (!PyArg_ParseTuple(args, "llfii", &idIn, &idOut, &radius,
-			  &percent, &threshold))
+    if (!PyArg_ParseTuple(args, "fii", &radius, &percent, &threshold))
         return NULL;
 
-    if (!ImagingUnsharpMask((Imaging) idIn, (Imaging) idOut, radius,
-			    percent, threshold))
+
+    imIn = self->image;
+    imOut = ImagingNew(imIn->mode, imIn->xsize, imIn->ysize);
+    if (!imOut)
         return NULL;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    if (!ImagingUnsharpMask(imIn, imOut, radius, percent, threshold))
+        return NULL;
+
+    return PyImagingNew(imOut);
 }
 #endif
 
