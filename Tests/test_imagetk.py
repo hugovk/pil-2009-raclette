@@ -1,6 +1,9 @@
 from tester import *
 
 from PIL import Image
-from PIL import ImageTk
+try:
+    from PIL import ImageTk
+except ImportError, v:
+    skip(v)
 
 success()

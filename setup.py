@@ -200,9 +200,10 @@ class pil_build_ext(build_ext):
         # add standard directories
 
         # look for tcl specific subdirectory (e.g debian)
-        tcl_dir = "/usr/include/tcl" + TCL_VERSION
-        if os.path.isfile(os.path.join(tcl_dir, "tk.h")):
-            add_directory(include_dirs, tcl_dir)
+        if _tkinter:
+            tcl_dir = "/usr/include/tcl" + TCL_VERSION
+            if os.path.isfile(os.path.join(tcl_dir, "tk.h")):
+                add_directory(include_dirs, tcl_dir)
 
         # standard locations
         add_directory(library_dirs, "/usr/local/lib")

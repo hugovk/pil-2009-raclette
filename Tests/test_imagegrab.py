@@ -1,6 +1,9 @@
 from tester import *
 
 from PIL import Image
-from PIL import ImageGrab
+try:
+    from PIL import ImageGrab
+except ImportError, v:
+    skip(v)
 
 success()

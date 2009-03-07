@@ -121,13 +121,13 @@ else:
         if not path:
             return None
         for dirname in path.split(os.pathsep):
-            filename = oos.path.join(dirname, executable)
+            filename = os.path.join(dirname, executable)
             if os.path.isfile(filename):
                 # FIXME: make sure it's executable
                 return filename
         return None
 
-    def UnixViewer(Viewer):
+    class UnixViewer(Viewer):
         def show_file(self, file, **options):
             command, executable = self.get_command_ex(file, **options)
             command = "(%s %s; rm -f %s)&" % (command, file, file)
