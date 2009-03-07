@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library.
- * $Id: tkImaging.c,v 1.1 1996/05/09 22:11:39 fredrik Exp $
+ * $Id$
  *
  * TK interface for Python Imaging objects
  *
@@ -9,21 +9,24 @@
  * display memory is simply an "L" or "RGB" image memory that is
  * allocated in a single block.
  *
- * To use this module, add the following lines to your Tcl_AppInit
- * function (in tkappinit.c).  Put them after the calls to Tcl_Init
- * and Tk_Init:
+ * To use this module, import the _imagingtk module (ImageTk does
+ * this for you).
+ * 
+ * If you're using Python in an embedded context, you can add the
+ * following lines to your Tcl_AppInit function (in tkappinit.c)
+ * instead.  Put them after the calls to Tcl_Init and Tk_Init:
  *	
  *	{
  *          extern void TkImaging_Init(Tcl_Interp* interp);
  *          TkImaging_Init(interp);
  *      }
  *
- * This registers a Tcl command called "PyImagingPhoto", which
- * is use to communicate between PIL and Tk's PhotoImage handler.
+ * This registers a Tcl command called "PyImagingPhoto", which is used
+ * to communicate between PIL and Tk's PhotoImage handler.
  *
- * Compile and link tkImaging.c with tkappinit.c and _tkinter
- * (see the Setup file for details on how to use tkappinit.c).
- * Note that _tkinter.c must be compiled with WITH_APPINIT.
+ * Compile and link tkImaging.c with tkappinit.c and _tkinter (see the
+ * Setup file for details on how to use tkappinit.c).  Note that
+ * _tkinter.c must be compiled with WITH_APPINIT.
  *
  * History:
  * 1995-09-12 fl  Created
@@ -40,8 +43,7 @@
  */
 
 /* This is needed for (at least) Tk 8.4.1, otherwise the signature of
-** Tk_PhotoPutBlock changes.
-*/
+   Tk_PhotoPutBlock changes. */
 #define USE_COMPOSITELESS_PHOTO_PUT_BLOCK
 
 /* This is needed for (at least) Tk 8.4.6 and later, to avoid warnings
@@ -158,6 +160,8 @@ PyImagingPhotoPut(ClientData clientdata, Tcl_Interp* interp,
         run.offset[2] = 2;
 	run.offset[3] = 0; /* no alpha (or reserved, under 8.2) */
 
+	/* FIXME: handle compositing support under 8.4 and later */
+
         /* Copy opaque runs to photo image */
         for (y = 0; y < block.height; y++) {
             unsigned char* p = block.pixelPtr + y*block.pitch;
@@ -230,7 +234,7 @@ PyImagingPhotoGet(ClientData clientdata, Tcl_Interp* interp,
            block.offset[2], block.offset[3]);
 
     Tcl_AppendResult(
-        interp, "this function is not yet support", (char *) NULL
+        interp, "this function is not yet supported", (char *) NULL
         );
 
     return TCL_ERROR;
