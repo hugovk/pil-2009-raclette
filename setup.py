@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Setup script for PIL 1.1.5 and later
-# $Id: setup.py 2582 2005-11-11 21:54:00Z fredrik $
+# $Id$
 #
 # Usage: python setup.py install
 #
@@ -96,6 +96,12 @@ def add_directory(path, dir, where=None):
             path.append(dir)
         else:
             path.insert(where, dir)
+
+def find_include_file(self, include):
+    for directory in self.compiler.include_dirs:
+        if os.path.isfile(os.path.join(directory, include)):
+            return 1
+    return 0
 
 def find_library_file(self, library):
     return self.compiler.find_library_file(self.compiler.library_dirs, library)
@@ -219,15 +225,17 @@ class pil_build_ext(build_ext):
             zlib = jpeg = tiff = freetype = tcl = tk = None
         feature = feature()
 
-        if find_library_file(self, "z"):
-            feature.zlib = "z"
-        elif sys.platform == "win32" and find_library_file(self, "zlib"):
-            feature.zlib = "zlib" # alternative name
+        if find_include_file(self, "zlib.h"):
+            if find_library_file(self, "z"):
+                feature.zlib = "z"
+            elif sys.platform == "win32" and find_library_file(self, "zlib"):
+                feature.zlib = "zlib" # alternative name
 
-        if find_library_file(self, "jpeg"):
-            feature.jpeg = "jpeg"
-        elif sys.platform == "win32" and find_library_file(self, "libjpeg"):
-            feature.jpeg = "libjpeg" # alternative name
+        if find_include_file(self, "jpeglib.h"):
+            if find_library_file(self, "jpeg"):
+                feature.jpeg = "jpeg"
+            elif sys.platform == "win32" and find_library_file(self, "libjpeg"):
+                feature.jpeg = "libjpeg" # alternative name
 
         if find_library_file(self, "tiff"):
             feature.tiff = "tiff"
@@ -253,7 +261,7 @@ class pil_build_ext(build_ext):
                 if dir:
                     add_directory(self.compiler.include_dirs, dir, 0)
 
-        if _tkinter:
+        if _tkinter and find_include_file(self, "tk.h"):
             # the library names may vary somewhat (e.g. tcl84 or tcl8.4)
             version = TCL_VERSION[0] + TCL_VERSION[2]
             if find_library_file(self, "tcl" + version):
