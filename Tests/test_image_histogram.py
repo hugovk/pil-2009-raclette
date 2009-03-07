@@ -2,16 +2,10 @@ from tester import *
 
 from PIL import Image
 
-im = Image.open("Images/lena.ppm")
-
 def test_histogram():
 
     def histogram(mode):
-        if mode == "F":
-            i = im.convert("L")
-        else:
-            i = im
-        h = i.convert(mode).histogram()
+        h = lena(mode).histogram()
         return len(h), min(h), max(h)
 
     assert_equal(histogram("1"), (256, 0, 8872))

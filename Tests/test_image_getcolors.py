@@ -2,23 +2,14 @@ from tester import *
 
 from PIL import Image
 
-# FIXME: use a synthesized image
-im = Image.open("Images/lena.ppm")
-
 def test_getcolors():
 
     def getcolors(mode, limit=None):
-        if mode == "F":
-            # RGB->F luma conversion is done in floating point. cast
-            # to single layer to avoid rounding headaches.
-            i = im.convert("L")
-        else:
-            i = im
-        i = i.convert(mode)
+        im = lena(mode)
         if limit:
-            colors = i.getcolors(limit)
+            colors = im.getcolors(limit)
         else:
-            colors = i.getcolors()
+            colors = im.getcolors()
         if colors:
             return len(colors)
         return None
@@ -49,8 +40,7 @@ def test_getcolors():
 def test_pack():
     # Pack problems for small tables (@PIL209)
 
-    im = Image.open("Images/lena.ppm")
-    im = im.quantize(3).convert("RGB")
+    im = lena().quantize(3).convert("RGB")
 
     expected = [(3236, (227, 183, 147)), (6297, (143, 84, 81)), (6851, (208, 143, 112))]
 

@@ -79,14 +79,16 @@ def tostring(im, format, **options):
     im.save(out, format, **options)
     return out.getvalue()
 
-def image_lena(mode, cache={}):
+def lena(mode="RGB", cache={}):
     from PIL import Image
     im = cache.get(mode)
     if im is None:
         if mode == "RGB":
             im = Image.open("Images/lena.ppm")
+        elif mode == "F":
+            im = lena("L").convert(mode)
         else:
-            im = image_lena("RGB").convert(mode)
+            im = lena("RGB").convert(mode)
     cache[mode] = im
     return im
 

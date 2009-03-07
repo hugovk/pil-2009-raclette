@@ -2,11 +2,9 @@ from tester import *
 
 from PIL import Image
 
-im = Image.open("Images/lena.ppm")
-
 def test_palette():
     def palette(mode):
-        p = im.convert(mode).getpalette()
+        p = lena(mode).getpalette()
         if p:
             return p[:10]
         return None

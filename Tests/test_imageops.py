@@ -3,9 +3,6 @@ from tester import *
 from PIL import Image
 from PIL import ImageOps
 
-im_rgb = Image.open("Images/lena.ppm")
-im = im_rgb.convert("L")
-
 class Deformer:
     def getmesh(self, im):
         x, y = im.size
@@ -15,53 +12,53 @@ deformer = Deformer()
 
 def test_sanity():
 
-    ImageOps.autocontrast(im)
-    ImageOps.autocontrast(im_rgb)
+    ImageOps.autocontrast(lena("L"))
+    ImageOps.autocontrast(lena("RGB"))
 
-    ImageOps.colorize(im, (0, 0, 0), (255, 255, 255))
-    ImageOps.colorize(im, "black", "white")
+    ImageOps.colorize(lena("L"), (0, 0, 0), (255, 255, 255))
+    ImageOps.colorize(lena("L"), "black", "white")
 
-    ImageOps.crop(im, 1)
-    ImageOps.crop(im_rgb, 1)
+    ImageOps.crop(lena("L"), 1)
+    ImageOps.crop(lena("RGB"), 1)
 
-    ImageOps.deform(im, deformer)
-    ImageOps.deform(im_rgb, deformer)
+    ImageOps.deform(lena("L"), deformer)
+    ImageOps.deform(lena("RGB"), deformer)
 
-    ImageOps.equalize(im)
-    ImageOps.equalize(im_rgb)
+    ImageOps.equalize(lena("L"))
+    ImageOps.equalize(lena("RGB"))
 
-    ImageOps.expand(im, 1)
-    ImageOps.expand(im_rgb, 1)
-    ImageOps.expand(im, 2, "blue")
-    ImageOps.expand(im_rgb, 2, "blue")
+    ImageOps.expand(lena("L"), 1)
+    ImageOps.expand(lena("RGB"), 1)
+    ImageOps.expand(lena("L"), 2, "blue")
+    ImageOps.expand(lena("RGB"), 2, "blue")
 
-    ImageOps.fit(im, (128, 128))
-    ImageOps.fit(im_rgb, (128, 128))
+    ImageOps.fit(lena("L"), (128, 128))
+    ImageOps.fit(lena("RGB"), (128, 128))
 
-    ImageOps.flip(im)
-    ImageOps.flip(im_rgb)
+    ImageOps.flip(lena("L"))
+    ImageOps.flip(lena("RGB"))
 
-    ImageOps.grayscale(im)
-    ImageOps.grayscale(im_rgb)
+    ImageOps.grayscale(lena("L"))
+    ImageOps.grayscale(lena("RGB"))
 
-    ImageOps.invert(im)
-    ImageOps.invert(im_rgb)
+    ImageOps.invert(lena("L"))
+    ImageOps.invert(lena("RGB"))
 
-    ImageOps.mirror(im)
-    ImageOps.mirror(im_rgb)
+    ImageOps.mirror(lena("L"))
+    ImageOps.mirror(lena("RGB"))
 
-    ImageOps.posterize(im, 4)
-    ImageOps.posterize(im_rgb, 4)
+    ImageOps.posterize(lena("L"), 4)
+    ImageOps.posterize(lena("RGB"), 4)
 
-    ImageOps.solarize(im)
-    ImageOps.solarize(im_rgb)
+    ImageOps.solarize(lena("L"))
+    ImageOps.solarize(lena("RGB"))
 
     success()
 
 def test_pil163():
     # Division by zero in equalize if < 255 pixels in image (@PIL163)
 
-    i = im_rgb.resize((15, 16))
+    i = lena("RGB").resize((15, 16))
 
     ImageOps.equalize(i.convert("L"))
     ImageOps.equalize(i.convert("P"))

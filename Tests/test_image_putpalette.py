@@ -2,16 +2,14 @@ from tester import *
 
 from PIL import Image
 
-im = Image.open("Images/lena.ppm")
-
 def test_putpalette():
     def palette(mode):
-        i = im.convert(mode)
-        i.putpalette(range(256)*3)
-        p = i.getpalette()
+        im = lena(mode).copy()
+        im.putpalette(range(256)*3)
+        p = im.getpalette()
         if p:
-            return i.mode, p[:10]
-        return i.mode
+            return im.mode, p[:10]
+        return im.mode
     assert_exception(ValueError, lambda: palette("1"))
     assert_equal(palette("L"), ("P", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]))
     assert_equal(palette("P"), ("P", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]))

@@ -2,11 +2,9 @@ from tester import *
 
 from PIL import Image
 
-im = Image.open("Images/lena.ppm")
-
 def test_crop():
     def crop(mode):
-        out = im.convert(mode).crop((50, 50, 100, 100))
+        out = lena(mode).crop((50, 50, 100, 100))
         assert_equal(out.mode, mode)
         assert_equal(out.size, (50, 50))
     for mode in "1", "P", "L", "RGB", "I", "F":

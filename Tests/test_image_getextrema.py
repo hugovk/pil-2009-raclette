@@ -2,19 +2,10 @@ from tester import *
 
 from PIL import Image
 
- # FIXME: use a synthesized image
-im = Image.open("Images/lena.ppm")
-
 def test_extrema():
 
     def extrema(mode):
-        if mode == "F":
-            # RGB->F luma conversion is done in floating point. cast
-            # to single layer to avoid rounding headaches.
-            i = im.convert("L")
-        else:
-            i = im
-        return i.convert(mode).getextrema()
+        return lena(mode).getextrema()
 
     assert_equal(extrema("1"), (0, 255))
     assert_equal(extrema("L"), (40, 235))
