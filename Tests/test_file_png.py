@@ -62,16 +62,12 @@ def test_archive():
 
 # --------------------------------------------------------------------
 
-def test_load_verify():
-    # Check open/load/verify exception (@PIL150)
+def test_broken():
+    # Check reading of totally broken files.  In this case, the test
+    # file was checked into Subversion as a text file.
 
-    im = Image.open("Images/lena.png")
-    assert_no_exception(lambda: im.verify())
-
-    im = Image.open("Images/lena.png")
-    im.load()
-    assert_exception(RuntimeError, lambda: im.verify())
-
+    file = "Tests/images/broken.png"
+    assert_exception(IOError, lambda: Image.open(file))
 
 def test_bad_text():
     # Make sure PIL can read malformed tEXt chunks (@PIL152)
@@ -91,7 +87,25 @@ def test_bad_text():
     im = load(HEAD + chunk('tEXt', 'spam\0egg\0') + TAIL)
     assert_equal(im.info,  {'spam': 'egg\x00'})
 
-def test_text_roundtrip():
+def test_load_verify():
+    # Check open/load/verify exception (@PIL150)
+
+    im = Image.open("Images/lena.png")
+    assert_no_exception(lambda: im.verify())
+
+    im = Image.open("Images/lena.png")
+    im.load()
+    assert_exception(RuntimeError, lambda: im.verify())
+
+def test_roundtrip_dpi():
+    # Check dpi roundtripping
+
+    im = Image.open(file)
+
+    im = roundtrip(im, dpi=(100, 100))
+    assert_equal(im.info["dpi"], (100, 100))
+
+def test_roundtrip_text():
     # Check text roundtripping
 
     im = Image.open(file)
@@ -102,13 +116,12 @@ def test_text_roundtrip():
     im = roundtrip(im, pnginfo=info)
     assert_equal(im.info, {'KEY': 'VALUE'})
 
-def test_dpi_roundtrip():
-    # Check dpi roundtripping
+def test_scary():
+    # Check reading of evil PNG file.  For information, see:
+    # http://scary.beasts.org/security/CESA-2004-001.txt
 
-    im = Image.open(file)
-
-    im = roundtrip(im, dpi=(100, 100))
-    assert_equal(im.info["dpi"], (100, 100))
+    file = "Tests/images/pngtest_bad.png"
+    assert_exception(IOError, lambda: Image.open(file))
 
 def test_trns_rgb():
     # Check writing and reading of tRNS chunks for RGB images.
@@ -120,17 +133,3 @@ def test_trns_rgb():
 
     im = roundtrip(im, transparency=(0, 1, 2))
     assert_equal(im.info["transparency"], (0, 1, 2))
-
-def test_scary():
-    # Check reading of evil PNG file.  For information, see:
-    # http://scary.beasts.org/security/CESA-2004-001.txt
-
-    file = "Tests/images/pngtest_bad.png"
-    assert_exception(IOError, lambda: Image.open(file))
-
-def test_broken():
-    # Check reading of totally broken files.  In this case, the test
-    # file was checked into Subversion as a text file.
-
-    file = "Tests/images/broken.png"
-    assert_exception(IOError, lambda: Image.open(file))
