@@ -2077,41 +2077,6 @@ def _show(image, **options):
     # override me, as necessary
     _showxv(image, **options)
 
-def _showxv(image, title=None, command=None):
-
-    if os.name == "nt":
-        format = "BMP"
-    elif sys.platform == "darwin":
-        format = "JPEG"
-        if not command:
-            command = "open -a /Applications/Preview.app"
-    else:
-        format = None
-        if not command:
-            # FIXME: xv is horribly outdate; use "display" instead
-            command = "xv"
-            if title:
-                command = command + " -name \"%s\"" % title
-
-    if image.mode == "I;16":
-        # @PIL88 @PIL101
-        # "I;16" isn't an 'official' mode, but we still want to
-        # provide a simple way to show 16-bit images.
-        base = "L"
-    else:
-        base = getmodebase(image.mode)
-    if base != image.mode and image.mode != "1":
-        file = image.convert(base)._dump(format=format)
-    else:
-        file = image._dump(format=format)
-
-    if os.name == "nt":
-        command = "start /wait %s && del /f %s" % (file, file)
-    elif sys.platform == "darwin":
-        # on darwin open returns immediately resulting in the temp
-        # file removal while app is opening
-        command = "(%s %s; sleep 20; rm -f %s)&" % (command, file, file)
-    else:
-        command = "(%s %s; rm -f %s)&" % (command, file, file)
-
-    os.system(command)
+def _showxv(image, title=None, **options):
+    import ImageShow
+    ImageShow.show(image, title, **options)
