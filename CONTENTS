@@ -57,6 +57,7 @@ Imaging/libImaging/RankFilter.c
 Imaging/libImaging/Storage.c
 Imaging/libImaging/Unpack.c
 Imaging/libImaging/UnpackYCC.c
+Imaging/libImaging/UnsharpMask.c
 
 Imaging/libImaging/Bit.h
 Imaging/libImaging/Gif.h

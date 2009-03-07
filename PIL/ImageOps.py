@@ -406,3 +406,59 @@ def solarize(image, threshold=128):
         else:
             lut.append(255-i)
     return _lut(image, lut)
+
+# --------------------------------------------------------------------
+# PIL USM components, from Kevin Cazabon.
+
+def gaussian_blur(im, radius=None):
+    """ PIL_usm.gblur(im, [radius])"""
+
+    if radius is None:
+        radius = 5.0
+
+    if not im.mode in ["RGB", "RGBX", "RGBA", "CMYK", "L"]:
+        raise TypeError(
+            "Only RGB, RGBX, RGBA, CMYK, and L mode images supported."
+            )
+
+    im.load()
+    imOut = Image.new(im.mode, im.size)
+
+    result = Image.core.gaussian_blur(im.im.id, imOut.im.id, float(radius))
+    
+    if result[0] != 0:
+        raise Exception, result[1]
+
+    return imOut
+
+gblur = gaussian_blur
+
+def unsharp_mask(im, radius=None, percent=None, threshold=None):
+    """ PIL_usm.usm(im, [radius, percent, threshold])"""
+    
+    if radius is None:
+        radius = 5.0
+    if percent is None:
+        percent = 150
+    if threshold is None:
+        threshold = 3
+
+    if not im.mode in ["RGB", "RGBX", "RGBA", "CMYK", "L"]:
+        raise TypeError(
+            "Only RGB, RGBX, RGBA, CMYK, and L mode images supported."
+            )
+
+    im.load()
+    imOut = Image.new(im.mode, im.size)
+
+    result = Image.core.unsharp_mask(
+        im.im.id, imOut.im.id, float(radius), int(percent), int(threshold)
+        )
+
+    if result[0] != 0:
+        raise Exception(result[1])
+
+    return imOut
+
+usm = unsharp_mask
+

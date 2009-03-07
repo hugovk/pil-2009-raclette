@@ -67,8 +67,8 @@ LIBIMAGING = [
     "PackDecode", "Palette", "Paste", "Quant", "QuantHash",
     "QuantHeap", "PcdDecode", "PcxDecode", "PcxEncode", "Point",
     "RankFilter", "RawDecode", "RawEncode", "Storage", "SunRleDecode",
-    "TgaRleDecode", "Unpack", "UnpackYCC", "XbmDecode", "XbmEncode",
-    "ZipDecode", "ZipEncode"
+    "TgaRleDecode", "Unpack", "UnpackYCC", "UnsharpMask", "XbmDecode",
+    "XbmEncode", "ZipDecode", "ZipEncode"
     ]
 
 # --------------------------------------------------------------------
