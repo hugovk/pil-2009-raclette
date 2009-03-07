@@ -8,7 +8,7 @@ def test_toarray():
     def test(mode):
         ai = im.convert(mode).__array_interface__
         return ai["shape"], ai["typestr"], len(ai["data"])
-    assert_equal(test("1"), ((100, 128), '|b1', 1600))
+    # assert_equal(test("1"), ((100, 128), '|b1', 1600))
     assert_equal(test("L"), ((100, 128), '|u1', 12800))
     assert_equal(test("I"), ((100, 128), '<i4', 51200)) # FIXME: wrong?
     assert_equal(test("F"), ((100, 128), '<f4', 51200)) # FIXME: wrong?
@@ -24,7 +24,7 @@ def test_fromarray():
         i.__array_interface__ = a # patch in new version of attribute
         out = Image.fromarray(i)
         return out.mode, out.size, list(i.getdata()) == list(out.getdata())
-    assert_equal(test("1"), ("1", (128, 100), True))
+    # assert_equal(test("1"), ("1", (128, 100), True))
     assert_equal(test("L"), ("L", (128, 100), True))
     assert_equal(test("I"), ("I", (128, 100), True))
     assert_equal(test("F"), ("F", (128, 100), True))

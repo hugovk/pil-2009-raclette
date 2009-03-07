@@ -1,6 +1,6 @@
 from tester import *
 
-import Image
+from PIL import Image
 try:
     import numpy
 except ImportError:
@@ -8,9 +8,12 @@ except ImportError:
 
 def test_numpy_to_image():
 
-    def to_image(dtype, bands=1):
+    def to_image(dtype, bands=1, bool=0):
         if bands == 1:
-            data = range(100)
+            if bool:
+                data = [0, 1] * 50
+            else:
+                data = range(100)
             a = numpy.array(data, dtype=dtype)
             a.shape = 10, 10
             i = Image.fromarray(a)
@@ -25,6 +28,9 @@ def test_numpy_to_image():
                 print "data mismatch for", dtype
         # print dtype, list(i.getdata())
         return i
+
+    assert_image(to_image(numpy.bool, bool=1), "L", (10, 10))
+    assert_image(to_image(numpy.bool8, bool=1), "L", (10, 10))
 
     assert_exception(TypeError, lambda: to_image(numpy.uint))
     assert_image(to_image(numpy.uint8), "L", (10, 10))

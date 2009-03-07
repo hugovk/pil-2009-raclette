@@ -194,10 +194,10 @@ else:
 
 _MODE_CONV = {
     # official modes
-    "1": ('|b1', None),
+    "1": ('|b1', None), # broken
     "L": ('|u1', None),
-    "I": ('%si4' % _ENDIAN, None), # FIXME: is this correct?
-    "F": ('%sf4' % _ENDIAN, None), # FIXME: is this correct?
+    "I": (_ENDIAN + 'i4', None),
+    "F": (_ENDIAN + 'f4', None),
     "P": ('|u1', None),
     "RGB": ('|u1', 3),
     "RGBX": ('|u1', 4),
@@ -1873,6 +1873,7 @@ def fromarray(obj, mode=None):
 _fromarray_typemap = {
     # (shape, typestr) => mode, rawmode
     # first two members of shape are set to one
+    # ((1, 1), "|b1"): ("1", "1"), # broken
     ((1, 1), "|u1"): ("L", "L"),
     ((1, 1), "|i1"): ("I", "I;8"),
     ((1, 1), "<i2"): ("I", "I;16"),
