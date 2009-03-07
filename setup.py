@@ -377,7 +377,7 @@ class pil_build_ext(build_ext):
         all = 1
         for option in options:
             if option[0]:
-                print "---", option[1], "support ok"
+                print "---", option[1], "support available"
             else:
                 print "***", option[1], "support not available",
                 if option[1] == "TKINTER" and _tkinter:
