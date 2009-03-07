@@ -260,7 +260,7 @@ ImagingZipEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 		    free(context->prior);
 		    free(context->previous);
 		    deflateEnd(&context->z_stream);
-                    ImagingSectionEnter(&cookie);
+		    ImagingSectionLeave(&cookie);
 		    return -1;
 		}
 
@@ -309,8 +309,8 @@ ImagingZipEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
     }
 
     /* Should never ever arrive here... */
-     ImagingSectionLeave(&cookie);
     state->errcode = IMAGING_CODEC_CONFIG;
+    ImagingSectionLeave(&cookie);
     return -1;
 }
 
