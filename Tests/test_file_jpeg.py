@@ -76,6 +76,19 @@ def test_dpi():
     assert_equal(test(100, 200), (100, 200))
     assert_equal(test(0), None) # square pixels
 
+def test_subsampling():
+    # experimental API
+    im = roundtrip(lena(), subsampling=-1) # default
+    assert_equal(im.layer, [('\x01', 2, 2, 0), ('\x02', 1, 1, 1), ('\x03', 1, 1, 1)])
+    im = roundtrip(lena(), subsampling=0) # 4:4:4
+    assert_equal(im.layer, [('\x01', 1, 1, 0), ('\x02', 1, 1, 1), ('\x03', 1, 1, 1)])
+    im = roundtrip(lena(), subsampling=1) # 4:2:2
+    assert_equal(im.layer, [('\x01', 2, 1, 0), ('\x02', 1, 1, 1), ('\x03', 1, 1, 1)])
+    im = roundtrip(lena(), subsampling=2) # 4:1:1
+    assert_equal(im.layer, [('\x01', 2, 2, 0), ('\x02', 1, 1, 1), ('\x03', 1, 1, 1)])
+    im = roundtrip(lena(), subsampling=3) # default (undefined)
+    assert_equal(im.layer, [('\x01', 2, 2, 0), ('\x02', 1, 1, 1), ('\x03', 1, 1, 1)])
+
 def test_truncated_jpeg():
     def test(junk):
         if junk:
