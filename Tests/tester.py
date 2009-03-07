@@ -79,6 +79,17 @@ def tostring(im, format, **options):
     im.save(out, format, **options)
     return out.getvalue()
 
+def image_lena(mode, cache={}):
+    from PIL import Image
+    im = cache.get(mode)
+    if im is None:
+        if mode == "RGB":
+            im = Image.open("Images/lena.ppm")
+        else:
+            im = image_lena("RGB").convert(mode)
+    cache[mode] = im
+    return im
+
 def assert_image_equal(a, b, msg=None):
     if a.mode != b.mode:
         failure(msg or "got mode %r, expected %r" % (a.mode, b.mode))
