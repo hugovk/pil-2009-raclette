@@ -158,7 +158,7 @@ def testimage():
 
 def check_module(feature, module):
     try:
-        __import__(module)
+        __import__("PIL." + module)
     except ImportError:
         print "***", feature, "support not installed"
     else:
@@ -174,8 +174,12 @@ def check_codec(feature, codec):
 if __name__ == "__main__":
     # check build sanity
     print "-"*68
-    print "PIL", Image.VERSION, "TEST SUMMARY"
+    print "PIL", Image.VERSION, "BUILD SUMMARY"
     print "-"*68
+    print "Python modules loaded from", os.path.dirname(Image.__file__)
+    print "Binary modules loaded from", os.path.dirname(Image.core.__file__)
+    print "-"*68
+    check_module("PIL CORE", "_imaging")
     check_module("TKINTER", "_imagingtk")
     check_codec("JPEG", "jpeg")
     check_codec("ZLIB (PNG/ZIP)", "zip")
@@ -183,6 +187,7 @@ if __name__ == "__main__":
     print "-"*68
     # use doctest to make sure the test program behaves as documented!
     import doctest, selftest
+    print "Running self test:"
     status = doctest.testmod(selftest)
     if status[0]:
         print "*** %s tests of %d failed." % status
