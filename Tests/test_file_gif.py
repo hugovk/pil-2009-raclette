@@ -26,6 +26,8 @@ def test_archive():
             im.load()
         except:
             print "- failed to open", file
+        else:
+            success()
 
 def test_optimize():
     def test(optimize):
@@ -35,5 +37,3 @@ def test_optimize():
         return len(file.getvalue())
     assert_equal(test(0), 800)
     assert_equal(test(1), 32)
-
-run()

@@ -12,5 +12,3 @@ def test_sanity():
     assert_equal(im.mode, "RGB")
     assert_equal(im.size, (128, 128))
     assert_equal(im.format, "PPM")
-
-run()

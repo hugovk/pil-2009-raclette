@@ -6,13 +6,17 @@ root = os.path.dirname(__file__)
 
 print "-"*68
 
-os.environ["PYTHONPATH"] = "."
+if "--installed" in sys.argv:
+    options = ""
+else:
+    options = "-S"
+    os.environ["PYTHONPATH"] = "."
 
 files = glob.glob(os.path.join(root, "test_*.py"))
 files.sort()
 
 success = failure = 0
-include = sys.argv[1:]
+include = [x for x in sys.argv[1:] if x[:2] != "--"]
 
 for file in files:
     test, ext = os.path.splitext(os.path.basename(file))
@@ -21,7 +25,7 @@ for file in files:
     print "running", test, "..."
     # 2>&1 works on unix and on modern windowses.  we might care about
     # very old Python versions, but not ancient microsoft products :-)
-    out = os.popen("%s -S -u %s 2>&1" % (sys.executable, file))
+    out = os.popen("%s %s -u %s 2>&1" % (sys.executable, options, file))
     result = out.read().strip()
     if result == "ok":
         result = None
@@ -35,6 +39,9 @@ for file in files:
         if status:
             print "=== error", status
         if result:
+            if result[-3:] == "\nok":
+                # if there's an ok at the end, it's not really ok
+                result = result[:-3]
             print result
         failure = failure + 1
     else:

@@ -12,6 +12,8 @@ def test_archive():
             im.load()
         except:
             print "- failed to open", file
+        else:
+            success()
 
 # --------------------------------------------------------------------
 
@@ -43,5 +45,3 @@ def test_gimp_tiff():
             ('jpeg', (0, 192, 256, 256), 3890, ('RGB', '')),
             ])
     assert_no_exception(lambda: im.load())
-
-run()
