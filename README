@@ -210,15 +210,23 @@ For a list of changes in this release, see the CHANGES document.
         ----------------------------------------------------------------
         PIL 1.1.7 BUILD SUMMARY
         ----------------------------------------------------------------
-        *** TKINTER support not available (Tcl/Tk 8.3 libraries needed)
-        --- JPEG support ok
-        --- ZLIB (PNG/ZIP) support ok
-        --- FREETYPE support ok
+        *** TKINTER support not available (Tcl/Tk 8.5 libraries needed)
+        --- JPEG support available
+        --- ZLIB (PNG/ZIP) support available
+        --- FREETYPE support available
         ----------------------------------------------------------------
 
    If the build script won't find a given component, you can edit the
    setup.py file and set the appropriate ROOT variable.  For details,
    see instructions in the file.
+
+   Note that the build summary shows what will be included in a full
+   build; if you change the configuration after you've built the
+   library, make sure that you rebuild *all* modules.  You can use
+   the 'clean' command to remove all build files before rebuilding:
+
+        $ python setup.py clean
+        $ python setup.py build_ext -i
 
 
 6. If the setup.py and selftest.py commands finish without any
