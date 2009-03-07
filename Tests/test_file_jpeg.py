@@ -77,17 +77,29 @@ def test_dpi():
     assert_equal(test(0), None) # square pixels
 
 def test_subsampling():
+    def getsampling(im):
+        layer = im.layer
+        return layer[0][1:3] + layer[1][1:3] + layer[2][1:3]
     # experimental API
     im = roundtrip(lena(), subsampling=-1) # default
-    assert_equal(im.layer, [('\x01', 2, 2, 0), ('\x02', 1, 1, 1), ('\x03', 1, 1, 1)])
+    assert_equal(getsampling(im), (2, 2, 1, 1, 1, 1))
     im = roundtrip(lena(), subsampling=0) # 4:4:4
-    assert_equal(im.layer, [('\x01', 1, 1, 0), ('\x02', 1, 1, 1), ('\x03', 1, 1, 1)])
+    assert_equal(getsampling(im), (1, 1, 1, 1, 1, 1))
     im = roundtrip(lena(), subsampling=1) # 4:2:2
-    assert_equal(im.layer, [('\x01', 2, 1, 0), ('\x02', 1, 1, 1), ('\x03', 1, 1, 1)])
+    assert_equal(getsampling(im), (2, 1, 1, 1, 1, 1))
     im = roundtrip(lena(), subsampling=2) # 4:1:1
-    assert_equal(im.layer, [('\x01', 2, 2, 0), ('\x02', 1, 1, 1), ('\x03', 1, 1, 1)])
+    assert_equal(getsampling(im), (2, 2, 1, 1, 1, 1))
     im = roundtrip(lena(), subsampling=3) # default (undefined)
-    assert_equal(im.layer, [('\x01', 2, 2, 0), ('\x02', 1, 1, 1), ('\x03', 1, 1, 1)])
+    assert_equal(getsampling(im), (2, 2, 1, 1, 1, 1))
+
+    im = roundtrip(lena(), subsampling="4:4:4")
+    assert_equal(getsampling(im), (1, 1, 1, 1, 1, 1))
+    im = roundtrip(lena(), subsampling="4:2:2")
+    assert_equal(getsampling(im), (2, 1, 1, 1, 1, 1))
+    im = roundtrip(lena(), subsampling="4:1:1")
+    assert_equal(getsampling(im), (2, 2, 1, 1, 1, 1))
+
+    assert_exception(TypeError, lambda: roundtrip(lena(), subsampling="1:1:1"))
 
 def test_truncated_jpeg():
     def test(junk):
