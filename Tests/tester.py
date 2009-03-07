@@ -92,6 +92,14 @@ def lena(mode="RGB", cache={}):
     cache[mode] = im
     return im
 
+def assert_image(im, mode, size, msg=None):
+    if mode is not None and im.mode != mode:
+        failure(msg or "got mode %r, expected %r" % (im.mode, mode))
+    elif size is not None and im.size != size:
+        failure(msg or "got size %r, expected %r" % (im.size, size))
+    else:
+        success()
+
 def assert_image_equal(a, b, msg=None):
     if a.mode != b.mode:
         failure(msg or "got mode %r, expected %r" % (a.mode, b.mode))
