@@ -207,7 +207,7 @@ _MODE_CONV = {
 }
 
 def _conv_type_shape(im):
-    shape = im.size[::-1]
+    shape = im.size[1], im.size[0]
     typ, extra = _MODE_CONV[im.mode]
     if extra is None:
         return shape, typ
@@ -1825,7 +1825,7 @@ def frombuffer(mode, size, data, decoder_name="raw", *args):
 
 
 ##
-# (New in 1.1.6) Create an image memory from an object exporting
+# (New in 1.1.6) Creates an image memory from an object exporting
 # the array interface (using the buffer protocol).
 #
 # If obj is not contiguous, then the tostring method is called
@@ -1844,11 +1844,12 @@ def fromarray(obj, mode=None):
     except KeyError:
         strides = None
     if mode is None:
+        # FIXME: use a dictionary map instead
         typestr = arr['typestr']
         if not (typestr[0] == '|' or typestr[0] == _ENDIAN or
                 typestr[1:] not in ['u1', 'b1', 'i4', 'f4']):
             raise TypeError("cannot handle data-type")
-        typestr = typestr[:2]
+        typestr = typestr[1:]
         if typestr == 'i4':
             mode = 'I'
         elif typestr == 'f4':
@@ -1858,21 +1859,22 @@ def fromarray(obj, mode=None):
         elif ndim == 2:
             mode = 'L'
         elif ndim == 3:
-            mode = 'RGB'
-        elif ndim == 4:
-            mode = 'RGBA'
-        else:
+            if shape[2] == 3:
+                mode = 'RGB'
+            elif shape[2] == 4:
+                mode = 'RGBA'
+        if mode is None:
             raise TypeError("Do not understand data.")
-    ndmax = 4
-    bad_dims=0
     if mode in ['1','L','I','P','F']:
         ndmax = 2
     elif mode == 'RGB':
         ndmax = 3
+    else:
+        ndmax = 4
     if ndim > ndmax:
         raise ValueError("Too many dimensions.")
 
-    size = shape[:2][::-1]
+    size = shape[1], shape[0]
     if strides is not None:
         obj = obj.tostring()
 
