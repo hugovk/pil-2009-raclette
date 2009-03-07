@@ -260,6 +260,7 @@ extern Imaging ImagingFilter(
     FLOAT32 offset, FLOAT32 divisor);
 extern Imaging ImagingFlipLeftRight(Imaging imOut, Imaging imIn);
 extern Imaging ImagingFlipTopBottom(Imaging imOut, Imaging imIn);
+extern Imaging ImagingGaussianBlur(Imaging im, Imaging imOut, float radius);
 extern Imaging ImagingGetBand(Imaging im, int band);
 extern int ImagingGetBBox(Imaging im, int bbox[4]);
 typedef struct { int x, y; INT32 count; INT32 pixel; } ImagingColorItem;
@@ -302,6 +303,9 @@ extern Imaging ImagingTransform(
     ImagingTransformMap transform, void* transform_data,
     ImagingTransformFilter filter, void* filter_data,
     int fill);
+extern Imaging ImagingUnsharpMask(
+    Imaging im, Imaging imOut, float radius, int percent, int threshold);
+
 extern Imaging ImagingCopy2(Imaging imOut, Imaging imIn);
 extern Imaging ImagingConvert2(Imaging imOut, Imaging imIn);
 

@@ -89,6 +89,7 @@
 #define WITH_RANKFILTER /* rank filter */
 #define WITH_MODEFILTER /* mode filter */
 #define WITH_THREADING /* "friendly" threading support */
+#define WITH_UNSHARPMASK /* Kevin Cazabon's unsharpmask module */
 
 #define WITH_DEBUG /* extra debugging interfaces */
 
@@ -801,6 +802,23 @@ _filter(ImagingObject* self, PyObject* args)
 
     return imOut;
 }
+
+#ifdef WITH_UNSHARPMASK
+static PyObject* 
+_gaussian_blur(ImagingObject* self, PyObject* args)
+{
+    long idIn, idOut;
+    float radius = 0;
+    if (!PyArg_ParseTuple(args, "llf", &idIn, &idOut, &radius))
+        return NULL;
+
+    if (!ImagingGaussianBlur((Imaging) idIn, (Imaging) idOut, radius))
+        return NULL;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+#endif
 
 static PyObject* 
 _getpalette(ImagingObject* self, PyObject* args)
@@ -1651,6 +1669,26 @@ _transpose(ImagingObject* self, PyObject* args)
 
     return PyImagingNew(imOut);
 }
+
+#ifdef WITH_UNSHARPMASK
+static PyObject* 
+_unsharp_mask(ImagingObject* self, PyObject* args)
+{
+    long idIn, idOut;
+    float radius;
+    int percent, threshold;
+    if (!PyArg_ParseTuple(args, "llfii", &idIn, &idOut, &radius,
+			  &percent, &threshold))
+        return NULL;
+
+    if (!ImagingUnsharpMask((Imaging) idIn, (Imaging) idOut, radius,
+			    percent, threshold))
+        return NULL;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+#endif
 
 /* -------------------------------------------------------------------- */
 
@@ -2833,6 +2871,12 @@ static struct PyMethodDef methods[] = {
     {"chop_and", (PyCFunction)_chop_and, 1},
     {"chop_or", (PyCFunction)_chop_or, 1},
     {"chop_xor", (PyCFunction)_chop_xor, 1},
+#endif
+
+#ifdef WITH_UNSHARPMASK
+    /* Kevin Cazabon's unsharpmask extension */
+    {"gaussian_blur", (PyCFunction)_gaussian_blur, 1},
+    {"unsharp_mask", (PyCFunction)_unsharp_mask, 1},
 #endif
 
 #ifdef WITH_EFFECTS

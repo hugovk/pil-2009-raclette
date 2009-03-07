@@ -424,10 +424,7 @@ def gaussian_blur(im, radius=None):
     im.load()
     imOut = Image.new(im.mode, im.size)
 
-    result = Image.core.gaussian_blur(im.im.id, imOut.im.id, float(radius))
-    
-    if result[0] != 0:
-        raise Exception, result[1]
+    im.im.gaussian_blur(im.im.id, imOut.im.id, float(radius))
 
     return imOut
 
@@ -451,12 +448,9 @@ def unsharp_mask(im, radius=None, percent=None, threshold=None):
     im.load()
     imOut = Image.new(im.mode, im.size)
 
-    result = Image.core.unsharp_mask(
+    im.im.unsharp_mask(
         im.im.id, imOut.im.id, float(radius), int(percent), int(threshold)
         )
-
-    if result[0] != 0:
-        raise Exception(result[1])
 
     return imOut
 

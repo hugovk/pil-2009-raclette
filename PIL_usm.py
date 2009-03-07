@@ -14,12 +14,12 @@ if 1:
 
     im1 = ImageOps.gblur(im, 2.0)
     print "gblur done in %s seconds" %(time.time() - start)
-    im1.save("blur.jpg")
+    im1.save("blur.bmp")
 
     start = time.time()
     im2 = ImageOps.usm(im, 2.0, 125, 8)
     print "usm done in %s seconds" %(time.time() - start)
-    im2.save("usm.jpg")
+    im2.save("usm.bmp")
 
 
 
