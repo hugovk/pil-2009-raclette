@@ -149,7 +149,31 @@ class ModeFilter(Filter):
         return image.modefilter(self.size)
 
 ##
-# Blur filter.
+# Gaussian blur filter.
+
+class GaussianBlur(Filter):
+    name = "GaussianBlur"
+
+    def __init__(self, radius=2):
+        self.radius = 2
+    def filter(self, image):
+        return image.gaussian_blur(self.radius)
+
+##
+# Unsharp mask filter.
+
+class UnsharpMask(Filter):
+    name = "UnsharpMask"
+
+    def __init__(self, radius=2, percent=150, threshold=3):
+        self.radius = 2
+        self.percent = percent
+        self.threshold = threshold
+    def filter(self, image):
+        return image.unsharp_mask(self.radius, self.percent, self.threshold)
+
+##
+# Simple blur filter.
 
 class BLUR(BuiltinFilter):
     name = "Blur"
@@ -162,7 +186,7 @@ class BLUR(BuiltinFilter):
         )
 
 ##
-# Contour filter.
+# Simple contour filter.
 
 class CONTOUR(BuiltinFilter):
     name = "Contour"
@@ -173,7 +197,7 @@ class CONTOUR(BuiltinFilter):
         )
 
 ##
-# Detail filter.
+# Simple detail filter.
 
 class DETAIL(BuiltinFilter):
     name = "Detail"
@@ -184,7 +208,7 @@ class DETAIL(BuiltinFilter):
         )
 
 ##
-# Edge enhancement filter.
+# Simple edge enhancement filter.
 
 class EDGE_ENHANCE(BuiltinFilter):
     name = "Edge-enhance"
@@ -195,7 +219,7 @@ class EDGE_ENHANCE(BuiltinFilter):
         )
 
 ##
-# Stronger edge enhancement filter.
+# Simple stronger edge enhancement filter.
 
 class EDGE_ENHANCE_MORE(BuiltinFilter):
     name = "Edge-enhance More"
@@ -206,7 +230,7 @@ class EDGE_ENHANCE_MORE(BuiltinFilter):
         )
 
 ##
-# Embossing filter.
+# Simple embossing filter.
 
 class EMBOSS(BuiltinFilter):
     name = "Emboss"
@@ -217,7 +241,7 @@ class EMBOSS(BuiltinFilter):
         )
 
 ##
-# Edge-finding filter.
+# Simple edge-finding filter.
 
 class FIND_EDGES(BuiltinFilter):
     name = "Find Edges"
@@ -228,7 +252,7 @@ class FIND_EDGES(BuiltinFilter):
         )
 
 ##
-# Smoothing filter.
+# Simple smoothing filter.
 
 class SMOOTH(BuiltinFilter):
     name = "Smooth"
@@ -239,7 +263,7 @@ class SMOOTH(BuiltinFilter):
         )
 
 ##
-# Stronger smoothing filter.
+# Simple stronger smoothing filter.
 
 class SMOOTH_MORE(BuiltinFilter):
     name = "Smooth More"
@@ -252,7 +276,7 @@ class SMOOTH_MORE(BuiltinFilter):
         )
 
 ##
-# Sharpening filter.
+# Simple sharpening filter.
 
 class SHARPEN(BuiltinFilter):
     name = "Sharpen"
