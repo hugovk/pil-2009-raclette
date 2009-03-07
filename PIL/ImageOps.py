@@ -416,11 +416,6 @@ def gaussian_blur(im, radius=None):
     if radius is None:
         radius = 5.0
 
-    if not im.mode in ["RGB", "RGBX", "RGBA", "CMYK", "L"]:
-        raise TypeError(
-            "Only RGB, RGBX, RGBA, CMYK, and L mode images supported."
-            )
-
     im.load()
 
     return im.im.gaussian_blur(radius)
@@ -436,11 +431,6 @@ def unsharp_mask(im, radius=None, percent=None, threshold=None):
         percent = 150
     if threshold is None:
         threshold = 3
-
-    if not im.mode in ["RGB", "RGBX", "RGBA", "CMYK", "L"]:
-        raise TypeError(
-            "Only RGB, RGBX, RGBA, CMYK, and L mode images supported."
-            )
 
     im.load()
 
