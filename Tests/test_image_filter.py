@@ -64,7 +64,7 @@ def test_rankfilter():
 
     assert_equal(rankfilter("1"), (0, 4, 8))
     assert_equal(rankfilter("L"), (0, 4, 8))
-    # assert_exception(ValueError, lambda: rankfilter("P"))
+    assert_exception(ValueError, lambda: rankfilter("P"))
     assert_equal(rankfilter("RGB"), ((0, 0, 0), (4, 0, 0), (8, 0, 0)))
     assert_equal(rankfilter("I"), (0, 4, 8))
     assert_equal(rankfilter("F"), (0.0, 4.0, 8.0))

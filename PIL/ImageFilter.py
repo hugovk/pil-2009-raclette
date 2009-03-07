@@ -78,6 +78,8 @@ class RankFilter(Filter):
         self.rank = rank
 
     def filter(self, image):
+        if image.mode == "P":
+            raise ValueError("cannot filter palette images")
         image = image.expand(self.size/2, self.size/2)
         return image.rankfilter(self.size, self.rank)
 
