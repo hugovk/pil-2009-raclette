@@ -1,4 +1,4 @@
-import tester
+from tester import *
 
 from PIL import Image
 from PIL import ImageStat
@@ -6,3 +6,5 @@ from PIL import ImageStat
 im = Image.new("L", (100, 100))
 
 stat = ImageStat.Stat(im)
+
+success()

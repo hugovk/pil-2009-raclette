@@ -34,6 +34,8 @@ def test_archive():
             im.load()
         except:
             print "- failed to open", file
+        else:
+            success()
 
 # --------------------------------------------------------------------
 
@@ -89,5 +91,3 @@ def test_truncated_jpeg():
     assert_no_exception(lambda: test(4))
     assert_no_exception(lambda: test(8))
     assert_exception(IOError, lambda: test(10))
-
-run()

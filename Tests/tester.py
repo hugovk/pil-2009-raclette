@@ -1,7 +1,11 @@
 # some test helpers
 
 _target = None
-_failure = 0
+_failure = _success = 0
+
+def success():
+    global _success
+    _success = _success + 1
 
 def failure(msg=None, frame=None):
     global _failure
@@ -22,20 +26,29 @@ def failure(msg=None, frame=None):
 # predicates
 
 def assert_true(v, msg=None):
-    if not v: failure(msg or "got %r, expected true value" % v)
+    if v:
+        success()
+    else:
+        failure(msg or "got %r, expected true value" % v)
 
 def assert_false(v, msg=None):
-    if v: failure(msg or "got %r, expected false value" % v)
+    if v:
+        failure(msg or "got %r, expected false value" % v)
+    else:
+        success()
 
 def assert_equal(a, b, msg=None):
-    if a != b: failure(msg or "got %r, expected %r" % (a, b))
+    if a == b:
+        success()
+    else:
+        failure(msg or "got %r, expected %r" % (a, b))
 
 def assert_exception(exc_class, func):
     import sys, traceback
     try:
         func()
     except exc_class:
-        pass
+        success()
     except:
         failure("expected %r exception, got %r" % (
                 exc_class.__name__, sys.exc_type.__name__))
@@ -50,6 +63,8 @@ def assert_no_exception(func):
     except:
         failure("expected no exception, got %r" % sys.exc_type.__name__)
         traceback.print_exc()
+    else:
+        success()
 
 # helpers
 
@@ -58,13 +73,13 @@ from cStringIO import StringIO
 # test runner
 
 def run():
-    global _target, _failure
+    global _target, _failure, run
     import sys, traceback
-    namespace = sys._getframe().f_back.f_globals # FIXME: iterate to find top
-    _target = sys.modules[namespace["__name__"]]
+    _target = sys.modules["__main__"]
+    run = None # no need to run twice
     tests = []
-    for name, value in namespace.items():
-        if name[:5] == "test_" and type(value) is type(run):
+    for name, value in vars(_target).items():
+        if name[:5] == "test_" and type(value) is type(success):
             tests.append((value.func_code.co_firstlineno, name, value))
     tests.sort() # sort by line
     for lineno, name, func in tests:
@@ -78,7 +93,7 @@ def run():
                 traceback.print_exception(t, v, tb)
             else:
                 print "%s:%d: cannot call test function: %s" % (
-                    namespace["__file__"], lineno, v)
+                    _target.__file__, lineno, v)
                 _failure = _failure + 1
 
 def skip(msg=None):
@@ -88,7 +103,9 @@ def skip(msg=None):
 
 def _setup():
     def report():
-        if not _failure:
+        if run:
+            run()
+        if _success and not _failure:
             print "ok"
     import atexit
     atexit.register(report)

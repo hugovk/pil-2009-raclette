@@ -57,6 +57,8 @@ def test_archive():
             im.load()
         except:
             print "- failed to open", file
+        else:
+            success()
 
 # --------------------------------------------------------------------
 
@@ -132,5 +134,3 @@ def test_broken():
 
     file = "Tests/images/broken.png"
     assert_exception(IOError, lambda: Image.open(file))
-
-run()
