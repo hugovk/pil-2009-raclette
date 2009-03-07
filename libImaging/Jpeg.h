@@ -85,6 +85,9 @@ typedef struct {
     /* DPI setting (0=square pixels, otherwide DPI) */
     int xdpi, ydpi;
 
+	/*Chroma Subsampling (-1=default, 0=none, 1=medium, 2=high) */
+	int subsampling;
+
     /* PRIVATE CONTEXT (set by encoder) */
 
     struct jpeg_compress_struct cinfo;

@@ -503,9 +503,10 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
     int optimize = 0;
     int streamtype = 0; /* 0=interchange, 1=tables only, 2=image only */
     int xdpi = 0, ydpi = 0;
-    if (!PyArg_ParseTuple(args, "ss|iiiiiii", &mode, &rawmode, &quality,
+	int subsampling = -1; /* -1=default, 0=none, 1=medium, 2=high */
+    if (!PyArg_ParseTuple(args, "ss|iiiiiiii", &mode, &rawmode, &quality,
 			  &progressive, &smooth, &optimize, &streamtype,
-                          &xdpi, &ydpi))
+                          &xdpi, &ydpi, &subsampling))
 	return NULL;
 
     encoder = PyImaging_EncoderNew(sizeof(JPEGENCODERSTATE));
@@ -518,6 +519,7 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
     encoder->encode = ImagingJpegEncode;
 
     ((JPEGENCODERSTATE*)encoder->state.context)->quality = quality;
+    ((JPEGENCODERSTATE*)encoder->state.context)->subsampling = subsampling;
     ((JPEGENCODERSTATE*)encoder->state.context)->progressive = progressive;
     ((JPEGENCODERSTATE*)encoder->state.context)->smooth = smooth;
     ((JPEGENCODERSTATE*)encoder->state.context)->optimize = optimize;

@@ -427,7 +427,8 @@ def _save(im, fp, filename):
         info.get("smooth", 0),
         info.has_key("optimize"),
         info.get("streamtype", 0),
-        dpi[0], dpi[1]
+        dpi[0], dpi[1],
+        info.get("subsampling", -1)
         )
 
     ImageFile._save(im, fp, [("jpeg", (0,0)+im.size, 0, rawmode)])
