@@ -10,5 +10,4 @@ def test_archive():
             im.load()
         except:
             print "- failed to open", file
-        else:
-            success()
+    success()
