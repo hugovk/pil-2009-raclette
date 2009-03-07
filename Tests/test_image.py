@@ -11,7 +11,7 @@ assert_equal(im.mode, "RGB")
 assert_equal(im.size, (100, 100))
 
 im1 = Image.new("L", (100, 100), None)
-im2 = Image.new("L", (100, 100), 0) 
+im2 = Image.new("L", (100, 100), 0)
 im3 = Image.new("L", (100, 100), "black")
 
 assert_equal(im2.getcolors(), [(10000, 0)])

@@ -5,4 +5,3 @@ try:
     from PIL import ImageQt
 except ImportError, v:
     tester.skip(v)
-

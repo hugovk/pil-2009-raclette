@@ -31,7 +31,7 @@ def test_mac_tiff():
 def test_gimp_tiff():
     # Read TIFF JPEG images from GIMP [@PIL168]
 
-    file = "Tests/images/pil168.tif" 
+    file = "Tests/images/pil168.tif"
     im = Image.open(file)
 
     assert_equal(im.mode, "RGB")
