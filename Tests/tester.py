@@ -70,6 +70,15 @@ def assert_no_exception(func):
 
 from cStringIO import StringIO
 
+def fromstring(data):
+    from PIL import Image
+    return Image.open(StringIO(data))
+
+def tostring(im, format, **options):
+    out = StringIO()
+    im.save(out, format, **options)
+    return out.getvalue()
+
 # test runner
 
 def run():
