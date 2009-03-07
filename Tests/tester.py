@@ -86,7 +86,7 @@ def image_lena(mode, cache={}):
         if mode == "RGB":
             im = Image.open("Images/lena.ppm")
         else:
-            im = lenna("RGB").convert(mode)
+            im = image_lena("RGB").convert(mode)
     cache[mode] = im
     return im
 

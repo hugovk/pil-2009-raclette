@@ -16,15 +16,15 @@ def test_split():
     assert_equal(split("CMYK"), [('L', 128, 128), ('L', 128, 128), ('L', 128, 128), ('L', 128, 128)])
     assert_equal(split("YCbCr"), [('L', 128, 128), ('L', 128, 128), ('L', 128, 128)])
 
-def test_split_roundtrip():
-    def roundtrip(mode):
-        return Image.merge(mode, lena_image(mode).split())
-    assert_image_equal(lena_image("1"), roundtrip("1"))
-    assert_image_equal(lena_image("L"), roundtrip("L"))
-    assert_image_equal(lena_image("I"), roundtrip("I"))
-    assert_image_equal(lena_image("F"), roundtrip("F"))
-    assert_image_equal(lena_image("P"), roundtrip("P"))
-    assert_image_equal(lena_image("RGB"), roundtrip("RGB"))
-    assert_image_equal(lena_image("RGBA"), roundtrip("RGBA"))
-    assert_image_equal(lena_image("CMYK"), roundtrip("CMYK"))
-    assert_image_equal(lena_image("YCbCr"), roundtrip("YCbCr"))
+def test_split_merge():
+    def split_merge(mode):
+        return Image.merge(mode, image_lena(mode).split())
+    assert_image_equal(image_lena("1"), split_merge("1"))
+    assert_image_equal(image_lena("L"), split_merge("L"))
+    assert_image_equal(image_lena("I"), split_merge("I"))
+    assert_image_equal(image_lena("F"), split_merge("F"))
+    assert_image_equal(image_lena("P"), split_merge("P"))
+    assert_image_equal(image_lena("RGB"), split_merge("RGB"))
+    assert_image_equal(image_lena("RGBA"), split_merge("RGBA"))
+    assert_image_equal(image_lena("CMYK"), split_merge("CMYK"))
+    assert_image_equal(image_lena("YCbCr"), split_merge("YCbCr"))
