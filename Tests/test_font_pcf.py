@@ -3,21 +3,23 @@ from tester import *
 from PIL import Image, FontFile, PcfFontFile
 from PIL import ImageFont, ImageDraw
 
-filename = "Tests/fonts/helvO18.pcf"
+fontname = "Tests/fonts/helvO18.pcf"
+tempname = tempfile("temp.pil", "temp.pbm")
+
 message  = "hello, world"
 
 def test_sanity():
 
-    file = open(filename, "rb")
+    file = open(fontname, "rb")
     font = PcfFontFile.PcfFontFile(file)
     assert_true(isinstance(font, FontFile.FontFile))
     assert_equal(len(filter(None, font.glyph)), 192)
 
-    font.save("temp.pil")
+    font.save(tempname)
 
 def test_draw():
 
-    font = ImageFont.load("temp.pil")
+    font = ImageFont.load(tempname)
     image = Image.new("L", font.getsize(message), "white")
     draw = ImageDraw.Draw(image)
     draw.text((0, 0), message, font=font)

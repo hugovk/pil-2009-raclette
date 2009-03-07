@@ -1,6 +1,7 @@
 # some test helpers
 
 _target = None
+_tempfiles = []
 
 def success():
     success.count += 1
@@ -78,6 +79,30 @@ def tostring(im, format, **options):
     im.save(out, format, **options)
     return out.getvalue()
 
+def assert_image_equal(a, b, msg=None):
+    if a.mode != b.mode:
+        failure(msg or "got mode %r, expected %r" % (a.mode, b.mode))
+    elif a.size != b.size:
+        failure(msg or "got size %r, expected %r" % (a.size, b.size))
+    elif a.tostring() != b.tostring():
+        failure(msg or "got different content")
+        # generate better diff?
+    else:
+        success()
+
+def tempfile(template, *extra):
+    import os, sys
+    files = []
+    for temp in (template,) + extra:
+        assert temp[:5] in ("temp.", "temp_")
+        root, name = os.path.split(sys.argv[0])
+        name = temp[:4] + os.path.splitext(name)[0][4:]
+        name = name + "_%d" % len(_tempfiles) + temp[4:]
+        name = os.path.join(root, name)
+        files.append(name)
+    _tempfiles.extend(files)
+    return files[0]
+
 # test runner
 
 def run():
@@ -119,6 +144,13 @@ def _setup():
             run()
         if success.count and not failure.count:
             print "ok"
+            # only clean out tempfiles if test passed
+            import os
+            for file in _tempfiles:
+                try:
+                    os.remove(file)
+                except OSError:
+                    pass # report?
     import atexit
     atexit.register(report)
 

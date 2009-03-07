@@ -49,6 +49,13 @@ for file in files:
 
 print "-"*68
 
+tempfiles = glob.glob(os.path.join(root, "temp_*"))
+if tempfiles:
+    print "===", "remaining temporary files"
+    for file in tempfiles:
+        print file
+    print "-"*68
+
 if failure:
     print "*** %s tests of %d failed." % (failure, success + failure)
 else:
