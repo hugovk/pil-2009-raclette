@@ -366,7 +366,7 @@ class pil_build_ext(build_ext):
     def summary_report(self, feature, unsafe_zlib):
 
         print "-" * 68
-        print "PIL", VERSION, "BUILD SUMMARY"
+        print "PIL", VERSION, "SETUP SUMMARY"
         print "-" * 68
         print "version      ", VERSION
         v = string.split(sys.version, "[")

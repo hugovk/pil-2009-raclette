@@ -155,7 +155,32 @@ def testimage():
     Cheers /F
     """
 
+
+def check_module(feature, module):
+    try:
+        __import__(module)
+    except ImportError:
+        print "***", feature, "support not installed"
+    else:
+        print "---", feature, "support ok"
+
+def check_codec(feature, codec):
+    if codec + "_encoder" not in dir(Image.core):
+        print "***", feature, "support not installed"
+    else:
+        print "---", feature, "support ok"
+
+
 if __name__ == "__main__":
+    # check build sanity
+    print "-"*68
+    print "PIL", Image.VERSION, "TEST SUMMARY"
+    print "-"*68
+    check_module("TKINTER", "_imagingtk")
+    check_codec("JPEG", "jpeg")
+    check_codec("ZLIB (PNG/ZIP)", "zip")
+    check_module("FREETYPE2", "_imagingft")
+    print "-"*68
     # use doctest to make sure the test program behaves as documented!
     import doctest, selftest
     status = doctest.testmod(selftest)
