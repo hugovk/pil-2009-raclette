@@ -105,7 +105,7 @@ def run():
                 traceback.print_exception(t, v, tb)
             else:
                 print "%s:%d: cannot call test function: %s" % (
-                    _target.__file__, lineno, v)
+                    sys.argv[0], lineno, v)
                 failure.count += 1
 
 def skip(msg=None):
