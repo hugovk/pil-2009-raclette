@@ -23,6 +23,9 @@ pyCMS
 
 
     Version History:
+
+        0.1.0           March 2009 - added to PIL, as PIL.ImageCms
+
         0.0.2 alpha     Jan 6, 2002
         
                         Added try/except statements arount type() checks of
@@ -40,92 +43,37 @@ pyCMS
       
 """
 
-#######################################################################
-# version
-#######################################################################
 VERSION = "0.0.2 alpha"
 
-
-#######################################################################
-# imports
-#######################################################################
 import _imagingcms as pyCMSdll
+
 import os
+
 import Image
 
-#######################################################################
-# constants
-#######################################################################
-TRUE =                          1
-FALSE =                         None
+INTENT_PERCEPTUAL = 0
+INTENT_RELATIVE_COLORIMETRIC = 1
+INTENT_SATURATION = 2
+INTENT_ABSOLUTE_COLORIMETRIC = 3
 
-INTENT_PERCEPTUAL =             0
-INTENT_RELATIVE_COLORIMETRIC =  1
-INTENT_SATURATION =             2
-INTENT_ABSOLUTE_COLORIMETRIC =  3
-
-DIRECTION_INPUT =               0
-DIRECTION_OUTPUT =              1
-DIRECTION_PROOF =               2
-
-#######################################################################
-# classes
-#######################################################################
-# classes are used for PyCMSTransform and PyCMSProfile so that data
-# such as input and output mode can follow the object after creation,
-# and be easily retrieved when needed.
+DIRECTION_INPUT = 0
+DIRECTION_OUTPUT = 1
+DIRECTION_PROOF = 2
 
 class PyCMSError(Exception):
     pass
 
 class PyCMSTransform:
-    def __init__(self, transform = None, inputMode = None, outputMode = None):
+    def __init__(self, transform=None, inputMode=None, outputMode=None):
         self.transform = transform
         self.inputMode = inputMode
         self.outputMode = outputMode
 
 class PyCMSProfile:
-    def __init__(self, profile = None):
+    def __init__(self, profile=None):
         self.profile = profile
 
-
-#######################################################################
-# functions
-#######################################################################
-def versions ():
-    """
-    pyCMS.versions()
-    
-    Returns a tuple of (pyCMSVersion, littleCMSVersion, pythonVersion,
-        PILVersion).
-        
-    However, don't trust these values 100%, because they're currently
-    configured manually in pyCMSdll.c before building the DLL.
-    """
-    
-    return pyCMSdll.versions()
-
-def about ():
-    """
-    pyCMS.about()
-    
-    Returns a string containing information about pyCMSdll.dll, including
-    copyright and license information.
-    """
-    
-    return pyCMSdll.about()
-
-def copyright ():
-    """
-    pyCMS.copyright()
-    
-    Returns a string containing information about pyCMSdll.dll, including
-    copyright and license information.
-    """
-    
-    return pyCMSdll.copyright()
-
-def profileToProfile (im, inputProfile, outputProfile, renderingIntent = INTENT_PERCEPTUAL, outputMode = None, inPlace = FALSE):
+def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PERCEPTUAL, outputMode=None, inPlace=0):
     """
     pyCMS.profileToProfile(im, inputProfile, outputProfile,
         [renderingIntent], [outputMode], [inPlace])
@@ -176,41 +124,41 @@ def profileToProfile (im, inputProfile, outputProfile, renderingIntent = INTENT_
 
     """    
     if not os.path.isfile(inputProfile):
-        raise PyCMSError, "Invalid input profile path provided: %s" %inputProfile
+        raise PyCMSError("Invalid input profile path provided: %s" % inputProfile)
     if not os.path.isfile(outputProfile):
-        raise PyCMSError, "Invalid output profile path provided: %s" %outputProfile
+        raise PyCMSError("Invalid output profile path provided: %s" % outputProfile)
     
-    if outputMode == None:
+    if outputMode is None:
         outputMode = im.mode
 
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
-        raise PyCMSError, "renderingIntent must be an integer between 0 and 3"
+        raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
-    if inPlace == TRUE and im.mode != outputMode:
-        raise PyCMSError, "Cannot transform image in place, im.mode and output mode are different (%s vs. %s)" %(im.mode, outputMode)
+    if inPlace and im.mode != outputMode:
+        raise PyCMSError("Cannot transform image in place, im.mode and output mode are different (%s vs. %s)" % (im.mode, outputMode))
 
-    if inPlace == TRUE:
+    if inPlace:
         imOut = im
     else:
         imOut = Image.new(outputMode, im.size)
 
-    im.load() #make sure it's loaded, or it may not have a .im attribute!
+    im.load() # make sure it's loaded, or it may not have a .im attribute!
 
     result = pyCMSdll.profileToProfile(im.im.id, imOut.im.id, inputProfile, outputProfile, renderingIntent)
 
     if result == 0:
-        if inPlace == TRUE:
+        if inPlace:
             return None
         else:
             return imOut
 
     elif result == -1:
-        raise PyCMSError, "Error occurred in pyCMSdll.profileToProfile()"
+        raise PyCMSError("Error occurred in pyCMSdll.profileToProfile()")
 
     else:
-        raise PyCMSError, result
+        raise PyCMSError(result)
 
-def getOpenProfile (profileFilename):
+def getOpenProfile(profileFilename):
     """
     pyCMS.getOpenProfile(profileFilename)
     
@@ -227,19 +175,19 @@ def getOpenProfile (profileFilename):
 
     """    
     if not os.path.isfile(profileFilename):
-        raise PyCMSError, "Invalid profile path provided: %s" %profileFilename
+        raise PyCMSError("Invalid profile path provided: %s" % profileFilename)
     
     result = pyCMSdll.getOpenProfile (profileFilename)
 
     try:
         if type(result) == type("string"):
-            raise PyCMSError, result
+            raise PyCMSError(result)
     except TypeError:
         pass
 
     return PyCMSProfile(result)
 
-def buildTransform (inputProfile, outputProfile, inMode, outMode, renderingIntent = INTENT_PERCEPTUAL):
+def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL):
     """
     pyCMS.buildTransform(inputProfile, outputProfile, inMode, outMode,
         [renderingIntent])
@@ -292,24 +240,24 @@ def buildTransform (inputProfile, outputProfile, inMode, outMode, renderingInten
 
     """   
     if not os.path.isfile(inputProfile):
-        raise PyCMSError, "Invalid input profile path provided: %s" %inputProfile
+        raise PyCMSError("Invalid input profile path provided: %s" % inputProfile)
     if not os.path.isfile(outputProfile):
-        raise PyCMSError, "Invalid output profile path provided: %s" %outputProfile
+        raise PyCMSError("Invalid output profile path provided: %s" % outputProfile)
 
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
-        raise PyCMSError, "renderingIntent must be an integer between 0 and 3"
+        raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
     result = pyCMSdll.buildTransform (inputProfile, outputProfile, inMode, outMode, renderingIntent)
 
     try:
         if type(result) == type("string"):
-            raise PyCMSError, result
+            raise PyCMSError(result)
     except TypeError:
         pass
 
     return PyCMSTransform(result, inMode, outMode)
 
-def buildProofTransform (inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent = INTENT_PERCEPTUAL, displayRenderingIntent = INTENT_PERCEPTUAL):
+def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL, displayRenderingIntent=INTENT_PERCEPTUAL):
     """
     pyCMS.buildProofTransform(inputProfile, outputProfile, displayProfile,
         inMode, outMode, [renderingIntent], [displayRenderingIntent])
@@ -378,26 +326,26 @@ def buildProofTransform (inputProfile, outputProfile, displayProfile, inMode, ou
     
     """ 
     if not os.path.isfile(inputProfile):
-        raise PyCMSError, "Invalid input profile path provided: %s" %inputProfile
+        raise PyCMSError("Invalid input profile path provided: %s" % inputProfile)
     if not os.path.isfile(outputProfile):
-        raise PyCMSError, "Invalid output profile path provided: %s" %outputProfile
+        raise PyCMSError("Invalid output profile path provided: %s" % outputProfile)
     if not os.path.isfile(displayProfile):
-        raise PyCMSError, "Invalid display profile path provided: %s" %displayProfile
+        raise PyCMSError("Invalid display profile path provided: %s" % displayProfile)
 
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
-        raise PyCMSError, "renderingIntent must be an integer between 0 and 3"
+        raise PyCMSError("renderingIntent must be an integer between 0 and 3")
     
     result = pyCMSdll.buildProofTransform (inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent, displayRenderingIntent)
 
     try:
         if type(result) == type("string"):
-            raise PyCMSError, result
+            raise PyCMSError(result)
     except TypeError:
         pass
 
     return PyCMSTransform(result, inMode, outMode)
 
-def buildTransformFromOpenProfiles (inputProfile, outputProfile, inMode, outMode, renderingIntent = INTENT_PERCEPTUAL):
+def buildTransformFromOpenProfiles(inputProfile, outputProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL):
     """
     pyCMS.buildTransformFromOpenProfiles(inputProfile, outputProfile,
         inMode, outMode, [renderingIntent])
@@ -429,19 +377,19 @@ def buildTransformFromOpenProfiles (inputProfile, outputProfile, inMode, outMode
     """
 
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
-        raise PyCMSError, "renderingIntent must be an integer between 0 and 3"
+        raise PyCMSError("renderingIntent must be an integer between 0 and 3")
     
     result = pyCMSdll.buildTransformFromOpenProfiles (inputProfile.profile, outputProfile.profile, inMode, outMode, renderingIntent)
 
     try:
         if type(result) == type("string"):
-            raise PyCMSError, result
+            raise PyCMSError(result)
     except TypeError:
         pass
 
     return PyCMSTransform(result, inMode, outMode)
     
-def buildProofTransformFromOpenProfiles (inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent = INTENT_PERCEPTUAL, displayRenderingIntent = INTENT_PERCEPTUAL):
+def buildProofTransformFromOpenProfiles(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL, displayRenderingIntent=INTENT_PERCEPTUAL):
     """
     pyCMS.buildProofTransformFromOpenProfiles(inputProfile, outputProfile,
         displayProfile, inMode, outMode, [renderingIntent],
@@ -482,20 +430,20 @@ def buildProofTransformFromOpenProfiles (inputProfile, outputProfile, displayPro
     """
 
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3) or type(displayRenderingIntent) != type(1) or not (0 <= displayRenderingIntent <=3):
-        raise PyCMSError, "renderingIntent must be an integer between 0 and 3"
+        raise PyCMSError("renderingIntent must be an integer between 0 and 3")
     
     result = pyCMSdll.buildProofTransformFromOpenProfiles (inputProfile.profile, outputProfile.profile, displayProfile.profile, inMode, outMode, renderingIntent, displayRenderingIntent)
 
     try:
         if type(result) == type("string"):
-            raise PyCMSError, result
+            raise PyCMSError(result)
 
     except TypeError:
         pass
 
     return PyCMSTransform(result, inMode, outMode)    
 
-def applyTransform (im, transform, inPlace = FALSE):
+def applyTransform(im, transform, inPlace=0):
     """
     pyCMS.applyTransform(im, transform, [inPlace])
     
@@ -536,11 +484,11 @@ def applyTransform (im, transform, inPlace = FALSE):
 
     """  
     if im.mode != transform.inputMode:
-        raise PyCMSError, "Image mode does not match profile input mode (%s vs %s)" %(im.mode, transform.inMode)
+        raise PyCMSError("Image mode does not match profile input mode (%s vs %s)" % (im.mode, transform.inMode))
     
-    if inPlace == TRUE:
+    if inPlace:
         if transform.inputMode != transform.outputMode:
-            raise PyCMSError, "Cannot transform image in place, input mode and output mode are different (%s vs. %s)" %(transform.inMode, transform.outMode)
+            raise PyCMSError("Cannot transform image in place, input mode and output mode are different (%s vs. %s)" % (transform.inMode, transform.outMode))
         imOut = im
     else:
         imOut = Image.new(transform.outputMode, im.size)
@@ -550,18 +498,18 @@ def applyTransform (im, transform, inPlace = FALSE):
     result = pyCMSdll.applyTransform (im.im.id, imOut.im.id, transform.transform)
 
     if result == 0:
-        if inPlace == TRUE:
+        if inPlace:
             return None
         else:
             return imOut
 
     elif result == -1:
-        raise PyCMSError, "Error occurred in pyCMSdll.applyTransform()"
+        raise PyCMSError("Error occurred in pyCMSdll.applyTransform()")
 
     else:
-        raise PyCMSError, result
+        raise PyCMSError(result)
 
-def createProfile (colorSpace, colorTemp = -1):
+def createProfile(colorSpace, colorTemp=-1):
     """
     pyCMS.createProfile(colorSpace, [colorTemp])
     
@@ -588,19 +536,19 @@ def createProfile (colorSpace, colorTemp = -1):
 
     """    
     if colorSpace not in ["LAB", "XYZ", "sRGB"]:
-        raise PyCMSError, "Color space not supported for on-the-fly profile creation (%s)" %colorSpace
+        raise PyCMSError("Color space not supported for on-the-fly profile creation (%s)" % colorSpace)
 
     if colorSpace == "LAB":
         if type(colorTemp) == type(5000.0):
             colorTemp = int(colorTemp + 0.5)
         if type (colorTemp) != type (5000):
-            raise PyCMSError, "Color temperature must be a positive integer, \"%s\" not valid" %colorTemp
+            raise PyCMSError("Color temperature must be a positive integer, \"%s\" not valid" % colorTemp)
         
     result = pyCMSdll.createProfile (colorSpace, colorTemp)
 
     try:
         if type(result) == type("string"):
-            raise PyCMSError, result
+            raise PyCMSError(result)
 
         else:
             return PyCMSProfile(result)
@@ -608,7 +556,7 @@ def createProfile (colorSpace, colorTemp = -1):
         # you can't use type() on a PyCObject... argh!
         return PyCMSProfile(result)
     
-def getProfileName (profile):
+def getProfileName(profile):
     """
     pyCMS.getProfileName(profile)
     
@@ -632,7 +580,7 @@ def getProfileName (profile):
         if type(profile) != type("string"):
             profile = profile.profile
         elif (not os.path.isfile(profile)):
-            raise PyCMSError, "Invalid  profile path provided: %s" %profile
+            raise PyCMSError("Invalid  profile path provided: %s" % profile)
         
     except TypeError:
         # you can't use type() on a PyCObject... argh!
@@ -641,12 +589,12 @@ def getProfileName (profile):
     result = pyCMSdll.getProfileName(profile)
 
     if len(result) > 7 and result[:7] == "ERROR: ":
-        raise PyCMSError, result
+        raise PyCMSError(result)
 
     else:
         return result
       
-def getProfileInfo (profile):
+def getProfileInfo(profile):
     """
     pyCMS.getProfileInfo(profile)
     
@@ -671,7 +619,7 @@ def getProfileInfo (profile):
         if type(profile) != type("string"):
             profile = profile.profile
         elif (not os.path.isfile(profile)):
-            raise PyCMSError, "Invalid  profile path provided: %s" %profile
+            raise PyCMSError("Invalid  profile path provided: %s" % profile)
         
     except TypeError:
         # you can't use type() on a PyCObject... argh!
@@ -680,12 +628,12 @@ def getProfileInfo (profile):
     result = pyCMSdll.getProfileInfo(profile)
 
     if len(result) > 7 and result[:7] == "ERROR: ":
-        raise PyCMSError, result
+        raise PyCMSError(result)
 
     else:
         return result
       
-def getDefaultIntent (profile):
+def getDefaultIntent(profile):
     """
     pyCMS.getDefaultIntent(profile)
     
@@ -717,7 +665,7 @@ def getDefaultIntent (profile):
         if type(profile) != type("string"):
             profile = profile.profile
         elif (not os.path.isfile(profile)):
-            raise PyCMSError, "Invalid  profile path provided: %s" %profile
+            raise PyCMSError("Invalid  profile path provided: %s" % profile)
         
     except TypeError:
         # you can't use type() on a PyCObject... argh!
@@ -727,7 +675,7 @@ def getDefaultIntent (profile):
 
     try:
         if type(result) == type("string"):
-            raise PyCMSError, result
+            raise PyCMSError(result)
         else:
             return result
 
@@ -735,7 +683,7 @@ def getDefaultIntent (profile):
         # you can't use type() on a PyCObject... argh!
         return result
       
-def isIntentSupported (profile, intent, direction):
+def isIntentSupported(profile, intent, direction):
     """
     pyCMS.isIntentSupported(profile, intent, direction)
     
@@ -773,7 +721,7 @@ def isIntentSupported (profile, intent, direction):
         if type(profile) != type("string"):
             profile = profile.profile
         elif (not os.path.isfile(profile)):
-            raise PyCMSError, "Invalid  profile path provided: %s" %profile
+            raise PyCMSError("Invalid  profile path provided: %s" % profile)
         
     except TypeError:
         # you can't use type() on a PyCObject... argh!
@@ -783,7 +731,7 @@ def isIntentSupported (profile, intent, direction):
 
     try:
         if type(result) == type("string"):
-            raise PyCMSError, result
+            raise PyCMSError(result)
 
         else:
             return result
