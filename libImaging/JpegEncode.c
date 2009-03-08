@@ -143,6 +143,46 @@ ImagingJpegEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 	jpeg_set_defaults(&context->cinfo);
 	if (context->quality > 0)
 	    jpeg_set_quality(&context->cinfo, context->quality, 1);
+	
+	/* Set subsampling options */
+	switch (context->subsampling)
+	{
+		case 0:  /* 1x1 1x1 1x1 (4:4:4) : None */
+		{
+			context->cinfo.comp_info[0].h_samp_factor = 1;
+			context->cinfo.comp_info[0].v_samp_factor = 1;
+			context->cinfo.comp_info[1].h_samp_factor = 1;
+			context->cinfo.comp_info[1].v_samp_factor = 1;
+			context->cinfo.comp_info[2].h_samp_factor = 1;
+			context->cinfo.comp_info[2].v_samp_factor = 1;
+			break;
+		}
+		case 1:  /* 2x1, 1x1, 1x1 (4:2:2) : Medium */
+		{
+			context->cinfo.comp_info[0].h_samp_factor = 2;
+			context->cinfo.comp_info[0].v_samp_factor = 1;
+			context->cinfo.comp_info[1].h_samp_factor = 1;
+			context->cinfo.comp_info[1].v_samp_factor = 1;
+			context->cinfo.comp_info[2].h_samp_factor = 1;
+			context->cinfo.comp_info[2].v_samp_factor = 1;
+			break;
+		}
+		case 2:  /* 2x2, 1x1, 1x1 (4:1:1) : High */
+		{
+			context->cinfo.comp_info[0].h_samp_factor = 2;
+			context->cinfo.comp_info[0].v_samp_factor = 2;
+			context->cinfo.comp_info[1].h_samp_factor = 1;
+			context->cinfo.comp_info[1].v_samp_factor = 1;
+			context->cinfo.comp_info[2].h_samp_factor = 1;
+			context->cinfo.comp_info[2].v_samp_factor = 1;
+			break;
+		}
+		default:
+		{
+			/* Use the lib's default */
+			break;
+		}
+	}
 	if (context->progressive)
 	    jpeg_simple_progression(&context->cinfo);
 	context->cinfo.smoothing_factor = context->smooth;

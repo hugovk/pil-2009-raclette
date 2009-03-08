@@ -24,6 +24,7 @@
 # 2003-09-13 fl   Extract COM markers
 # 2009-09-06 fl   Added icc_profile support (from Florian Hoech)
 # 2009-03-06 fl   Changed CMYK handling; always use Adobe polarity (0.6)
+# 2009-03-08 fl   Added subsampling support (from Justin Huff).
 #
 # Copyright (c) 1997-2003 by Secret Labs AB.
 # Copyright (c) 1995-1996 by Fredrik Lundh.
@@ -417,6 +418,14 @@ def _save(im, fp, filename):
 
     dpi = info.get("dpi", (0, 0))
 
+    subsampling = info.get("subsampling", -1)
+    if subsampling == "4:4:4":
+        subsampling = 0
+    elif subsampling == "4:2:2":
+        subsampling = 1
+    elif subsampling == "4:1:1":
+        subsampling = 2
+
     # get keyword arguments
     im.encoderconfig = (
         info.get("quality", 0),
@@ -427,7 +436,8 @@ def _save(im, fp, filename):
         info.get("smooth", 0),
         info.has_key("optimize"),
         info.get("streamtype", 0),
-        dpi[0], dpi[1]
+        dpi[0], dpi[1],
+        subsampling,
         )
 
     ImageFile._save(im, fp, [("jpeg", (0,0)+im.size, 0, rawmode)])
