@@ -140,8 +140,8 @@ def run():
         try:
             _tests = []
             func()
-            for test, args in _tests:
-                test(*args)
+            for func, args in _tests:
+                func(*args)
         except:
             t, v, tb = sys.exc_info()
             tb = tb.tb_next
@@ -153,7 +153,7 @@ def run():
                     sys.argv[0], lineno, v)
                 failure.count += 1
 
-def test(function, *args):
+def yield_test(function, *args):
     # collect delayed/generated tests
     _tests.append((function, args))
 
