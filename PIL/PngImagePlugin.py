@@ -273,6 +273,17 @@ class PngStream(ChunkStream):
             self.im_info[k] = v
         return s
 
+    def chunk_zTXt(self, pos, len):
+
+        # compressed text
+        s = ImageFile._safe_read(self.fp, len)
+        k, v = string.split(s, "\0", 1)
+        comp_method = ord(v[0])
+        if comp_method != 0:
+            raise SyntaxError("Unknown compression method %s in zTXt chunk" % comp_method)
+        import zlib
+        self.im_info[k] = zlib.decompress(v[1:])
+        return s
 
 # --------------------------------------------------------------------
 # PNG reader
