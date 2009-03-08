@@ -173,6 +173,9 @@ def check_codec(feature, codec):
 
 if __name__ == "__main__":
     # check build sanity
+
+    exit_status = 0
+
     print "-"*68
     print "PIL", Image.VERSION, "BUILD SUMMARY"
     print "-"*68
@@ -185,11 +188,15 @@ if __name__ == "__main__":
     check_codec("ZLIB (PNG/ZIP)", "zip")
     check_module("FREETYPE2", "_imagingft")
     print "-"*68
+
     # use doctest to make sure the test program behaves as documented!
     import doctest, selftest
     print "Running self test:"
     status = doctest.testmod(selftest)
     if status[0]:
         print "*** %s tests of %d failed." % status
+        exit_status = 1
     else:
         print "%s tests passed." % status[1]
+
+    sys.exit(exit_status)
