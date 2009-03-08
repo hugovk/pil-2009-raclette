@@ -1,7 +1,10 @@
 from tester import *
 
 from PIL import Image
-from PIL import ImageCms
+try:
+    from PIL import ImageCms
+except ImportError:
+    skip()
 
 SRGB = "Tests/icc/sRGB.icm"
 
