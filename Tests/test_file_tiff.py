@@ -25,9 +25,7 @@ def test_mac_tiff():
 
     assert_equal(im.mode, "RGBA")
     assert_equal(im.size, (55, 43))
-    assert_equal(im.tile, [
-                 ('raw', (0, 0, 55, 43), 8, ('RGBa', 0, 1))
-                 ])
+    assert_equal(im.tile, [('raw', (0, 0, 55, 43), 8, ('RGBa', 0, 1))])
     assert_no_exception(lambda: im.load())
 
 def test_gimp_tiff():
