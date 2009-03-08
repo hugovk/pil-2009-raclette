@@ -34,7 +34,7 @@
 
 __version__ = "0.6"
 
-import array, string
+import array
 import Image, ImageFile
 
 def i16(c,o=0):

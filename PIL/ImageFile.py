@@ -28,7 +28,7 @@
 #
 
 import Image
-import traceback, sys, string, os
+import traceback, string, os
 
 MAXBLOCK = 65536
 

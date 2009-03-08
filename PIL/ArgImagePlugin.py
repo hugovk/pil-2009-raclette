@@ -20,8 +20,6 @@
 
 __version__ = "0.4"
 
-import marshal, string
-
 import Image, ImageFile, ImagePalette
 
 from PngImagePlugin import i16, i32, ChunkStream, _MODES

@@ -15,7 +15,6 @@
 
 __version__ = "0.1"
 
-import array, string
 import Image, ImageFile
 
 #
