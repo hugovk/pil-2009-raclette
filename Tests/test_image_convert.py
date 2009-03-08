@@ -14,4 +14,4 @@ def test_sanity():
     for mode in modes:
         im = lena(mode)
         for mode in modes:
-            yield convert, im, mode
+            test(convert, im, mode)

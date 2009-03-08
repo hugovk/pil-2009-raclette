@@ -9,4 +9,4 @@ def test_copy():
         assert_equal(out.mode, mode)
         assert_equal(out.size, im.size)
     for mode in "1", "P", "L", "RGB", "I", "F":
-        yield copy, mode
+        test(copy, mode)

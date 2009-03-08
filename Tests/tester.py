@@ -127,7 +127,7 @@ def tempfile(template, *extra):
 # test runner
 
 def run():
-    global _target, run
+    global _target, _tests, run
     import sys, traceback
     _target = sys.modules["__main__"]
     run = None # no need to run twice
@@ -138,11 +138,10 @@ def run():
     tests.sort() # sort by line
     for lineno, name, func in tests:
         try:
-            result = func()
-            if hasattr(result, "__iter__"):
-                # FIXME: make failure report include the arguments
-                for test in result:
-                    test[0](*test[1:])
+            _tests = []
+            func()
+            for test, args in _tests:
+                test(*args)
         except:
             t, v, tb = sys.exc_info()
             tb = tb.tb_next
@@ -153,6 +152,10 @@ def run():
                 print "%s:%d: cannot call test function: %s" % (
                     sys.argv[0], lineno, v)
                 failure.count += 1
+
+def test(function, *args):
+    # collect delayed/generated tests
+    _tests.append((function, args))
 
 def skip(msg=None):
     import os

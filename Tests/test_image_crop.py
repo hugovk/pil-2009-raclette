@@ -8,7 +8,7 @@ def test_crop():
         assert_equal(out.mode, mode)
         assert_equal(out.size, (50, 50))
     for mode in "1", "P", "L", "RGB", "I", "F":
-        yield crop, mode
+        test(crop, mode)
 
 def test_wide_crop():
 

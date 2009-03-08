@@ -2,7 +2,10 @@
 
 import glob, os, sys
 
-root = os.path.dirname(__file__)
+try:
+    root = os.path.dirname(__file__)
+except NameError:
+    root = os.path.dirname(sys.argv[0])
 
 print "-"*68
 
