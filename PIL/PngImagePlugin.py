@@ -171,6 +171,7 @@ class PngStream(ChunkStream):
 
         # local copies of Image attributes
         self.im_info = {}
+        self.im_text = {}
         self.im_size = (0,0)
         self.im_mode = None
         self.im_tile = None
@@ -270,7 +271,7 @@ class PngStream(ChunkStream):
         except ValueError:
             k = s; v = "" # fallback for broken tEXt tags
         if k:
-            self.im_info[k] = v
+            self.im_info[k] = self.im_text[k] = v
         return s
 
     def chunk_zTXt(self, pos, len):
@@ -282,7 +283,7 @@ class PngStream(ChunkStream):
         if comp_method != 0:
             raise SyntaxError("Unknown compression method %s in zTXt chunk" % comp_method)
         import zlib
-        self.im_info[k] = zlib.decompress(v[1:])
+        self.im_info[k] = self.im_text[k] = zlib.decompress(v[1:])
         return s
 
 # --------------------------------------------------------------------
@@ -337,6 +338,7 @@ class PngImageFile(ImageFile.ImageFile):
         self.mode = self.png.im_mode
         self.size = self.png.im_size
         self.info = self.png.im_info
+        self.text = self.png.im_text # experimental
         self.tile = self.png.im_tile
 
         if self.png.im_palette:
