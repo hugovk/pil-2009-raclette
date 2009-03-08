@@ -74,6 +74,10 @@ def ib16(c,o=0):
     return ord(c[o+1]) + (ord(c[o])<<8)
 def ib32(c,o=0):
     return ord(c[o+3]) + (ord(c[o+2])<<8) + (ord(c[o+1])<<16) + (ord(c[o])<<24)
+def ob16(i):
+    return chr(i>>8&255) + chr(i&255)
+def ob32(i):
+    return chr(i>>24&255) + chr(i>>16&255) + chr(i>>8&255) + chr(i&255)
 
 # a few tag names, just to make the code below a bit more readable
 IMAGEWIDTH = 256
@@ -96,6 +100,7 @@ DATE_TIME = 306
 ARTIST = 315
 PREDICTOR = 317
 COLORMAP = 320
+TILEOFFSETS = 324
 EXTRASAMPLES = 338
 SAMPLEFORMAT = 339
 JPEGTABLES = 347
@@ -120,43 +125,77 @@ COMPRESSION_INFO = {
 }
 
 OPEN_INFO = {
-    # (PhotoInterpretation, SampleFormat, FillOrder, BitsPerSample,
-    #  ExtraSamples) => mode, rawmode
-    (0, 1, 1, (1,), ()): ("1", "1;I"),
-    (0, 1, 2, (1,), ()): ("1", "1;IR"),
-    (0, 1, 1, (8,), ()): ("L", "L;I"),
-    (0, 1, 2, (8,), ()): ("L", "L;IR"),
-    (1, 1, 1, (1,), ()): ("1", "1"),
-    (1, 1, 2, (1,), ()): ("1", "1;R"),
-    (1, 1, 1, (8,), ()): ("L", "L"),
-    (1, 1, 1, (8,8), (2,)): ("LA", "LA"),
-    (1, 1, 2, (8,), ()): ("L", "L;R"),
-    (1, 1, 1, (16,), ()): ("I;16", "I;16"),
-    (1, 2, 1, (16,), ()): ("I;16S", "I;16S"),
-    (1, 2, 1, (32,), ()): ("I", "I;32S"),
-    (1, 3, 1, (32,), ()): ("F", "F;32F"),
-    (2, 1, 1, (8,8,8), ()): ("RGB", "RGB"),
-    (2, 1, 2, (8,8,8), ()): ("RGB", "RGB;R"),
-    (2, 1, 1, (8,8,8,8), (0,)): ("RGBX", "RGBX"),
-    (2, 1, 1, (8,8,8,8), (1,)): ("RGBA", "RGBa"),
-    (2, 1, 1, (8,8,8,8), (2,)): ("RGBA", "RGBA"),
-    (2, 1, 1, (8,8,8,8), (999,)): ("RGBA", "RGBA"), # corel draw 10
-    (3, 1, 1, (1,), ()): ("P", "P;1"),
-    (3, 1, 2, (1,), ()): ("P", "P;1R"),
-    (3, 1, 1, (2,), ()): ("P", "P;2"),
-    (3, 1, 2, (2,), ()): ("P", "P;2R"),
-    (3, 1, 1, (4,), ()): ("P", "P;4"),
-    (3, 1, 2, (4,), ()): ("P", "P;4R"),
-    (3, 1, 1, (8,), ()): ("P", "P"),
-    (3, 1, 1, (8,8), (2,)): ("PA", "PA"),
-    (3, 1, 2, (8,), ()): ("P", "P;R"),
-    (5, 1, 1, (8,8,8,8), ()): ("CMYK", "CMYK"),
-    (6, 1, 1, (8,8,8), ()): ("YCbCr", "YCbCr"),
-    (8, 1, 1, (8,8,8), ()): ("LAB", "LAB"),
+    # (ByteOrder, PhotoInterpretation, SampleFormat, FillOrder, BitsPerSample,
+    #  ExtraSamples) => mode, rawmode 
+    ('l', 0, 1, 1, (1,), ()): ("1", "1;I"),
+    ('l', 0, 1, 2, (1,), ()): ("1", "1;IR"),
+    ('l', 0, 1, 1, (8,), ()): ("L", "L;I"),
+    ('l', 0, 1, 2, (8,), ()): ("L", "L;IR"),
+    ('l', 1, 1, 1, (1,), ()): ("1", "1"),
+    ('l', 1, 1, 2, (1,), ()): ("1", "1;R"),
+    ('l', 1, 1, 1, (8,), ()): ("L", "L"),
+    ('l', 1, 1, 1, (8,8), (2,)): ("LA", "LA"),
+    ('l', 1, 1, 2, (8,), ()): ("L", "L;R"),
+    ('l', 1, 1, 1, (16,), ()): ("I;16", "I;16"),
+    ('l', 1, 2, 1, (16,), ()): ("I;16S", "I;16S"),
+    ('l', 1, 2, 1, (32,), ()): ("I", "I;32S"),
+    ('l', 1, 3, 1, (32,), ()): ("F", "F;32F"),
+    ('l', 2, 1, 1, (8,8,8), ()): ("RGB", "RGB"),
+    ('l', 2, 1, 2, (8,8,8), ()): ("RGB", "RGB;R"),
+    ('l', 2, 1, 1, (8,8,8,8), (0,)): ("RGBX", "RGBX"),
+    ('l', 2, 1, 1, (8,8,8,8), (1,)): ("RGBA", "RGBa"),
+    ('l', 2, 1, 1, (8,8,8,8), (2,)): ("RGBA", "RGBA"),
+    ('l', 2, 1, 1, (8,8,8,8), (999,)): ("RGBA", "RGBA"), # corel draw 10
+    ('l', 3, 1, 1, (1,), ()): ("P", "P;1"),
+    ('l', 3, 1, 2, (1,), ()): ("P", "P;1R"),
+    ('l', 3, 1, 1, (2,), ()): ("P", "P;2"),
+    ('l', 3, 1, 2, (2,), ()): ("P", "P;2R"),
+    ('l', 3, 1, 1, (4,), ()): ("P", "P;4"),
+    ('l', 3, 1, 2, (4,), ()): ("P", "P;4R"),
+    ('l', 3, 1, 1, (8,), ()): ("P", "P"),
+    ('l', 3, 1, 1, (8,8), (2,)): ("PA", "PA"),
+    ('l', 3, 1, 2, (8,), ()): ("P", "P;R"),
+    ('l', 5, 1, 1, (8,8,8,8), ()): ("CMYK", "CMYK"),
+    ('l', 6, 1, 1, (8,8,8), ()): ("YCbCr", "YCbCr"),
+    ('l', 8, 1, 1, (8,8,8), ()): ("LAB", "LAB"),
+   
+    ('b', 0, 1, 1, (1,), ()): ("1", "1;I"),
+    ('b', 0, 1, 2, (1,), ()): ("1", "1;IR"),
+    ('b', 0, 1, 1, (8,), ()): ("L", "L;I"),
+    ('b', 0, 1, 2, (8,), ()): ("L", "L;IR"),
+    ('b', 1, 1, 1, (1,), ()): ("1", "1"),
+    ('b', 1, 1, 2, (1,), ()): ("1", "1;R"),
+    ('b', 1, 1, 1, (8,), ()): ("L", "L"),
+    ('b', 1, 1, 1, (8,8), (2,)): ("LA", "LA"),
+    ('b', 1, 1, 2, (8,), ()): ("L", "L;R"),
+    ('b', 1, 1, 1, (16,), ()): ("I;16B", "I;16B"),
+    ('b', 1, 2, 1, (16,), ()): ("I;16BS", "I;16BS"),
+    ('b', 1, 2, 1, (32,), ()): ("I;32BS", "I;32BS"),
+    ('b', 1, 3, 1, (32,), ()): ("F;32BF", "F;32BF"),
+    ('b', 2, 1, 1, (8,8,8), ()): ("RGB", "RGB"),
+    ('b', 2, 1, 2, (8,8,8), ()): ("RGB", "RGB;R"),
+    ('b', 2, 1, 1, (8,8,8,8), (0,)): ("RGBX", "RGBX"),
+    ('b', 2, 1, 1, (8,8,8,8), (1,)): ("RGBA", "RGBa"),
+    ('b', 2, 1, 1, (8,8,8,8), (2,)): ("RGBA", "RGBA"),
+    ('b', 2, 1, 1, (8,8,8,8), (999,)): ("RGBA", "RGBA"), # corel draw 10
+    ('b', 3, 1, 1, (1,), ()): ("P", "P;1"),
+    ('b', 3, 1, 2, (1,), ()): ("P", "P;1R"),
+    ('b', 3, 1, 1, (2,), ()): ("P", "P;2"),
+    ('b', 3, 1, 2, (2,), ()): ("P", "P;2R"),
+    ('b', 3, 1, 1, (4,), ()): ("P", "P;4"),
+    ('b', 3, 1, 2, (4,), ()): ("P", "P;4R"),
+    ('b', 3, 1, 1, (8,), ()): ("P", "P"),
+    ('b', 3, 1, 1, (8,8), (2,)): ("PA", "PA"),
+    ('b', 3, 1, 2, (8,), ()): ("P", "P;R"),
+    ('b', 5, 1, 1, (8,8,8,8), ()): ("CMYK", "CMYK"),
+    ('b', 6, 1, 1, (8,8,8), ()): ("YCbCr", "YCbCr"),
+    ('b', 8, 1, 1, (8,8,8), ()): ("LAB", "LAB"),
+   
 }
 
 PREFIXES = ["MM\000\052", "II\052\000", "II\xBC\000"]
-
+PREFIX_TO_BYTEORDER = {"MM":"b", "II":"l"}
+BYTEORDER_TO_PREFIX = {"b":"MM", "l":"II"}
 def _accept(prefix):
     return prefix[:4] in PREFIXES
 
@@ -168,16 +207,17 @@ class ImageFileDirectory:
     # represents a TIFF tag directory.  to speed things up,
     # we don't decode tags unless they're asked for.
 
-    def __init__(self, prefix="II"):
+    def __init__(self, prefix):
         self.prefix = prefix[:2]
         if self.prefix == "MM":
             self.i16, self.i32 = ib16, ib32
-            # FIXME: save doesn't yet support big-endian mode...
+            self.o16, self.o32 = ob16, ob32
         elif self.prefix == "II":
             self.i16, self.i32 = il16, il32
             self.o16, self.o32 = ol16, ol32
         else:
             raise SyntaxError("not a TIFF IFD")
+        self.byteorder = PREFIX_TO_BYTEORDER[self.prefix]
         self.reset()
 
     def reset(self):
@@ -445,6 +485,8 @@ class ImageFileDirectory:
             if Image.DEBUG > 1:
                 print tag, typ, count, repr(value), repr(data)
             fp.write(o16(tag) + o16(typ) + o32(count) + value)
+
+        # -- overwrite here for multi-page -- 
         fp.write("\0\0\0\0") # end of directory
 
         # pass 3: write auxiliary data to file
@@ -579,7 +621,7 @@ class TiffImageFile(ImageFile.ImageFile):
 
         # mode: check photometric interpretation and bits per pixel
         key = (
-            photo, format, fillorder,
+            self.tag.byteorder, photo, format, fillorder,
             self.tag.get(BITSPERSAMPLE, (1,)),
             self.tag.get(EXTRASAMPLES, ())
             )
@@ -632,12 +674,12 @@ class TiffImageFile(ImageFile.ImageFile):
                     x = y = 0
                     l = l + 1
                     a = None
-        elif self.tag.has_key(324):
+        elif self.tag.has_key(TILEOFFSETS):
             # tiled image
             w = getscalar(322)
             h = getscalar(323)
             a = None
-            for o in self.tag[324]:
+            for o in self.tag[TILEOFFSETS]:
                 if not a:
                     a = self._decoder(rawmode, l)
                 # FIXME: this doesn't work if the image size
@@ -659,33 +701,38 @@ class TiffImageFile(ImageFile.ImageFile):
             raise SyntaxError("unknown data organization")
 
         # fixup palette descriptor
+        
         if self.mode == "P":
             palette = map(lambda a: chr(a / 256), self.tag[COLORMAP])
             self.palette = ImagePalette.raw("RGB;L", string.join(palette, ""))
-
 #
 # --------------------------------------------------------------------
 # Write TIFF files
 
-# little endian is default
+# little endian is default except for image modes with explict big endian byte-order
 
 SAVE_INFO = {
-    # mode => rawmode, photometrics, sampleformat, bitspersample, extra
-    "1": ("1", 1, 1, (1,), None),
-    "L": ("L", 1, 1, (8,), None),
-    "LA": ("LA", 1, 1, (8,8), 2),
-    "P": ("P", 3, 1, (8,), None),
-    "PA": ("PA", 3, 1, (8,8), 2),
-    "I": ("I;32S", 1, 2, (32,), None),
-    "I;16": ("I;16", 1, 1, (16,), None),
-    "I;16S": ("I;16S", 1, 2, (16,), None),
-    "F": ("F;32F", 1, 3, (32,), None),
-    "RGB": ("RGB", 2, 1, (8,8,8), None),
-    "RGBX": ("RGBX", 2, 1, (8,8,8,8), 0),
-    "RGBA": ("RGBA", 2, 1, (8,8,8,8), 2),
-    "CMYK": ("CMYK", 5, 1, (8,8,8,8), None),
-    "YCbCr": ("YCbCr", 6, 1, (8,8,8), None),
-    "LAB": ("LAB", 8, 1, (8,8,8), None),
+    # mode => rawmode, byteorder, photometrics, sampleformat, bitspersample, extra
+    "1": ("1", 'l', 1, 1, (1,), None),
+    "L": ("L", 'l', 1, 1, (8,), None),
+    "LA": ("LA", 'l', 1, 1, (8,8), 2),
+    "P": ("P", 'l', 3, 1, (8,), None),
+    "PA": ("PA", 'l', 3, 1, (8,8), 2),
+    "I": ("I;32S", 'l', 1, 2, (32,), None),
+    "I;16": ("I;16", 'l', 1, 1, (16,), None),
+    "I;16S": ("I;16S", 'l', 1, 2, (16,), None),
+    "F": ("F;32F", 'l', 1, 3, (32,), None),
+    "RGB": ("RGB", 'l', 2, 1, (8,8,8), None),
+    "RGBX": ("RGBX", 'l', 2, 1, (8,8,8,8), 0),
+    "RGBA": ("RGBA", 'l', 2, 1, (8,8,8,8), 2),
+    "CMYK": ("CMYK", 'l', 5, 1, (8,8,8,8), None),
+    "YCbCr": ("YCbCr", 'l', 6, 1, (8,8,8), None),
+    "LAB": ("LAB", 'l', 8, 1, (8,8,8), None),
+   
+    "I;32BS": ("I;32BS", 'b', 1, 2, (32,), None),
+    "I;16B": ("I;16B", 'b', 1, 1, (16,), None),
+    "I;16BS": ("I;16BS", 'b', 1, 2, (16,), None),
+    "F;32BF": ("F;32BF", 'b', 1, 3, (32,), None),
 }
 
 def _cvt_res(value):
@@ -701,14 +748,17 @@ def _cvt_res(value):
 def _save(im, fp, filename):
 
     try:
-        rawmode, photo, format, bits, extra = SAVE_INFO[im.mode]
+        rawmode, byteorder, photo, format, bits, extra = SAVE_INFO[im.mode]
     except KeyError:
         raise IOError, "cannot write mode %s as TIFF" % im.mode
 
-    ifd = ImageFileDirectory()
+    ifd = ImageFileDirectory(BYTEORDER_TO_PREFIX[byteorder])
 
-    # tiff header (write via IFD to get everything right)
-    fp.write(ifd.prefix + ifd.o16(42) + ifd.o32(8))
+    # -- multi-page -- skip TIFF header on subsequent pages
+    if fp.tell() == 0:
+        # tiff header (write via IFD to get everything right)
+        # PIL always starts the first IFD at offset 8
+        fp.write(ifd.prefix + ifd.o16(42) + ifd.o32(8))
 
     ifd[IMAGEWIDTH] = im.size[0]
     ifd[IMAGELENGTH] = im.size[1]
@@ -789,6 +839,12 @@ def _save(im, fp, filename):
     ImageFile._save(im, fp, [
         ("raw", (0,0)+im.size, offset, (rawmode, stride, 1))
         ])
+
+
+    # -- helper for multi-page save -- 
+    if im.encoderinfo.has_key("_debug_multipage"):
+        #just to access o32 and o16 (using correct byte order)
+        im._debug_multipage = ifd
 
 #
 # --------------------------------------------------------------------
