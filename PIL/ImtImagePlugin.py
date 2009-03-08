@@ -17,7 +17,7 @@
 
 __version__ = "0.2"
 
-import string, re
+import re
 
 import Image, ImageFile
 

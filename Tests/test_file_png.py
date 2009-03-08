@@ -111,10 +111,12 @@ def test_roundtrip_text():
     im = Image.open(file)
 
     info = PngImagePlugin.PngInfo()
-    info.add_text("KEY", "VALUE")
+    info.add_text("TXT", "VALUE")
+    info.add_text("ZIP", "VALUE", 1)
 
     im = roundtrip(im, pnginfo=info)
-    assert_equal(im.info, {'KEY': 'VALUE'})
+    assert_equal(im.info, {'TXT': 'VALUE', 'ZIP': 'VALUE'})
+    assert_equal(im.text, {'TXT': 'VALUE', 'ZIP': 'VALUE'})
 
 def test_scary():
     # Check reading of evil PNG file.  For information, see:

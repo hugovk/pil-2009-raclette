@@ -18,7 +18,6 @@
 
 __version__ = "0.4"
 
-import string
 import Image, ImageFile, ImagePalette
 
 MODES = {

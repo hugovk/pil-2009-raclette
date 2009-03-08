@@ -65,7 +65,7 @@ def read_32(fobj, (start, length), size):
                     break
             if bytesleft != 0:
                 raise SyntaxError(
-                    "Error reading %r channel [%r]" % (channel, bytesleft)
+                    "Error reading channel [%r left]" % bytesleft
                     )
             band = Image.frombuffer(
                 "L", size, string.join(data, ""), "raw", "L", 0, 1

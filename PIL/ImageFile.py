@@ -28,7 +28,7 @@
 #
 
 import Image
-import traceback, sys, string, os
+import traceback, string, os
 
 MAXBLOCK = 65536
 
@@ -443,6 +443,7 @@ class Parser:
                 fp = _ParserFile(self.data)
                 self.image = Image.open(fp)
             finally:
+                self.image.load()
                 fp.close() # explicitly close the virtual file
         return self.image
 

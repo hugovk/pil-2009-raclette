@@ -20,7 +20,6 @@
 __version__ = "0.1"
 
 
-import string
 import Image, ImageFile
 
 

@@ -58,10 +58,16 @@ if tempfiles:
         print file
     print "-"*68
 
+def tests(n):
+    if n == 1:
+        return "1 test"
+    else:
+        return "%d tests" % n
+
 if skipped:
-    print "--- %d tests skipped." % len(skipped)
+    print "---", tests(len(skipped)), "skipped."
     print skipped
 if failure:
-    print "*** %d tests of %d failed." % (failure, success + failure)
+    print "***", tests(failure), "of", (success + failure), "failed."
 else:
-    print "%d tests passed." % success
+    print tests(success), "passed."

@@ -194,10 +194,10 @@ else:
 
 _MODE_CONV = {
     # official modes
-    "1": ('|b1', None),
+    "1": ('|b1', None), # broken
     "L": ('|u1', None),
-    "I": ('%si4' % _ENDIAN, None), # FIXME: is this correct?
-    "F": ('%sf4' % _ENDIAN, None), # FIXME: is this correct?
+    "I": (_ENDIAN + 'i4', None),
+    "F": (_ENDIAN + 'f4', None),
     "P": ('|u1', None),
     "RGB": ('|u1', 3),
     "RGBX": ('|u1', 4),
@@ -1847,30 +1847,17 @@ def fromarray(obj, mode=None):
     except KeyError:
         strides = None
     if mode is None:
-        # FIXME: use a dictionary map instead
-        typestr = arr['typestr']
-        if not (typestr[0] == '|' or typestr[0] == _ENDIAN or
-                typestr[1:] not in ['u1', 'b1', 'i4', 'f4']):
-            raise TypeError("cannot handle data-type")
-        typestr = typestr[1:]
-        if typestr == 'i4':
-            mode = 'I'
-        elif typestr == 'f4':
-            mode = 'F'
-        elif typestr == 'b1':
-            mode = '1'
-        elif ndim == 2:
-            mode = 'L'
-        elif ndim == 3:
-            if shape[2] == 3:
-                mode = 'RGB'
-            elif shape[2] == 4:
-                mode = 'RGBA'
-        if mode is None:
-            raise TypeError("Do not understand data.")
-    if mode in ['1','L','I','P','F']:
+        try:
+            typekey = (1, 1) + shape[2:], arr['typestr']
+            mode, rawmode = _fromarray_typemap[typekey]
+        except KeyError:
+            # print typekey
+            raise TypeError("Cannot handle this data type")
+    else:
+        rawmode = mode
+    if mode in ["1", "L", "I", "P", "F"]:
         ndmax = 2
-    elif mode == 'RGB':
+    elif mode == "RGB":
         ndmax = 3
     else:
         ndmax = 4
@@ -1881,7 +1868,29 @@ def fromarray(obj, mode=None):
     if strides is not None:
         obj = obj.tostring()
 
-    return frombuffer(mode, size, obj, "raw", mode, 0, 1)
+    return frombuffer(mode, size, obj, "raw", rawmode, 0, 1)
+
+_fromarray_typemap = {
+    # (shape, typestr) => mode, rawmode
+    # first two members of shape are set to one
+    # ((1, 1), "|b1"): ("1", "1"), # broken
+    ((1, 1), "|u1"): ("L", "L"),
+    ((1, 1), "|i1"): ("I", "I;8"),
+    ((1, 1), "<i2"): ("I", "I;16"),
+    ((1, 1), ">i2"): ("I", "I;16B"),
+    ((1, 1), "<i4"): ("I", "I;32"),
+    ((1, 1), ">i4"): ("I", "I;32B"),
+    ((1, 1), "<f4"): ("F", "F;32F"),
+    ((1, 1), ">f4"): ("F", "F;32BF"),
+    ((1, 1), "<f8"): ("F", "F;64F"),
+    ((1, 1), ">f8"): ("F", "F;64BF"),
+    ((1, 1, 3), "|u1"): ("RGB", "RGB"),
+    ((1, 1, 4), "|u1"): ("RGBA", "RGBA"),
+    }
+
+# shortcuts
+_fromarray_typemap[((1, 1), _ENDIAN + "i4")] = ("I", "I")
+_fromarray_typemap[((1, 1), _ENDIAN + "f4")] = ("F", "F")
 
 ##
 # Opens and identifies the given image file.
