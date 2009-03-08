@@ -4,7 +4,9 @@ _target = None
 _tempfiles = []
 
 def success():
+    import sys
     success.count += 1
+    # print >>open("test.log", "a"), sys.argv[0], success.count, failure.count
 
 def failure(msg=None, frame=None):
     import sys, linecache
@@ -20,6 +22,7 @@ def failure(msg=None, frame=None):
         print prefix + line.strip() + " failed:"
     if msg:
         print "- " + msg
+    # print >>open("test.log", "a"), sys.argv[0], success.count, failure.count
 
 success.count = failure.count = 0
 
