@@ -2,21 +2,6 @@ from tester import *
 
 from PIL import Image
 
-# --------------------------------------------------------------------
-
-def test_archive():
-    import glob
-    for file in glob.glob("../pil-archive/*.pcx"):
-        try:
-            im = Image.open(file)
-            im.load()
-        except:
-            print "- failed to open", file
-        else:
-            success()
-
-# --------------------------------------------------------------------
-
 def test_pil184():
     # Check reading of files where xmin/xmax is not zero.
 

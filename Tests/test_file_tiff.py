@@ -2,21 +2,6 @@ from tester import *
 
 from PIL import Image
 
-# --------------------------------------------------------------------
-
-def test_archive():
-    import glob
-    for file in glob.glob("../pil-archive/*.tif"):
-        try:
-            im = Image.open(file)
-            im.load()
-        except:
-            print "- failed to open", file
-        else:
-            success()
-
-# --------------------------------------------------------------------
-
 def test_mac_tiff():
     # Read RGBa images from Mac OS X [@PIL136]
 

@@ -49,17 +49,6 @@ def test_sanity():
     assert_equal(im.size, (128, 128))
     assert_equal(im.format, "PNG")
 
-def test_archive():
-    import glob
-    for file in glob.glob("../pil-archive/*.png"):
-        try:
-            im = Image.open(file)
-            im.load()
-        except:
-            print "- failed to open", file
-        else:
-            success()
-
 # --------------------------------------------------------------------
 
 def test_broken():

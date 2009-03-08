@@ -2,21 +2,6 @@ from tester import *
 
 from PIL import Image
 
-# --------------------------------------------------------------------
-
-def test_archive():
-    import glob
-    for file in glob.glob("../pil-archive/*.xbm"):
-        try:
-            im = Image.open(file)
-            im.load()
-        except:
-            print "- failed to open", file
-        else:
-            success()
-
-# --------------------------------------------------------------------
-
 PIL151 = """
 #define basic_width 32
 #define basic_height 32

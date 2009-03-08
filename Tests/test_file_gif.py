@@ -18,17 +18,6 @@ def test_sanity():
     assert_equal(im.size, (128, 128))
     assert_equal(im.format, "GIF")
 
-def test_archive():
-    import glob
-    for file in glob.glob("../pil-archive/*.gif"):
-        try:
-            im = Image.open(file)
-            im.load()
-        except:
-            print "- failed to open", file
-        else:
-            success()
-
 def test_optimize():
     def test(optimize):
         im = Image.new("L", (1, 1), 0)
