@@ -1,6 +1,7 @@
 from tester import *
 
 from PIL import Image
+from PIL import ImagePalette
 
 def test_putpalette():
     def palette(mode):
@@ -18,3 +19,10 @@ def test_putpalette():
     assert_exception(ValueError, lambda: palette("RGB"))
     assert_exception(ValueError, lambda: palette("RGBA"))
     assert_exception(ValueError, lambda: palette("YCbCr"))
+
+def test_imagepalette():
+    im = lena("P")
+    assert_no_exception(lambda: im.putpalette(ImagePalette.negative()))
+    assert_no_exception(lambda: im.putpalette(ImagePalette.random()))
+    assert_no_exception(lambda: im.putpalette(ImagePalette.sepia()))
+    assert_no_exception(lambda: im.putpalette(ImagePalette.wedge()))

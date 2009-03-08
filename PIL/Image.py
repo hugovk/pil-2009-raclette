@@ -1215,13 +1215,17 @@ class Image:
     def putpalette(self, data, rawmode="RGB"):
         "Put palette data into an image."
 
-        self.load()
         if self.mode not in ("L", "P"):
             raise ValueError("illegal image mode")
-        if not isStringType(data):
-            data = string.join(map(chr, data), "")
+        self.load()
+        if isinstance(data, ImagePalette.ImagePalette):
+            palette = ImagePalette.raw(data.rawmode, data.palette)
+        else:
+            if not isStringType(data):
+                data = string.join(map(chr, data), "")
+            palette = ImagePalette.raw(rawmode, data)
         self.mode = "P"
-        self.palette = ImagePalette.raw(rawmode, data)
+        self.palette = palette
         self.palette.mode = "RGB"
         self.load() # install new palette
 
