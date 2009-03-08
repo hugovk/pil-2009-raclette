@@ -8,8 +8,7 @@
 # 1997-05-05 fl  Created (8-bit images only)
 # 2009-03-08 fl  Added 16/32-bit support.  
 #
-# Thanks to Richard Jones <richard.jones@bom.gov.au> and Craig
-# Swank for specs and samples.
+# Thanks to Richard Jones and Craig Swank for specs and samples.
 #
 # Copyright (c) Secret Labs AB 1997.
 # Copyright (c) Fredrik Lundh 1997.
@@ -21,12 +20,6 @@ __version__ = "0.2"
 
 import struct
 import Image, ImageFile
-
-def i16(c,i=0):
-    return ord(c[1+i])+(ord(c[i])<<8)
-
-def i32(c,i=0):
-    return ord(c[3+i])+(ord(c[2+i])<<8)+(ord(c[1+i])<<16)+(ord(c[i])<<24)
 
 def _accept(s):
     return s[:8] == "\x00\x00\x00\x00\x00\x00\x00\x04"
