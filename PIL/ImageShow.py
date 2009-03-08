@@ -57,6 +57,10 @@ class Viewer(object):
             # "I;16" isn't an 'official' mode, but we still want to
             # provide a simple way to show 16-bit images.
             base = "L"
+        elif image.mode == "I;16B":
+            # do it the hard way
+            image = image.convert("I")
+            base = "L"
         else:
             base = Image.getmodebase(image.mode)
         if base != image.mode and image.mode != "1":
