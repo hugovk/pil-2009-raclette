@@ -4,6 +4,8 @@
  * Copyright (C) 2002-2003 Kevin Cazabon
  * kevin@cazabon.com
  * http://www.cazabon.com
+ * Adapted/reworked for PIL by Fredrik Lundh
+ * Copyright (c) 2009 Fredrik Lundh
  * 
  * pyCMS home page:  http://www.cazabon.com/pyCMS
  * littleCMS home page:  http://www.littlecms.com
@@ -30,7 +32,7 @@ http://www.cazabon.com\n\
 /* version history */
 
 /*
-0.1.0 pil integration
+0.1.0 pil integration & refactoring
 0.0.2 alpha:  Minor updates, added interfaces to littleCMS features, Jan 6, 2003
     - fixed some memory holes in how transforms/profiles were created and passed back to Python
        due to improper destructor setup for PyCObjects
@@ -41,21 +43,15 @@ http://www.cazabon.com\n\
 
 */
 
-/* known to-do list with current version */
+/* known to-do list with current version:
 
-/*
-Add comments to code to make it clearer for others to read/understand!!!
 Verify that PILmode->littleCMStype conversion in findLCMStype is correct for all PIL modes (it probably isn't for the more obscure ones)
   
-Add support for reading and writing embedded profiles in JPEG and TIFF files
 Add support for creating custom RGB profiles on the fly
 Add support for checking presence of a specific tag in a profile
 Add support for other littleCMS features as required
 
 */
-
-
-/* reference */
 
 /*
 INTENT_PERCEPTUAL                 0
@@ -66,6 +62,8 @@ INTENT_ABSOLUTE_COLORIMETRIC      3
 
 /* -------------------------------------------------------------------- */
 /* wrapper classes */
+
+/* a profile represents the ICC characteristics for a specific device */
 
 typedef struct {
     PyObject_HEAD
@@ -96,7 +94,7 @@ cms_profile_open(PyObject* self, PyObject* args)
     cmsHPROFILE hProfile;
 
     char* sProfile;
-    if (!PyArg_ParseTuple(args, "s:OpenProfile", &sProfile))
+    if (!PyArg_ParseTuple(args, "s:profile_open", &sProfile))
       return NULL;
 
     cmsErrorAction(LCMS_ERROR_IGNORE);
@@ -111,20 +109,20 @@ cms_profile_open(PyObject* self, PyObject* args)
 }
 
 static PyObject*
-cms_profile_open_memory(PyObject* self, PyObject* args)
+cms_profile_fromstring(PyObject* self, PyObject* args)
 {
     cmsHPROFILE hProfile;
 
     char* pProfile;
     int nProfile;
-    if (!PyArg_ParseTuple(args, "s#:OpenMemoryProfile", &pProfile, &nProfile))
+    if (!PyArg_ParseTuple(args, "s#:profile_fromstring", &pProfile, &nProfile))
       return NULL;
 
     cmsErrorAction(LCMS_ERROR_IGNORE);
 
     hProfile = cmsOpenProfileFromMem(pProfile, nProfile);
     if (!hProfile)
-      PyErr_SetString(PyExc_IOError, "cannot open memory profile");
+      PyErr_SetString(PyExc_IOError, "cannot open profile from string");
 
     return cms_profile_new(hProfile);
 }
@@ -135,6 +133,8 @@ cms_profile_dealloc(CmsProfileObject* self)
     cmsCloseProfile(self->profile);
     PyObject_Del(self);
 }
+
+/* a transform represents the mapping between two profiles */
 
 typedef struct {
     PyObject_HEAD
@@ -319,18 +319,6 @@ versions (PyObject *self, PyObject *args)
   return Py_BuildValue("si", PYCMSVERSION, LCMS_VERSION);
 }
 
-static cmsHPROFILE
-open_profile(const char* sProfile)
-{
-  cmsHPROFILE hProfile;
-
-  hProfile = cmsOpenProfileFromFile(sProfile, "r");
-  if (!hProfile)
-    PyErr_SetString(PyExc_IOError, "cannot open profile file");
-
-  return hProfile;
-}
-
 static PyObject *
 buildTransform(PyObject *self, PyObject *args) {
   CmsProfileObject *pInputProfile;
@@ -474,7 +462,7 @@ cms_profile_is_intent_supported(CmsProfileObject *self, PyObject *args)
 static PyMethodDef pyCMSdll_methods[] = {
 
   {"profile_open", cms_profile_open, 1},
-  {"profile_fromstring", cms_profile_open_memory, 1},
+  {"profile_fromstring", cms_profile_fromstring, 1},
 
   /* pyCMS info */
   {"versions", versions, 1},
