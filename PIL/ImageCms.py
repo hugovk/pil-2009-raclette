@@ -171,7 +171,9 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     im.load() # make sure it's loaded, or it may not have a .im attribute!
 
     try:
-        result = cmscore.profileToProfile(im.im.id, imOut.im.id, inputProfile, outputProfile, renderingIntent)
+        transform = buildTransform(inputProfile, outputProfile,
+                                   im.mode, outputMode, renderingIntent)
+        result = transform.apply(im.im.id, imOut.im.id)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -281,10 +283,9 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
-    inputProfile = _make_profile(inputProfile)
-    outputProfile = _make_profile(outputProfile)
-
     try:
+        inputProfile = _make_profile(inputProfile)
+        outputProfile = _make_profile(outputProfile)
         return cmscore.buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
@@ -367,11 +368,10 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
-    inputProfile = _make_profile(inputProfile)
-    outputProfile = _make_profile(outputProfile)
-    displayProfile = _make_profile(displayProfile)
-
     try:
+        inputProfile = _make_profile(inputProfile)
+        outputProfile = _make_profile(outputProfile)
+        displayProfile = _make_profile(displayProfile)
         return cmscore.buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent, displayRenderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)

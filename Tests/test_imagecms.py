@@ -68,5 +68,6 @@ def test_sanity():
 
     # the procedural pyCMS API uses PyCMSError for all sorts of errors
     assert_exception(ImageCms.PyCMSError, lambda: ImageCms.profileToProfile(lena(), "foo", "bar"))
+    assert_exception(ImageCms.PyCMSError, lambda: ImageCms.buildTransform("foo", "bar", "RGB", "RGB"))
     assert_exception(ImageCms.PyCMSError, lambda: ImageCms.getProfileName(None))
     assert_exception(ImageCms.PyCMSError, lambda: ImageCms.isIntentSupported(SRGB, None, None))

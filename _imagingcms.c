@@ -102,8 +102,10 @@ cms_profile_open(PyObject* self, PyObject* args)
     cmsErrorAction(LCMS_ERROR_IGNORE);
 
     hProfile = cmsOpenProfileFromFile(sProfile, "r");
-    if (!hProfile)
+    if (!hProfile) {
       PyErr_SetString(PyExc_IOError, "cannot open profile file");
+      return NULL;
+    }
 
     return cms_profile_new(hProfile);
 }
@@ -402,77 +404,6 @@ cms_transform_apply(CmsTransformObject *self, PyObject *args)
   return Py_BuildValue("i", result);
 }
 
-static PyObject *
-profileToProfile(PyObject *self, PyObject *args)
-{
-  Imaging im;
-  Imaging imOut;
-  long idIn;
-  long idOut = 0L;
-  char *sInputProfile = NULL;
-  char *sOutputProfile = NULL;
-  int iRenderingIntent = 0;
-  char *inMode;
-  char *outMode;
-  int result;
-
-  cmsHTRANSFORM hTransform = NULL;
-  cmsHPROFILE hInputProfile = NULL;
-  cmsHPROFILE hOutputProfile = NULL;
-
-  /* parse the PyObject arguments, assign to variables accordingly */
-  if (!PyArg_ParseTuple(args, "llss|i:profileToProfile", &idIn, &idOut, &sInputProfile, &sOutputProfile, &iRenderingIntent))
-    return NULL;
-
-  im = (Imaging) idIn;
-
-  if (idOut != 0L) {
-    imOut = (Imaging) idOut;
-  } else
-    imOut = NULL;
-
-  cmsErrorAction(LCMS_ERROR_IGNORE);
-
-  /* Check the modes of imIn and imOut to set the color type for the
-     transform.  Note that the modes do NOT have to be the same, as
-     long as they are each supported by the relevant profile
-     specified */
-
-  inMode = im->mode;
-  if (idOut == 0L) {
-    outMode = inMode;
-  } else {
-    outMode = imOut->mode;
-  }
-
-  hInputProfile  = open_profile(sInputProfile);
-  hOutputProfile = open_profile(sOutputProfile);
-
-  if (hInputProfile && hOutputProfile)
-    hTransform = _buildTransform(hInputProfile, hOutputProfile, inMode, outMode, iRenderingIntent);
-
-  if (hOutputProfile)
-    cmsCloseProfile(hOutputProfile);
-  if (hInputProfile)
-    cmsCloseProfile(hInputProfile);
-
-  if (!hTransform)
-    return NULL;
-
-  /* apply the transform to imOut (or directly to im in place if idOut
-     is not supplied) */
-  if (idOut != 0L) {
-    result = pyCMSdoTransform(im, imOut, hTransform);
-  } else {
-    result = pyCMSdoTransform(im, im, hTransform);
-  }
-
-  cmsDeleteTransform(hTransform);
-
-  /* return 0 on success, -1 on failure */
-  return Py_BuildValue("i", result);
-}
-
 /* -------------------------------------------------------------------- */
 /* Python-Callable On-The-Fly profile creation functions */
 
@@ -549,7 +480,6 @@ static PyMethodDef pyCMSdll_methods[] = {
   {"versions", versions, 1},
 
   /* profile and transform functions */
-  {"profileToProfile", profileToProfile, 1},
   {"buildTransform", buildTransform, 1},
   {"buildProofTransform", buildProofTransform, 1},
   {"createProfile", createProfile, 1},
