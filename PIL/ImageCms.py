@@ -147,6 +147,8 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
 
     if inPlace:
         imOut = im
+        if imOut.readonly:
+            imOut._copy()
     else:
         imOut = Image.new(outputMode, im.size)
 
@@ -498,6 +500,8 @@ def applyTransform(im, transform, inPlace=0):
         if transform.inputMode != transform.outputMode:
             raise PyCMSError("Cannot transform image in place, input mode and output mode are different (%s vs. %s)" % (transform.inMode, transform.outMode))
         imOut = im
+        if imOut.readonly:
+            imOut._copy()
     else:
         imOut = Image.new(transform.outputMode, im.size)
 
