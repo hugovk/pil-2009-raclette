@@ -194,8 +194,6 @@ findICmode(icColorSpaceSignature cs)
 static DWORD 
 findLCMStype(char* PILmode)
 {
-  char *errorMsg = NULL;
-
   if (strcmp(PILmode, "RGB") == 0) {
     return TYPE_RGBA_8;
   }
@@ -434,7 +432,8 @@ profileToProfile(PyObject *self, PyObject *args)
 
   if (idOut != 0L) {
     imOut = (Imaging) idOut;
-  }
+  } else
+    imOut = NULL;
 
   cmsErrorAction(LCMS_ERROR_IGNORE);
 
@@ -488,7 +487,7 @@ createProfile(PyObject *self, PyObject *args)
   cmsHPROFILE hProfile;
   int iColorTemp = 0;
   LPcmsCIExyY whitePoint = NULL;
-  BOOL result;
+  LCMSBOOL result;
 
   if (!PyArg_ParseTuple(args, "s|i:createProfile", &sColorSpace, &iColorTemp))
     return NULL;
@@ -498,7 +497,7 @@ createProfile(PyObject *self, PyObject *args)
   if (strcmp(sColorSpace, "LAB") == 0) {
     if (iColorTemp > 0) {
       result = cmsWhitePointFromTemp(iColorTemp, whitePoint);
-      if (result == FALSE) {
+      if (!result) {
 	PyErr_SetString(PyExc_ValueError, "ERROR: Could not calculate white point from color temperature provided, must be integer in degrees Kelvin");
 	return NULL;
       }
@@ -528,7 +527,7 @@ createProfile(PyObject *self, PyObject *args)
 static PyObject *
 cms_profile_is_intent_supported(CmsProfileObject *self, PyObject *args)
 {
-  BOOL result;
+  LCMSBOOL result;
 
   int intent;
   int direction;
