@@ -4,7 +4,7 @@ from PIL import Image
 from PIL import ImageDraw
 
 def test_sanity():
-    
+
     im = lena("RGB").copy()
 
     draw = ImageDraw.ImageDraw(im)

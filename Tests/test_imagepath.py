@@ -47,5 +47,3 @@ def test_path():
     assert_equal(list(p), [(0.0, 1.0)])
     p = ImagePath.Path(array.array("f", [0, 1]).tostring())
     assert_equal(list(p), [(0.0, 1.0)])
-
-

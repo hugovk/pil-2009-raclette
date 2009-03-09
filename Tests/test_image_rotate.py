@@ -10,4 +10,3 @@ def test_rotate():
         assert_equal(out.size, im.size) # default rotate clips output
     for mode in "1", "P", "L", "RGB", "I", "F":
         yield_test(rotate, mode)
-        

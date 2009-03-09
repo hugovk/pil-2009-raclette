@@ -50,4 +50,3 @@ def test_numpy_to_image():
 
     assert_image(to_image(numpy.uint8, 3), "RGB", (10, 10))
     assert_image(to_image(numpy.uint8, 4), "RGBA", (10, 10))
-
