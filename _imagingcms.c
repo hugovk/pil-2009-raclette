@@ -273,9 +273,13 @@ getOpenProfile(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, "s:getOpenProfile", &sProfile))
     return NULL;
 
-  cmsErrorAction(cmsERROR_HANDLER); /* FIXME */
+  cmsErrorAction(LCMS_ERROR_IGNORE);
 
   hProfile = cmsOpenProfileFromFile(sProfile, "r");
+  if (!hProfile) {
+    PyErr_SetString(PyExc_IOError, "cannot open profile file");
+    return NULL;
+  }
 
   return cms_profile_new(hProfile);
 }
@@ -509,7 +513,8 @@ createProfile(PyObject *self, PyObject *args)
     if (iColorTemp > 0) {
       result = cmsWhitePointFromTemp(iColorTemp, whitePoint);
       if (result == FALSE) {
-        return Py_BuildValue("s", "ERROR: Could not calculate white point from color temperature provided, must be integer in degrees Kelvin");
+	PyErr_SetString(PyExc_ValueError, "ERROR: Could not calculate white point from color temperature provided, must be integer in degrees Kelvin");
+	return NULL;
       }
       hProfile = cmsCreateLabProfile(whitePoint);
     }
@@ -524,7 +529,8 @@ createProfile(PyObject *self, PyObject *args)
     hProfile = cmsCreate_sRGBProfile();
   }
   else {
-    return Py_BuildValue("s", "ERROR: Color space requested is not valid for built-in profiles");
+    PyErr_SetString(PyExc_ValueError, "ERROR: Color space requested is not valid for built-in profiles");
+    return NULL;
   }
 
   return cms_profile_new(hProfile);
