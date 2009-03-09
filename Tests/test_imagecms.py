@@ -12,7 +12,6 @@ def test_sanity():
 
     # basic smoke test.
     # this mostly follows the cms_test outline.
-    assert_exception(ImageCms.PyCMSError, lambda: ImageCms.profileToProfile(lena(), "foo", "bar")) # IOError would make a bit more sense
 
     i = ImageCms.profileToProfile(lena(), SRGB, SRGB)
     assert_image(i, "RGB", (128, 128))
@@ -54,3 +53,8 @@ def test_sanity():
     assert_equal(ImageCms.isIntentSupported(
             p, ImageCms.INTENT_ABSOLUTE_COLORIMETRIC,
             ImageCms.DIRECTION_INPUT), 1)
+
+    # the procedural pyCMS API uses PyCMSError for all sorts of errors
+    assert_exception(ImageCms.PyCMSError, lambda: ImageCms.profileToProfile(lena(), "foo", "bar"))
+    assert_exception(ImageCms.PyCMSError, lambda: ImageCms.getProfileName(None))
+    assert_exception(ImageCms.PyCMSError, lambda: ImageCms.isIntentSupported(SRGB, None, None))

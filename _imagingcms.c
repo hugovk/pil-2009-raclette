@@ -229,34 +229,19 @@ versions (PyObject *self, PyObject *args)
 }
 
 static PyObject *
-about (PyObject *self, PyObject *args)
-{
-  return Py_BuildValue("s", COPYRIGHTINFO);
-}
-
-static PyObject *
-copyright (PyObject *self, PyObject *args)
-{
-  return about(self, args);
-}
-
-static PyObject *
 getOpenProfile(PyObject *self, PyObject *args)
 {
-  char *sProfile = NULL;
-
   cmsHPROFILE hProfile;
 
-  if (!PyArg_ParseTuple(args, "s", &sProfile)) {
-    PyErr_Clear(); /* FIXME */
-    return Py_BuildValue("s", "ERROR: Could not parse argument tuple passed to pyCMSdll.getOpenProfile()");
-  }
+  char *sProfile = NULL;
+  if (!PyArg_ParseTuple(args, "s:getOpenProfile", &sProfile))
+    return NULL;
 
-  cmsErrorAction(cmsERROR_HANDLER);
+  cmsErrorAction(cmsERROR_HANDLER); /* FIXME */
 
   hProfile = cmsOpenProfileFromFile(sProfile, "r");
 
-  return Py_BuildValue("O", PyCObject_FromVoidPtr(hProfile, cmsCloseProfile));
+  return PyCObject_FromVoidPtr(hProfile, cmsCloseProfile);
 }
 
 static PyObject *
@@ -269,10 +254,8 @@ buildTransform(PyObject *self, PyObject *args) {
   cmsHPROFILE hInputProfile, hOutputProfile;
   cmsHTRANSFORM transform;
 
-  if (!PyArg_ParseTuple(args, "ssss|i", &sInputProfile, &sOutputProfile, &sInMode, &sOutMode, &iRenderingIntent)) {
-    PyErr_Clear(); /* FIXME */
-    return Py_BuildValue("s", "ERROR: Could not parse argument tuple passed to pyCMSdll.buildTransform()");
-  }
+  if (!PyArg_ParseTuple(args, "ssss|i:buildTransform", &sInputProfile, &sOutputProfile, &sInMode, &sOutMode, &iRenderingIntent))
+    return NULL;
 
   cmsErrorAction(cmsERROR_HANDLER);
 
@@ -299,10 +282,8 @@ buildTransformFromOpenProfiles (PyObject *self, PyObject *args)
   void *hTransformPointer = NULL;
   cmsHTRANSFORM transform;
 
-  if (!PyArg_ParseTuple(args, "OOss|i", &pInputProfile, &pOutputProfile, &sInMode, &sOutMode, &iRenderingIntent)) {
-    PyErr_Clear(); /* FIXME */
-    return Py_BuildValue("s", "ERROR: Could not parse argument tuple passed to pyCMSdll.buildTransformFromOpenProfiles()");
-  }
+  if (!PyArg_ParseTuple(args, "OOss|i:buildTransformFromOpenProfiles", &pInputProfile, &pOutputProfile, &sInMode, &sOutMode, &iRenderingIntent))
+    return NULL;
 
   cmsErrorAction(cmsERROR_HANDLER);
 
@@ -330,10 +311,8 @@ buildProofTransform(PyObject *self, PyObject *args)
 
   cmsHPROFILE hInputProfile, hOutputProfile, hDisplayProfile;
 
-  if (!PyArg_ParseTuple(args, "sssss|ii", &sInputProfile, &sOutputProfile, &sDisplayProfile, &sInMode, &sOutMode, &iRenderingIntent, &iDisplayIntent)) {
-    PyErr_Clear(); /* FIXME */
-    return Py_BuildValue("s", "ERROR: Could not parse argument tuple passed to pyCMSdll.buildProofTransform()");
-  }
+  if (!PyArg_ParseTuple(args, "sssss|ii:buildProofTransform", &sInputProfile, &sOutputProfile, &sDisplayProfile, &sInMode, &sOutMode, &iRenderingIntent, &iDisplayIntent))
+    return NULL;
 
   cmsErrorAction(cmsERROR_HANDLER);
 
@@ -366,10 +345,8 @@ buildProofTransformFromOpenProfiles(PyObject *self, PyObject *args)
 
   cmsHPROFILE hInputProfile, hOutputProfile, hDisplayProfile;
 
-  if (!PyArg_ParseTuple(args, "OOOss|ii", &pInputProfile, &pOutputProfile, &pDisplayProfile, &sInMode, &sOutMode, &iRenderingIntent, &iDisplayIntent)) {
-    PyErr_Clear(); /* FIXME */
-    return Py_BuildValue("s", "ERROR: Could not parse argument tuple passed to pyCMSdll.buildProofTransform()");
-  }
+  if (!PyArg_ParseTuple(args, "OOOss|ii:buildProofTransform", &pInputProfile, &pOutputProfile, &pDisplayProfile, &sInMode, &sOutMode, &iRenderingIntent, &iDisplayIntent))
+    return NULL;
 
   cmsErrorAction(cmsERROR_HANDLER);
 
@@ -396,10 +373,8 @@ applyTransform(PyObject *self, PyObject *args)
 
   int result;
 
-  if (!PyArg_ParseTuple(args, "llO", &idIn, &idOut, &pTransform)) { 
-    PyErr_Clear(); /* FIXME */
-    return Py_BuildValue("s", "ERROR: Could not parse the data passed to pyCMSdll.applyTransform()");
-  }
+  if (!PyArg_ParseTuple(args, "llO:applyTransform", &idIn, &idOut, &pTransform))
+    return NULL;
 
   im = (Imaging) idIn;
   imOut = (Imaging) idOut;
@@ -430,10 +405,8 @@ profileToProfile(PyObject *self, PyObject *args)
   cmsHTRANSFORM hTransform;
 
   // parse the PyObject arguments, assign to variables accordingly
-  if (!PyArg_ParseTuple(args, "llss|i", &idIn, &idOut, &sInputProfile, &sOutputProfile, &iRenderingIntent)) { 
-    PyErr_Clear(); /* FIXME */
-    return Py_BuildValue("s", "ERROR: Could not parse the argument tuple passed to pyCMSdll.profileToProfile()");
-  }
+  if (!PyArg_ParseTuple(args, "llss|i:profileToProfile", &idIn, &idOut, &sInputProfile, &sOutputProfile, &iRenderingIntent))
+    return NULL;
 
   im = (Imaging) idIn;
 
@@ -491,10 +464,8 @@ createProfile(PyObject *self, PyObject *args)
   LPcmsCIExyY whitePoint = NULL;
   BOOL result;
 
-  if (!PyArg_ParseTuple(args, "s|i", &sColorSpace, &iColorTemp)) { 
-    PyErr_Clear(); /* FIXME */
-    return Py_BuildValue("s", "ERROR: Could not parse the argument tuple passed to pyCMSdll.createProfile()");
-  }
+  if (!PyArg_ParseTuple(args, "s|i:createProfile", &sColorSpace, &iColorTemp))
+    return NULL;
 
   cmsErrorAction(cmsERROR_HANDLER);
 
@@ -554,7 +525,7 @@ getProfileName(PyObject *self, PyObject *args)
   cmsHPROFILE hProfile;
   BOOL closeProfile;
 
-  if (!PyArg_ParseTuple(args, "O", &profile))
+  if (!PyArg_ParseTuple(args, "O:getProfileName", &profile))
     return NULL;
   if (!getprofile(profile, &hProfile, &closeProfile))
     return NULL;
@@ -575,7 +546,7 @@ getProfileInfo(PyObject *self, PyObject *args)
   cmsHPROFILE hProfile;
   BOOL closeProfile;
 
-  if (!PyArg_ParseTuple(args, "O", &profile))
+  if (!PyArg_ParseTuple(args, "O:getProfileInfo", &profile))
     return NULL;
   if (!getprofile(profile, &hProfile, &closeProfile))
     return NULL;
@@ -596,7 +567,7 @@ getDefaultIntent(PyObject *self, PyObject *args)
   cmsHPROFILE hProfile;
   BOOL closeProfile;
 
-  if (!PyArg_ParseTuple(args, "O", &profile))
+  if (!PyArg_ParseTuple(args, "O:getDefaultIntent", &profile))
     return NULL;
   if (!getprofile(profile, &hProfile, &closeProfile))
     return NULL;
@@ -619,7 +590,7 @@ isIntentSupported(PyObject *self, PyObject *args)
   cmsHPROFILE hProfile;
   BOOL closeProfile;
 
-  if (!PyArg_ParseTuple(args, "Oii", &profile, &iIntent, &iDirection))
+  if (!PyArg_ParseTuple(args, "Oii:isIntentSupported", &profile, &iIntent, &iDirection))
     return NULL;
   if (!getprofile(profile, &hProfile, &closeProfile))
     return NULL;
@@ -642,8 +613,6 @@ isIntentSupported(PyObject *self, PyObject *args)
 static PyMethodDef pyCMSdll_methods[] = {
   // pyCMS info
   {"versions", versions, 1, "pyCMSdll.versions() returs tuple of pyCMSversion, littleCMSversion, pythonVersion that it was compiled with (don't trust this 100%, they must be set manually in the source code for now)"},
-  {"about", about, 1, "pyCMSdll.about() returns info about pyCMSdll"},
-  {"copyright", copyright, 1, "pyCMSdll.copyright() returns info about pyCMSdll"},
 
   // profile and transform functions
   {"profileToProfile", profileToProfile, 1, "pyCMSdll.profileToProfile (idIn, idOut, InputProfile, OutputProfile, [RenderingIntent]) returns 0 on success, -1 on failure.  If idOut is the same as idIn, idIn is modified in place, otherwise the results are applied to idOut"},
@@ -666,7 +635,8 @@ static PyMethodDef pyCMSdll_methods[] = {
   {NULL, NULL}
 };
 
-void init_imagingcms(void)
+DL_EXPORT(void)
+init_imagingcms(void)
 {
   Py_InitModule("_imagingcms", pyCMSdll_methods);
 }
