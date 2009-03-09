@@ -186,7 +186,7 @@ def getOpenProfile(profileFilename):
     """    
     
     try:
-        result = pyCMSdll.getOpenProfile(profileFilename)
+        result = pyCMSdll.OpenProfile(profileFilename)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -250,7 +250,7 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
     try:
-        result = pyCMSdll.buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent)
+        result = pyCMSdll.buildTransform(pyCMSdll.OpenProfile(inputProfile), pyCMSdll.OpenProfile(outputProfile), inMode, outMode, renderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -330,7 +330,7 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
     try:
-        result = pyCMSdll.buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent, displayRenderingIntent)
+        result = pyCMSdll.buildProofTransform(pyCMSdll.OpenProfile(inputProfile), pyCMSdll.OpenProfile(outputProfile), pyCMSdll.OpenProfile(displayProfile), inMode, outMode, renderingIntent, displayRenderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -372,7 +372,7 @@ def buildTransformFromOpenProfiles(inputProfile, outputProfile, inMode, outMode,
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
     
     try:
-        result = pyCMSdll.buildTransformFromOpenProfiles(inputProfile.profile, outputProfile.profile, inMode, outMode, renderingIntent)
+        result = pyCMSdll.buildTransform(inputProfile.profile, outputProfile.profile, inMode, outMode, renderingIntent)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -423,7 +423,7 @@ def buildProofTransformFromOpenProfiles(inputProfile, outputProfile, displayProf
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
     
     try:
-        result = pyCMSdll.buildProofTransformFromOpenProfiles(inputProfile.profile, outputProfile.profile, displayProfile.profile, inMode, outMode, renderingIntent, displayRenderingIntent)
+        result = pyCMSdll.buildProofTransform(inputProfile.profile, outputProfile.profile, displayProfile.profile, inMode, outMode, renderingIntent, displayRenderingIntent)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -567,7 +567,7 @@ def getProfileName(profile):
     """
     try:
         if isinstance(profile, type("")):
-            profile = pyCMSdll.getOpenProfile(profile)
+            profile = pyCMSdll.OpenProfile(profile)
         else:
             profile = profile.profile
         # add an extra newline to preserve pyCMS compatibility
@@ -599,7 +599,7 @@ def getProfileInfo(profile):
     """
     try:
         if isinstance(profile, type("")):
-            profile = pyCMSdll.getOpenProfile(profile)
+            profile = pyCMSdll.OpenProfile(profile)
         else:
             profile = profile.profile
         # add an extra newline to preserve pyCMS compatibility
@@ -638,7 +638,7 @@ def getDefaultIntent(profile):
     """    
     try:
         if isinstance(profile, type("")):
-            profile = pyCMSdll.getOpenProfile(profile)
+            profile = pyCMSdll.OpenProfile(profile)
         else:
             profile = profile.profile
         return profile.rendering_intent
@@ -682,7 +682,7 @@ def isIntentSupported(profile, intent, direction):
     """
     try:
         if isinstance(profile, type("")):
-            profile = pyCMSdll.getOpenProfile(profile)
+            profile = pyCMSdll.OpenProfile(profile)
         else:
             profile = profile.profile
         if profile.is_intent_supported(intent, direction):

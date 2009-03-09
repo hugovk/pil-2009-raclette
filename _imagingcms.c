@@ -93,6 +93,24 @@ cms_profile_new(cmsHPROFILE profile)
     return (PyObject*) self;
 }
 
+static PyObject*
+cms_profile_open(PyObject* self, PyObject* args)
+{
+    cmsHPROFILE hProfile;
+
+    char* sProfile;
+    if (!PyArg_ParseTuple(args, "s:OpenProfile", &sProfile))
+      return NULL;
+
+    cmsErrorAction(LCMS_ERROR_IGNORE);
+
+    hProfile = cmsOpenProfileFromFile(sProfile, "r");
+    if (!hProfile)
+      PyErr_SetString(PyExc_IOError, "cannot open profile file");
+
+    return cms_profile_new(hProfile);
+}
+
 static void
 cms_profile_dealloc(CmsProfileObject* self)
 {
@@ -274,78 +292,21 @@ open_profile(const char* sProfile)
 }
 
 static PyObject *
-getOpenProfile(PyObject *self, PyObject *args)
-{
-  cmsHPROFILE hProfile;
-
-  char *sProfile = NULL;
-  if (!PyArg_ParseTuple(args, "s:getOpenProfile", &sProfile))
-    return NULL;
-
-  cmsErrorAction(LCMS_ERROR_IGNORE);
-
-  hProfile = open_profile(sProfile);
-  if (!hProfile)
-    return NULL;
-
-  return cms_profile_new(hProfile);
-}
-
-static PyObject *
 buildTransform(PyObject *self, PyObject *args) {
-  char *sInputProfile;
-  char *sOutputProfile;
+  CmsProfileObject *pInputProfile;
+  CmsProfileObject *pOutputProfile;
   char *sInMode;
   char *sOutMode;
   int iRenderingIntent = 0;
 
   cmsHTRANSFORM transform = NULL;
-  cmsHPROFILE hInputProfile = NULL;
-  cmsHPROFILE hOutputProfile = NULL;
 
-  if (!PyArg_ParseTuple(args, "ssss|i:buildTransform", &sInputProfile, &sOutputProfile, &sInMode, &sOutMode, &iRenderingIntent))
+  if (!PyArg_ParseTuple(args, "O!O!ss|i:buildTransform", &CmsProfile_Type, &pInputProfile, &CmsProfile_Type, &pOutputProfile, &sInMode, &sOutMode, &iRenderingIntent))
     return NULL;
 
   cmsErrorAction(LCMS_ERROR_IGNORE);
 
-  hInputProfile = open_profile(sInputProfile);
-  hOutputProfile = open_profile(sOutputProfile);
-
-  if (hInputProfile && hOutputProfile)
-    transform = _buildTransform(hInputProfile, hOutputProfile, sInMode, sOutMode, iRenderingIntent);
-
-  if (hOutputProfile)
-    cmsCloseProfile(hOutputProfile);
-  if (hInputProfile)
-    cmsCloseProfile(hInputProfile);
-
-  if (!transform)
-    return NULL;
-
-  return cms_transform_new(transform);
-}
-
-static PyObject *
-buildTransformFromOpenProfiles (PyObject *self, PyObject *args)
-{
-  char *sInMode;
-  char *sOutMode;
-  int iRenderingIntent = 0;
-  CmsProfileObject *pInputProfile;
-  CmsProfileObject *pOutputProfile;
-  cmsHPROFILE hInputProfile, hOutputProfile;
-  void *hTransformPointer = NULL;
-  cmsHTRANSFORM transform;
-
-  if (!PyArg_ParseTuple(args, "O!O!ss|i:buildTransformFromOpenProfiles", &CmsProfile_Type, &pInputProfile, &CmsProfile_Type, &pOutputProfile, &sInMode, &sOutMode, &iRenderingIntent))
-    return NULL;
-
-  cmsErrorAction(LCMS_ERROR_IGNORE);
-
-  hInputProfile = pInputProfile->profile; 
-  hOutputProfile = pOutputProfile->profile; 
-
-  transform = _buildTransform(hInputProfile, hOutputProfile, sInMode, sOutMode, iRenderingIntent);
+  transform = _buildTransform(pInputProfile->profile, pOutputProfile->profile, sInMode, sOutMode, iRenderingIntent);
 
   if (!transform)
     return NULL;
@@ -356,75 +317,28 @@ buildTransformFromOpenProfiles (PyObject *self, PyObject *args)
 static PyObject *
 buildProofTransform(PyObject *self, PyObject *args)
 {
-  char *sInputProfile;
-  char *sOutputProfile;
-  char *sDisplayProfile;
+  CmsProfileObject *pInputProfile;
+  CmsProfileObject *pOutputProfile;
+  CmsProfileObject *pDisplayProfile;
   char *sInMode;
   char *sOutMode;
   int iRenderingIntent = 0;
   int iDisplayIntent = 0;
 
   cmsHTRANSFORM transform = NULL;
-  cmsHPROFILE hInputProfile = NULL;
-  cmsHPROFILE hOutputProfile = NULL;
-  cmsHPROFILE hDisplayProfile = NULL;
-
-  if (!PyArg_ParseTuple(args, "sssss|ii:buildProofTransform", &sInputProfile, &sOutputProfile, &sDisplayProfile, &sInMode, &sOutMode, &iRenderingIntent, &iDisplayIntent))
-    return NULL;
-
-  cmsErrorAction(LCMS_ERROR_IGNORE);
-
-  /* open the input and output profiles */
-  hInputProfile = open_profile(sInputProfile);
-  hOutputProfile = open_profile(sOutputProfile);
-  hDisplayProfile = open_profile(sDisplayProfile);
-
-  if (hInputProfile && hOutputProfile && hDisplayProfile)
-    transform = _buildProofTransform(hInputProfile, hOutputProfile, hDisplayProfile, sInMode, sOutMode, iRenderingIntent, iDisplayIntent);
-  
-  if (hDisplayProfile)
-    cmsCloseProfile(hDisplayProfile);
-  if (hOutputProfile)
-    cmsCloseProfile(hOutputProfile);
-  if (hInputProfile)
-    cmsCloseProfile(hInputProfile);
-
-  if (!transform)
-    return NULL;
-
-  return cms_transform_new(transform);
-
-}
-
-static PyObject *
-buildProofTransformFromOpenProfiles(PyObject *self, PyObject *args)
-{
-  char *sInMode;
-  char *sOutMode;
-  int iRenderingIntent = 0;
-  int iDisplayIntent = 0;
-  CmsProfileObject *pInputProfile;
-  CmsProfileObject *pOutputProfile;
-  CmsProfileObject *pDisplayProfile;
-  cmsHTRANSFORM transform;
-
-  cmsHPROFILE hInputProfile, hOutputProfile, hDisplayProfile;
 
   if (!PyArg_ParseTuple(args, "O!O!O!ss|ii:buildProofTransform", &CmsProfile_Type, &pInputProfile, &CmsProfile_Type, &pOutputProfile, &CmsProfile_Type, &pDisplayProfile, &sInMode, &sOutMode, &iRenderingIntent, &iDisplayIntent))
     return NULL;
 
-  cmsErrorAction(LCMS_ERROR_SHOW); /* FIXME */
+  cmsErrorAction(LCMS_ERROR_IGNORE);
 
-  hInputProfile = pInputProfile->profile; 
-  hOutputProfile = pOutputProfile->profile; 
-  hDisplayProfile = pDisplayProfile->profile; 
-
-  transform = _buildProofTransform(hInputProfile, hOutputProfile, hDisplayProfile, sInMode, sOutMode, iRenderingIntent, iDisplayIntent);
-
+  transform = _buildProofTransform(pInputProfile->profile, pOutputProfile->profile, pDisplayProfile->profile, sInMode, sOutMode, iRenderingIntent, iDisplayIntent);
+  
   if (!transform)
     return NULL;
 
   return cms_transform_new(transform);
+
 }
 
 static PyObject *
@@ -590,17 +504,17 @@ cms_profile_is_intent_supported(CmsProfileObject *self, PyObject *args)
 /* Python interface setup */
 
 static PyMethodDef pyCMSdll_methods[] = {
+  /* object administration */
+  {"OpenProfile", cms_profile_open, 1}, /* open profile */
+
   /* pyCMS info */
   {"versions", versions, 1, "pyCMSdll.versions() returs tuple of pyCMSversion, littleCMSversion that it was compiled with"},
 
   /* profile and transform functions */
   {"profileToProfile", profileToProfile, 1, "pyCMSdll.profileToProfile (idIn, idOut, InputProfile, OutputProfile, [RenderingIntent]) returns 0 on success, -1 on failure.  If idOut is the same as idIn, idIn is modified in place, otherwise the results are applied to idOut"},
-  {"getOpenProfile", getOpenProfile, 1, "pyCMSdll.getOpenProfile (profileName) returns a handle to an open pyCMS profile that can be used to build a transform"},
   {"buildTransform", buildTransform, 1, "pyCMSdll.buildTransform (InputProfile, OutputProfile, InMode, OutMode, [RenderingIntent]) returns a handle to a pre-computed ICC transform that can be used for processing multiple images, saving calculation time"},
   {"buildProofTransform", buildProofTransform, 1, "pyCMSdll.buildProofTransform (InputProfile, OutputProfile, DisplayProfile, InMode, OutMode, [RenderingIntent], [DisplayRenderingIntent]) returns a handle to a pre-computed soft-proofing (simulating the output device capabilities on the display device) ICC transform that can be used for processing multiple images, saving calculation time"},
-  {"buildProofTransformFromOpenProfiles", buildProofTransformFromOpenProfiles, 1, "pyCMSdll.buildProofTransformFromOpenProfiles(InputProfile, OutputProfile, DisplayProfile, InMode, OutMode, [RenderingIntent], [DisplayRenderingIntent]) returns a handle to a pre-computed soft-proofing transform.  Profiles should be HANDLES, not pathnames."},
   {"applyTransform", applyTransform, 1, "pyCMSdll.applyTransform (idIn, idOut, hTransform) applys a pre-calcuated transform (from pyCMSdll.buildTransform) to an image.  If idIn and idOut are the same, it modifies the image in place, otherwise the new image is built in idOut.  Returns 0 on success, -1 on failure"},
-  {"buildTransformFromOpenProfiles", buildTransformFromOpenProfiles, 1, "pyCMSdll.buildTransformFromOpenProfiles (InputProfile, OutputProfile, InMode, OutMode, RenderingIntent) returns a handle to a pre-computed ICC transform that can be used for processing multiple images, saving calculation time"},
    
   /* on-the-fly profile creation functions */
   {"createProfile", createProfile, 1, "pyCMSdll.createProfile (colorSpace, [colorTemp]) returns a handle to an open profile created on the fly.  colorSpace can be 'LAB', 'XYZ', or 'xRGB'.  If using LAB, you can specify a white point color temperature, or let it default to D50 (5000K)"},
