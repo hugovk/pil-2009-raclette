@@ -272,8 +272,18 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
+    if Image.isStringType(inputProfile):
+        inputProfile = pyCMSdll.OpenProfile(inputProfile)
+    elif hasattr(inputProfile, "read"):
+        inputProfile = pyCMSdll.OpenMemoryProfile(inputProfile.read())
+
+    if Image.isStringType(outputProfile):
+        outputProfile = pyCMSdll.OpenProfile(outputProfile)
+    elif hasattr(inputProfile, "read"):
+        outputProfile = pyCMSdll.OpenMemoryProfile(outputProfile.read())
+
     try:
-        return pyCMSdll.buildTransform(pyCMSdll.OpenProfile(inputProfile), pyCMSdll.OpenProfile(outputProfile), inMode, outMode, renderingIntent)
+        return pyCMSdll.buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -354,105 +364,28 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
+    if Image.isStringType(inputProfile):
+        inputProfile = pyCMSdll.OpenProfile(inputProfile)
+    elif hasattr(inputProfile, "read"):
+        inputProfile = pyCMSdll.OpenMemoryProfile(inputProfile.read())
+
+    if Image.isStringType(outputProfile):
+        outputProfile = pyCMSdll.OpenProfile(outputProfile)
+    elif hasattr(inputProfile, "read"):
+        outputProfile = pyCMSdll.OpenMemoryProfile(outputProfile.read())
+
+    if Image.isStringType(displayProfile):
+        displayProfile = pyCMSdll.OpenProfile(displayProfile)
+    elif hasattr(inputProfile, "read"):
+        displayProfile = pyCMSdll.OpenMemoryProfile(displayProfile.read())
+
     try:
-        return pyCMSdll.buildProofTransform(pyCMSdll.OpenProfile(inputProfile), pyCMSdll.OpenProfile(outputProfile), pyCMSdll.OpenProfile(displayProfile), inMode, outMode, renderingIntent, displayRenderingIntent)
+        return pyCMSdll.buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent, displayRenderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
-##
-# Builds an ICC transform.  Same as {@link buildTransform}, but takes
-# profile objects instead of file names.
-
-def buildTransformFromOpenProfiles(inputProfile, outputProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL):
-    """
-    ImageCms.buildTransformFromOpenProfiles(inputProfile, outputProfile,
-        inMode, outMode, [renderingIntent])
-        
-    Returns a CmsTransform class object
-
-    inputProfile = a valid CmsProfile class object
-    outputProfile = a valid CmsProfile class object
-    inMode = string, as a valid PIL mode that the appropriate profile also
-        supports (i.e. "RGB", "RGBA", "CMYK", etc.)
-    outMode = string, as a valid PIL mode that the appropriate profile also
-        supports (i.e. "RGB", "RGBA", "CMYK", etc.)
-    renderingIntent = integer (0-3) specifying the rendering intent you
-        wish to use for the transform
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
-        see the pyCMS documentation for details on rendering intents and
-        what they do.
-
-    This function operates exactly the same as ImageCms.buildTransform()
-    except that the inputProfile and outputProfile arguments must be valid
-    CmsProfile objects rather than filenames.  Use this function to
-    create pre-calculated transforms from open CmsProfiles (such as
-    profiles created on-the-fly using ImageCms.createProfile(), or [in the
-    future] profiles extracted from image files.
-
-    """
-
-    if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
-        raise PyCMSError("renderingIntent must be an integer between 0 and 3")
-    
-    try:
-        return pyCMSdll.buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent)
-    except (TypeError, ValueError), v:
-        raise PyCMSError(v)
-
-##
-# Builds an ICC proof transform.  Same as {@link buildProofTransform},
-# but takes profile objects instead of file names.
-
-def buildProofTransformFromOpenProfiles(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL, displayRenderingIntent=INTENT_PERCEPTUAL):
-    """
-    ImageCms.buildProofTransformFromOpenProfiles(inputProfile, outputProfile,
-        displayProfile, inMode, outMode, [renderingIntent],
-        [displayRenderingIntent])
-        
-    Returns a CmsTransform class object
-
-    inputProfile = a valid CmsProfile class object
-    outputProfile = a valid CmsProfile class object
-    displayProfile = a valid CmsProfile class object
-    inMode = string, as a valid PIL mode that the appropriate profile also
-        supports (i.e. "RGB", "RGBA", "CMYK", etc.)
-    outMode = string, as a valid PIL mode that the appropriate profile also
-        supports (i.e. "RGB", "RGBA", "CMYK", etc.)
-    renderingIntent = integer (0-3) specifying the rendering intent you
-        wish to use for the transform
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
-        see the pyCMS documentation for details on rendering intents and
-        what they do.
-    displayRenderingIntent = integer (0-3) specifying the rendering intent you
-        wish to use for the transform
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
-        see the pyCMS documentation for details on rendering intents and
-        what they do.
-    This function operates exactly the same as ImageCms.buildProofTransform()
-    except that the profile arguments must be valid
-    CmsProfile objects rather than filenames.  Use this function to
-    create pre-calculated proof transforms from open CmsProfiles (such as
-    profiles created on-the-fly using ImageCms.createProfile(), or [in the
-    future] profiles extracted from image files.
-
-    """
-
-    if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3) or type(displayRenderingIntent) != type(1) or not (0 <= displayRenderingIntent <=3):
-        raise PyCMSError("renderingIntent must be an integer between 0 and 3")
-    
-    try:
-        return pyCMSdll.buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent, displayRenderingIntent)
-    except (TypeError, ValueError), v:
-        raise PyCMSError(v)
+buildTransformFromOpenProfiles = buildTransform
+buildProofTransformFromOpenProfiles = buildProofTransform
 
 ##
 # Applies a transform to a given image.
