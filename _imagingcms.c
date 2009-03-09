@@ -77,6 +77,69 @@ INTENT_ABSOLUTE_COLORIMETRIC      3
 */
 
 /* -------------------------------------------------------------------- */
+/* wrapper classes */
+
+typedef struct {
+    PyObject_HEAD
+    cmsHPROFILE profile;
+} CmsProfileObject;
+
+staticforward PyTypeObject CmsProfile_Type;
+
+#define CmsProfile_Check(op) ((op)->ob_type == &CmsProfile_Type)
+
+static PyObject*
+cms_profile_new(cmsHPROFILE profile)
+{
+    CmsProfileObject* self;
+
+    self = PyObject_New(CmsProfileObject, &CmsProfile_Type);
+    if (!self)
+	return NULL;
+
+    self->profile = profile;
+
+    return (PyObject*) self;
+}
+
+static void
+cms_profile_dealloc(CmsProfileObject* self)
+{
+    cmsCloseProfile(self->profile);
+    PyObject_Del(self);
+}
+
+typedef struct {
+    PyObject_HEAD
+    cmsHTRANSFORM transform;
+} CmsTransformObject;
+
+staticforward PyTypeObject CmsTransform_Type;
+
+#define CmsTransform_Check(op) ((op)->ob_type == &CmsTransform_Type)
+
+static PyObject*
+cms_transform_new(cmsHTRANSFORM transform)
+{
+    CmsTransformObject* self;
+
+    self = PyObject_New(CmsTransformObject, &CmsTransform_Type);
+    if (!self)
+	return NULL;
+
+    self->transform = transform;
+
+    return (PyObject*) self;
+}
+
+static void
+cms_transform_dealloc(CmsTransformObject* self)
+{
+    cmsDeleteTransform(self->transform);
+    PyObject_Del(self);
+}
+
+/* -------------------------------------------------------------------- */
 /* internal functions */
 
 static DWORD 
@@ -214,7 +277,7 @@ getOpenProfile(PyObject *self, PyObject *args)
 
   hProfile = cmsOpenProfileFromFile(sProfile, "r");
 
-  return PyCObject_FromVoidPtr(hProfile, cmsCloseProfile);
+  return cms_profile_new(hProfile);
 }
 
 static PyObject *
@@ -240,7 +303,7 @@ buildTransform(PyObject *self, PyObject *args) {
   cmsCloseProfile(hInputProfile);
   cmsCloseProfile(hOutputProfile);
 
-  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); /* this may not be right way to call the destructor...? */
+  return cms_transform_new(transform);
 }
 
 static PyObject *
@@ -249,25 +312,25 @@ buildTransformFromOpenProfiles (PyObject *self, PyObject *args)
   char *sInMode;
   char *sOutMode;
   int iRenderingIntent = 0;
-  PyObject *pInputProfile;
-  PyObject *pOutputProfile;
+  CmsProfileObject *pInputProfile;
+  CmsProfileObject *pOutputProfile;
   cmsHPROFILE hInputProfile, hOutputProfile;
   void *hTransformPointer = NULL;
   cmsHTRANSFORM transform;
 
-  if (!PyArg_ParseTuple(args, "OOss|i:buildTransformFromOpenProfiles", &pInputProfile, &pOutputProfile, &sInMode, &sOutMode, &iRenderingIntent))
+  if (!PyArg_ParseTuple(args, "O!O!ss|i:buildTransformFromOpenProfiles", &CmsProfile_Type, &pInputProfile, &CmsProfile_Type, &pOutputProfile, &sInMode, &sOutMode, &iRenderingIntent))
     return NULL;
 
   cmsErrorAction(cmsERROR_HANDLER);
 
-  hInputProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(pInputProfile); 
-  hOutputProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(pOutputProfile); 
+  hInputProfile = pInputProfile->profile; 
+  hOutputProfile = pOutputProfile->profile; 
 
   transform = _buildTransform(hInputProfile, hOutputProfile, sInMode, sOutMode, iRenderingIntent);
 
   /* we don't have to close these profiles... but do we have to decref them? */
 
-  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); /* this may not be right way to call the destructor...? */
+  return cms_transform_new(transform);
 }
 
 static PyObject *
@@ -300,7 +363,7 @@ buildProofTransform(PyObject *self, PyObject *args)
   cmsCloseProfile(hOutputProfile);
   cmsCloseProfile(hDisplayProfile);
 
-  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); /* this may not be right way to call the destructor...? */
+  return cms_transform_new(transform);
 
 }
 
@@ -311,27 +374,27 @@ buildProofTransformFromOpenProfiles(PyObject *self, PyObject *args)
   char *sOutMode;
   int iRenderingIntent = 0;
   int iDisplayIntent = 0;
-  PyObject *pInputProfile;
-  PyObject *pOutputProfile;
-  PyObject *pDisplayProfile;
+  CmsProfileObject *pInputProfile;
+  CmsProfileObject *pOutputProfile;
+  CmsProfileObject *pDisplayProfile;
   cmsHTRANSFORM transform;
 
   cmsHPROFILE hInputProfile, hOutputProfile, hDisplayProfile;
 
-  if (!PyArg_ParseTuple(args, "OOOss|ii:buildProofTransform", &pInputProfile, &pOutputProfile, &pDisplayProfile, &sInMode, &sOutMode, &iRenderingIntent, &iDisplayIntent))
+  if (!PyArg_ParseTuple(args, "O!O!O!ss|ii:buildProofTransform", &CmsProfile_Type, &pInputProfile, &CmsProfile_Type, &pOutputProfile, &CmsProfile_Type, &pDisplayProfile, &sInMode, &sOutMode, &iRenderingIntent, &iDisplayIntent))
     return NULL;
 
   cmsErrorAction(cmsERROR_HANDLER);
 
-  hInputProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(pInputProfile); 
-  hOutputProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(pOutputProfile); 
-  hDisplayProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(pDisplayProfile); 
+  hInputProfile = pInputProfile->profile; 
+  hOutputProfile = pOutputProfile->profile; 
+  hDisplayProfile = pDisplayProfile->profile; 
 
   transform = _buildProofTransform(hInputProfile, hOutputProfile, hDisplayProfile, sInMode, sOutMode, iRenderingIntent, iDisplayIntent);
   
   /* we don't have to close these profiles, but do we have to decref them? */
 
-  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); /* this may not be right way to call the destructor...? */
+  return cms_transform_new(transform);
 }
 
 static PyObject *
@@ -339,14 +402,14 @@ applyTransform(PyObject *self, PyObject *args)
 {
   long idIn;
   long idOut;
-  PyObject *pTransform;
+  CmsTransformObject *pTransform;
   cmsHTRANSFORM hTransform;
   Imaging im;
   Imaging imOut;
 
   int result;
 
-  if (!PyArg_ParseTuple(args, "llO:applyTransform", &idIn, &idOut, &pTransform))
+  if (!PyArg_ParseTuple(args, "llO!:applyTransform", &idIn, &idOut, &CmsTransform_Type, &pTransform))
     return NULL;
 
   im = (Imaging) idIn;
@@ -354,7 +417,7 @@ applyTransform(PyObject *self, PyObject *args)
 
   cmsErrorAction(cmsERROR_HANDLER);
 
-  hTransform = (cmsHTRANSFORM) PyCObject_AsVoidPtr(pTransform); 
+  hTransform = pTransform->transform; 
 
   result = pyCMSdoTransform(im, imOut, hTransform);
 
@@ -464,7 +527,7 @@ createProfile(PyObject *self, PyObject *args)
     return Py_BuildValue("s", "ERROR: Color space requested is not valid for built-in profiles");
   }
 
-  return Py_BuildValue("O", PyCObject_FromVoidPtr(hProfile, cmsCloseProfile));
+  return cms_profile_new(hProfile);
 }
 
 /* -------------------------------------------------------------------- */
@@ -479,8 +542,8 @@ int getprofile(PyObject* profile, cmsHPROFILE *hProfile, BOOL *closeProfile)
     return 1;
   }
 
-  if (PyCObject_Check(profile)) {
-    *hProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(profile); 
+  if (CmsProfile_Check(profile)) {
+    *hProfile = ((CmsProfileObject*) profile)->profile;
     *closeProfile = FALSE;
     return 1;
   }
@@ -607,8 +670,44 @@ static PyMethodDef pyCMSdll_methods[] = {
   {NULL, NULL}
 };
 
+statichere PyTypeObject CmsProfile_Type = {
+    PyObject_HEAD_INIT(NULL)
+    0, "CmsProfile", sizeof(CmsProfileObject), 0,
+    /* methods */
+    (destructor) cms_profile_dealloc, /*tp_dealloc*/
+    0, /*tp_print*/
+    0, /*tp_getattr*/
+    0, /*tp_setattr*/
+    0, /*tp_compare*/
+    0, /*tp_repr*/
+    0, /*tp_as_number */
+    0, /*tp_as_sequence */
+    0, /*tp_as_mapping */
+    0 /*tp_hash*/
+};
+
+statichere PyTypeObject CmsTransform_Type = {
+    PyObject_HEAD_INIT(NULL)
+    0, "CmsTransform", sizeof(CmsTransformObject), 0,
+    /* methods */
+    (destructor) cms_transform_dealloc, /*tp_dealloc*/
+    0, /*tp_print*/
+    0, /*tp_getattr*/
+    0, /*tp_setattr*/
+    0, /*tp_compare*/
+    0, /*tp_repr*/
+    0, /*tp_as_number */
+    0, /*tp_as_sequence */
+    0, /*tp_as_mapping */
+    0 /*tp_hash*/
+};
+
 DL_EXPORT(void)
 init_imagingcms(void)
 {
+  /* Patch up object types */
+  CmsProfile_Type.ob_type = &PyType_Type;
+  CmsTransform_Type.ob_type = &PyType_Type;
+
   Py_InitModule("_imagingcms", pyCMSdll_methods);
 }
