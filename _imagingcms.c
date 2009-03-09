@@ -385,7 +385,7 @@ cms_transform_apply(CmsTransformObject *self, PyObject *args)
   im = (Imaging) idIn;
   imOut = (Imaging) idOut;
 
-  cmsErrorAction(LCMS_ERROR_SHOW); /* FIXME */
+  cmsErrorAction(LCMS_ERROR_IGNORE);
 
   result = pyCMSdoTransform(im, imOut, self->transform);
 
@@ -407,7 +407,7 @@ createProfile(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, "s|i:createProfile", &sColorSpace, &iColorTemp))
     return NULL;
 
-  cmsErrorAction(LCMS_ERROR_SHOW); /* FIXME */
+  cmsErrorAction(LCMS_ERROR_IGNORE);
 
   if (strcmp(sColorSpace, "LAB") == 0) {
     if (iColorTemp > 0) {
@@ -417,19 +417,18 @@ createProfile(PyObject *self, PyObject *args)
 	return NULL;
       }
       hProfile = cmsCreateLabProfile(whitePoint);
-    }
-    else {
+    } else
       hProfile = cmsCreateLabProfile(NULL);
-    }
   }
-  else if (strcmp(sColorSpace, "XYZ") == 0) {
+  else if (strcmp(sColorSpace, "XYZ") == 0)
     hProfile = cmsCreateXYZProfile();
-  }
-  else if (strcmp(sColorSpace, "sRGB") == 0) {
+  else if (strcmp(sColorSpace, "sRGB") == 0)
     hProfile = cmsCreate_sRGBProfile();
-  }
-  else {
-    PyErr_SetString(PyExc_ValueError, "ERROR: Color space requested is not valid for built-in profiles");
+  else
+    hProfile = NULL;
+
+  if (!hProfile) {
+    PyErr_SetString(PyExc_ValueError, "failed to create requested color space");
     return NULL;
   }
 
@@ -489,12 +488,6 @@ cms_profile_getattr(CmsProfileObject* self, char* name)
     return PyString_FromString(cmsTakeProductDesc(self->profile));
   if (!strcmp(name, "product_info"))
     return PyString_FromString(cmsTakeProductInfo(self->profile));
-  if (!strcmp(name, "manufacturer"))
-    return PyString_FromString(cmsTakeManufacturer(self->profile));
-  if (!strcmp(name, "model"))
-    return PyString_FromString(cmsTakeModel(self->profile));
-  if (!strcmp(name, "copyright"))
-    return PyString_FromString(cmsTakeCopyright(self->profile));
   if (!strcmp(name, "rendering_intent"))
     return PyInt_FromLong(cmsTakeRenderingIntent(self->profile));
   if (!strcmp(name, "pcs"))
