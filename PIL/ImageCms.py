@@ -1,4 +1,21 @@
-"""
+#
+# The Python Imaging Library.
+# $Id: ImageFilter.py 2134 2004-10-06 08:55:20Z fredrik $
+#
+# optional color managment support, based on Kevin Cazabon's PyCMS
+# library.
+#
+# History:
+# 2009-03-08 fl   Added to PIL.
+#
+# Copyright (C) 2002-2003 Kevin Cazabon
+# Copyright (c) 2009 by Fredrik Lundh
+#
+# See the README file for information on usage and redistribution.  See
+# below for the original description.
+#
+
+DESCRIPTION = """
 pyCMS
 
     a Python / PIL interface to the littleCMS ICC Color Management System
@@ -23,7 +40,7 @@ pyCMS
 
     Version History:
 
-        0.1.0           March 2009 - added to PIL, as PIL.ImageCms
+        0.1.0 pil       March 2009 - added to PIL, as PIL.ImageCms
 
         0.0.2 alpha     Jan 6, 2002
         
@@ -42,13 +59,15 @@ pyCMS
       
 """
 
-VERSION = "0.0.2 alpha"
+VERSION = "0.1.0 pil"
 
-import _imagingcms as pyCMSdll
-
-import os
+# --------------------------------------------------------------------.
 
 import Image
+import _imagingcms as pyCMSdll
+
+#
+# intent/direction values
 
 INTENT_PERCEPTUAL = 0
 INTENT_RELATIVE_COLORIMETRIC = 1
@@ -58,6 +77,10 @@ INTENT_ABSOLUTE_COLORIMETRIC = 3
 DIRECTION_INPUT = 0
 DIRECTION_OUTPUT = 1
 DIRECTION_PROOF = 2
+
+# --------------------------------------------------------------------.
+# pyCMS compatible layer
+# --------------------------------------------------------------------.
 
 ##
 # Exception class.  This is used for all errors in the pyCMS API.
@@ -70,7 +93,7 @@ class PyCMSError(Exception):
 
 class PyCMSTransform:
     def __init__(self, transform=None, inputMode=None, outputMode=None):
-        self.transform = transform # CObject w. internal handle
+        self.transform = transform
         self.inputMode = inputMode
         self.outputMode = outputMode
 
@@ -79,12 +102,15 @@ class PyCMSTransform:
 
 class PyCMSProfile:
     def __init__(self, profile=None):
-        self.profile = profile # CObject w. internal handle
+        self.profile = profile
 
+##
+# Applies an ICC transformation to a given image, mapping from
+# inputProfile to outputProfile.
 
 def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PERCEPTUAL, outputMode=None, inPlace=0):
     """
-    pyCMS.profileToProfile(im, inputProfile, outputProfile,
+    ImageCms.profileToProfile(im, inputProfile, outputProfile,
         [renderingIntent], [outputMode], [inPlace])
         
     Returns either None or a new PIL image object, depending on value of
@@ -98,10 +124,10 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
         profile you wish to use for this image
     renderingIntent = integer (0-3) specifying the rendering intent you
         wish to use for the transform
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (pyCMS.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (pyCMS.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (pyCMS.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (pyCMS.INTENT_ABSOLUTE_COLORIMETRIC)
+        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
+        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
+        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
+        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
 
         see the pyCMS documentation for details on rendering intents and
         what they do.
@@ -167,10 +193,12 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     else:
         raise PyCMSError(result)
 
+##
+# Opens an ICC profile file.
 
 def getOpenProfile(profileFilename):
     """
-    pyCMS.getOpenProfile(profileFilename)
+    ImageCms.getOpenProfile(profileFilename)
     
     Returns a PyCMSProfile class object.  
 
@@ -178,7 +206,7 @@ def getOpenProfile(profileFilename):
         you wish to open
 
     The PyCMSProfile object can be passed back into pyCMS for use in creating
-    transforms and such (as in pyCMS.buildTransformFromOpenProfiles()).
+    transforms and such (as in ImageCms.buildTransformFromOpenProfiles()).
 
     If profileFilename is not a vaild filename for an ICC profile, a
     PyCMSError will be raised.    
@@ -192,10 +220,14 @@ def getOpenProfile(profileFilename):
 
     return PyCMSProfile(result)
 
+##
+# Builds an ICC transform mapping from the inputProfile to the
+# outputProfile.  Use applyTransform to apply the transform to
+# a given image.
 
 def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL):
     """
-    pyCMS.buildTransform(inputProfile, outputProfile, inMode, outMode,
+    ImageCms.buildTransform(inputProfile, outputProfile, inMode, outMode,
         [renderingIntent])
         
     Returns a PyCMSTransform class object.
@@ -210,10 +242,10 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
         supports (i.e. "RGB", "RGBA", "CMYK", etc.)
     renderingIntent = integer (0-3) specifying the rendering intent you
         wish to use for the transform
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (pyCMS.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (pyCMS.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (pyCMS.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (pyCMS.INTENT_ABSOLUTE_COLORIMETRIC)
+        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
+        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
+        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
+        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
 
@@ -231,10 +263,10 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     i.e. "RGB", "RGBA", "CMYK", etc.).
 
     Building the transform is a fair part of the overhead in
-    pyCMS.profileToProfile(), so if you're planning on converting multiple
+    ImageCms.profileToProfile(), so if you're planning on converting multiple
     images using the same input/output settings, this can save you time.
     Once you have a transform object, it can be used with
-    pyCMS.applyProfile() to convert images without the need to re-compute
+    ImageCms.applyProfile() to convert images without the need to re-compute
     the lookup table for the transform.
 
     The reason pyCMS returns a class object rather than a handle directly
@@ -256,10 +288,14 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
 
     return PyCMSTransform(result, inMode, outMode)
 
+##
+# Builds an ICC transform mapping from the inputProfile to the
+# displayProfile, but tries to simulate the result that would be
+# obtained on the outputProfile device.
 
 def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL, displayRenderingIntent=INTENT_PERCEPTUAL):
     """
-    pyCMS.buildProofTransform(inputProfile, outputProfile, displayProfile,
+    ImageCms.buildProofTransform(inputProfile, outputProfile, displayProfile,
         inMode, outMode, [renderingIntent], [displayRenderingIntent])
         
     Returns a PyCMSTransform class object.
@@ -276,18 +312,18 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
         supports (i.e. "RGB", "RGBA", "CMYK", etc.)
     renderingIntent = integer (0-3) specifying the rendering intent you
         wish to use for the input->output (simulated) transform
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (pyCMS.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (pyCMS.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (pyCMS.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (pyCMS.INTENT_ABSOLUTE_COLORIMETRIC)
+        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
+        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
+        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
+        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
     displayRenderingIntent = integer (0-3) specifying the rendering intent
         you wish to use for (input/output simulation)->display transform
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (pyCMS.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (pyCMS.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (pyCMS.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (pyCMS.INTENT_ABSOLUTE_COLORIMETRIC)
+        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
+        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
+        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
+        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
         
@@ -309,7 +345,7 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
     color format (PIL mode, i.e. "RGB", "RGBA", "CMYK", etc.).
 
     Usage of the resulting transform object is exactly the same as with
-    pyCMS.buildTransform().
+    ImageCms.buildTransform().
 
     Proof profiling is generally used when using a "proof" device to get a
     good idea of what the final printed/displayed image would look like on
@@ -336,10 +372,13 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
 
     return PyCMSTransform(result, inMode, outMode)
 
+##
+# Builds an ICC transform.  Same as {@link buildTransform}, but takes
+# profile objects instead of file names.
 
 def buildTransformFromOpenProfiles(inputProfile, outputProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL):
     """
-    pyCMS.buildTransformFromOpenProfiles(inputProfile, outputProfile,
+    ImageCms.buildTransformFromOpenProfiles(inputProfile, outputProfile,
         inMode, outMode, [renderingIntent])
         
     Returns a PyCMSTransform class object
@@ -352,18 +391,18 @@ def buildTransformFromOpenProfiles(inputProfile, outputProfile, inMode, outMode,
         supports (i.e. "RGB", "RGBA", "CMYK", etc.)
     renderingIntent = integer (0-3) specifying the rendering intent you
         wish to use for the transform
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (pyCMS.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (pyCMS.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (pyCMS.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (pyCMS.INTENT_ABSOLUTE_COLORIMETRIC)
+        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
+        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
+        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
+        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
 
-    This function operates exactly the same as pyCMS.buildTransform()
+    This function operates exactly the same as ImageCms.buildTransform()
     except that the inputProfile and outputProfile arguments must be valid
     PyCMSProfile objects rather than filenames.  Use this function to
     create pre-calculated transforms from open PyCMSProfiles (such as
-    profiles created on-the-fly using pyCMS.createProfile(), or [in the
+    profiles created on-the-fly using ImageCms.createProfile(), or [in the
     future] profiles extracted from image files.
 
     """
@@ -378,10 +417,13 @@ def buildTransformFromOpenProfiles(inputProfile, outputProfile, inMode, outMode,
 
     return PyCMSTransform(result, inMode, outMode)
 
+##
+# Builds an ICC proof transform.  Same as {@link buildProofTransform},
+# but takes profile objects instead of file names.
 
 def buildProofTransformFromOpenProfiles(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL, displayRenderingIntent=INTENT_PERCEPTUAL):
     """
-    pyCMS.buildProofTransformFromOpenProfiles(inputProfile, outputProfile,
+    ImageCms.buildProofTransformFromOpenProfiles(inputProfile, outputProfile,
         displayProfile, inMode, outMode, [renderingIntent],
         [displayRenderingIntent])
         
@@ -396,25 +438,25 @@ def buildProofTransformFromOpenProfiles(inputProfile, outputProfile, displayProf
         supports (i.e. "RGB", "RGBA", "CMYK", etc.)
     renderingIntent = integer (0-3) specifying the rendering intent you
         wish to use for the transform
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (pyCMS.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (pyCMS.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (pyCMS.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (pyCMS.INTENT_ABSOLUTE_COLORIMETRIC)
+        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
+        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
+        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
+        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
     displayRenderingIntent = integer (0-3) specifying the rendering intent you
         wish to use for the transform
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (pyCMS.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (pyCMS.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (pyCMS.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (pyCMS.INTENT_ABSOLUTE_COLORIMETRIC)
+        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
+        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
+        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
+        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
-    This function operates exactly the same as pyCMS.buildProofTransform()
+    This function operates exactly the same as ImageCms.buildProofTransform()
     except that the profile arguments must be valid
     PyCMSProfile objects rather than filenames.  Use this function to
     create pre-calculated proof transforms from open PyCMSProfiles (such as
-    profiles created on-the-fly using pyCMS.createProfile(), or [in the
+    profiles created on-the-fly using ImageCms.createProfile(), or [in the
     future] profiles extracted from image files.
 
     """
@@ -429,10 +471,12 @@ def buildProofTransformFromOpenProfiles(inputProfile, outputProfile, displayProf
 
     return PyCMSTransform(result, inMode, outMode)    
 
+##
+# Applies a transform to a given image.
 
 def applyTransform(im, transform, inPlace=0):
     """
-    pyCMS.applyTransform(im, transform, [inPlace])
+    ImageCms.applyTransform(im, transform, [inPlace])
     
     Returns either None, or a new PIL Image object, depending on the value
         of inPlace (see below)
@@ -458,7 +502,7 @@ def applyTransform(im, transform, inPlace=0):
     is raised.
 
     This function applies a pre-calculated transform (from
-    pyCMS.buildTransform() or pyCMS.buildTransformFromOpenProfiles()) to an
+    ImageCms.buildTransform() or ImageCms.buildTransformFromOpenProfiles()) to an
     image.  The transform can be used for multiple images, saving
     considerable calcuation time if doing the same conversion multiple times.
 
@@ -501,10 +545,12 @@ def applyTransform(im, transform, inPlace=0):
     else:
         raise PyCMSError(result)
 
+##
+# Creates a profile.
 
 def createProfile(colorSpace, colorTemp=-1):
     """
-    pyCMS.createProfile(colorSpace, [colorTemp])
+    ImageCms.createProfile(colorSpace, [colorTemp])
     
     Returns a PyCMSProfile class object
 
@@ -524,7 +570,7 @@ def createProfile(colorSpace, colorTemp=-1):
     Use this function to create common profiles on-the-fly instead of
     having to supply a profile on disk and knowing the path to it.  It
     returns a normal PyCMSProfile object that can be passed to
-    pyCMS.buildTransformFromOpenProfiles() to create a transform to apply
+    ImageCms.buildTransformFromOpenProfiles() to create a transform to apply
     to images.
 
     """    
@@ -544,10 +590,12 @@ def createProfile(colorSpace, colorTemp=-1):
 
     return PyCMSProfile(result)
 
+##
+# Gets the internal product name for the given profile.
 
 def getProfileName(profile):
     """
-    pyCMS.getProfileName(profile)
+    ImageCms.getProfileName(profile)
     
     Returns a string containing the internal name of the profile as stored
         in an ICC tag.
@@ -575,10 +623,12 @@ def getProfileName(profile):
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
+##
+# Gets the internal product information for the given profile.
 
 def getProfileInfo(profile):
     """
-    pyCMS.getProfileInfo(profile)
+    ImageCms.getProfileInfo(profile)
     
     Returns a string containing the internal profile information stored in
         an ICC tag.
@@ -607,17 +657,19 @@ def getProfileInfo(profile):
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
+##
+# Gets the default intent name for the given profile.
 
 def getDefaultIntent(profile):
     """
-    pyCMS.getDefaultIntent(profile)
+    ImageCms.getDefaultIntent(profile)
     
     Returns integer 0-3 specifying the default rendering intent for this
         profile.
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (pyCMS.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (pyCMS.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (pyCMS.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (pyCMS.INTENT_ABSOLUTE_COLORIMETRIC)
+        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
+        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
+        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
+        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
 
@@ -634,7 +686,7 @@ def getDefaultIntent(profile):
     rendering intent for this profile.  Most profiles support multiple
     rendering intents, but are intended mostly for one type of conversion.
     If you wish to use a different intent than returned, use
-    pyCMS.isIntentSupported() to verify it will work first.
+    ImageCms.isIntentSupported() to verify it will work first.
     """    
     try:
         if isinstance(profile, type("")):
@@ -645,10 +697,12 @@ def getDefaultIntent(profile):
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
+##
+# Checks if a given intent is supported.
 
 def isIntentSupported(profile, intent, direction):
     """
-    pyCMS.isIntentSupported(profile, intent, direction)
+    ImageCms.isIntentSupported(profile, intent, direction)
     
     Returns 1 if the intent/direction are supported, -1 if they are not.
 
@@ -656,17 +710,17 @@ def isIntentSupported(profile, intent, direction):
         filename of an ICC profile.
     intent = integer (0-3) specifying the rendering intent you wish to use
         with this profile
-        INTENT_PERCEPTUAL =           0 (DEFAULT) (pyCMS.INTENT_PERCEPTUAL)
-        INTENT_RELATIVE_COLORIMETRIC =1 (pyCMS.INTENT_RELATIVE_COLORIMETRIC)
-        INTENT_SATURATION =           2 (pyCMS.INTENT_SATURATION)
-        INTENT_ABSOLUTE_COLORIMETRIC =3 (pyCMS.INTENT_ABSOLUTE_COLORIMETRIC)
+        INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
+        INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
+        INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
+        INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
     direction = integer specifing if the profile is to be used for input,
         output, or display/proof
-        INPUT =               0 (or use pyCMS.DIRECTION_INPUT)
-        OUTPUT =              1 (or use pyCMS.DIRECTION_OUTPUT)
-        PROOF (or display) =  2 (or use pyCMS.DIRECTION_PROOF)
+        INPUT =               0 (or use ImageCms.DIRECTION_INPUT)
+        OUTPUT =              1 (or use ImageCms.DIRECTION_OUTPUT)
+        PROOF (or display) =  2 (or use ImageCms.DIRECTION_PROOF)
 
     Use this function to verify that you can use your desired
     renderingIntent with profile, and that profile can be used for the
@@ -692,11 +746,15 @@ def isIntentSupported(profile, intent, direction):
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
+##
+# Fetches versions.
 
 def versions():
     import sys
     pycms, lcms = pyCMSdll.versions()
     return pycms, "%d.%d" % divmod(lcms, 100), sys.version.split()[0], Image.VERSION
+
+# --------------------------------------------------------------------
 
 if __name__ == "__main__":
     # create a cheap manual from the __doc__ strings for the functions above
@@ -710,7 +768,7 @@ if __name__ == "__main__":
         print "%s" %f
 
         try:
-            exec ("doc = pyCMS.%s.__doc__" %(f))
+            exec ("doc = ImageCms.%s.__doc__" %(f))
             if string.find(doc, "pyCMS") >= 0:
                 # so we don't get the __doc__ string for imported modules
                 print doc
