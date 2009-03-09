@@ -424,7 +424,7 @@ gblur = gaussian_blur
 
 def unsharp_mask(im, radius=None, percent=None, threshold=None):
     """ PIL_usm.usm(im, [radius, percent, threshold])"""
-    
+
     if radius is None:
         radius = 5.0
     if percent is None:
@@ -437,4 +437,3 @@ def unsharp_mask(im, radius=None, percent=None, threshold=None):
     return im.im.unsharp_mask(radius, percent, threshold)
 
 usm = unsharp_mask
-

@@ -208,17 +208,17 @@ def _layerinfo(file):
                 mask_h = i32(read(4)) - mask_y; mask_w = i32(read(4)) - mask_x
                 file.seek(length - 16, 1)
             combined += length + 4
-                   
+
             length = i32(read(4))
             if length:
                 file.seek(length, 1)
             combined += length + 4
-                       
+
             length = ord(read(1))
             if length:
                 name = read(length)
             combined += length + 1
-               
+
         file.seek(size - combined, 1)
         layers.append((name, mode, (x0, y0, x1, y1)))
 

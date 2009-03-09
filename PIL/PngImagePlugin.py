@@ -182,10 +182,10 @@ class PngStream(ChunkStream):
         # ICC profile
         s = ImageFile._safe_read(self.fp, len)
         # according to PNG spec, the iCCP chunk contains:
-        # Profile name 	1-79 bytes (character string)
-        # Null separator 	1 byte (null character)
-        # Compression method 	1 byte (0)
-        # Compressed profile 	n bytes (zlib with deflate compression)
+        # Profile name  1-79 bytes (character string)
+        # Null separator        1 byte (null character)
+        # Compression method    1 byte (0)
+        # Compressed profile    n bytes (zlib with deflate compression)
         i = string.find(s, chr(0))
         if Image.DEBUG:
             print "iCCP profile name", s[:i]
@@ -546,10 +546,10 @@ def _save(im, fp, filename, chunk=putchunk, check=0):
     if im.info.has_key("icc_profile"):
         # ICC profile
         # according to PNG spec, the iCCP chunk contains:
-        # Profile name 	1-79 bytes (character string)
-        # Null separator 	1 byte (null character)
-        # Compression method 	1 byte (0)
-        # Compressed profile 	n bytes (zlib with deflate compression)
+        # Profile name  1-79 bytes (character string)
+        # Null separator        1 byte (null character)
+        # Compression method    1 byte (0)
+        # Compressed profile    n bytes (zlib with deflate compression)
         try:
             import ICCProfile
             p = ICCProfile.ICCProfile(im.info["icc_profile"])

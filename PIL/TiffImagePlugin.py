@@ -129,7 +129,7 @@ COMPRESSION_INFO = {
 
 OPEN_INFO = {
     # (ByteOrder, PhotoInterpretation, SampleFormat, FillOrder, BitsPerSample,
-    #  ExtraSamples) => mode, rawmode 
+    #  ExtraSamples) => mode, rawmode
     (II, 0, 1, 1, (1,), ()): ("1", "1;I"),
     (II, 0, 1, 2, (1,), ()): ("1", "1;IR"),
     (II, 0, 1, 1, (8,), ()): ("L", "L;I"),
@@ -161,7 +161,7 @@ OPEN_INFO = {
     (II, 5, 1, 1, (8,8,8,8), ()): ("CMYK", "CMYK"),
     (II, 6, 1, 1, (8,8,8), ()): ("YCbCr", "YCbCr"),
     (II, 8, 1, 1, (8,8,8), ()): ("LAB", "LAB"),
-   
+
     (MM, 0, 1, 1, (1,), ()): ("1", "1;I"),
     (MM, 0, 1, 2, (1,), ()): ("1", "1;IR"),
     (MM, 0, 1, 1, (8,), ()): ("L", "L;I"),
@@ -193,7 +193,7 @@ OPEN_INFO = {
     (MM, 5, 1, 1, (8,8,8,8), ()): ("CMYK", "CMYK"),
     (MM, 6, 1, 1, (8,8,8), ()): ("YCbCr", "YCbCr"),
     (MM, 8, 1, 1, (8,8,8), ()): ("LAB", "LAB"),
-   
+
 }
 
 PREFIXES = ["MM\000\052", "II\052\000", "II\xBC\000"]
@@ -487,7 +487,7 @@ class ImageFileDirectory:
                 print tag, typ, count, repr(value), repr(data)
             fp.write(o16(tag) + o16(typ) + o32(count) + value)
 
-        # -- overwrite here for multi-page -- 
+        # -- overwrite here for multi-page --
         fp.write("\0\0\0\0") # end of directory
 
         # pass 3: write auxiliary data to file
@@ -702,7 +702,7 @@ class TiffImageFile(ImageFile.ImageFile):
             raise SyntaxError("unknown data organization")
 
         # fixup palette descriptor
-        
+
         if self.mode == "P":
             palette = map(lambda a: chr(a / 256), self.tag[COLORMAP])
             self.palette = ImagePalette.raw("RGB;L", string.join(palette, ""))
@@ -729,7 +729,7 @@ SAVE_INFO = {
     "CMYK": ("CMYK", II, 5, 1, (8,8,8,8), None),
     "YCbCr": ("YCbCr", II, 6, 1, (8,8,8), None),
     "LAB": ("LAB", II, 8, 1, (8,8,8), None),
-   
+
     "I;32BS": ("I;32BS", MM, 1, 2, (32,), None),
     "I;16B": ("I;16B", MM, 1, 1, (16,), None),
     "I;16BS": ("I;16BS", MM, 1, 2, (16,), None),
@@ -842,7 +842,7 @@ def _save(im, fp, filename):
         ])
 
 
-    # -- helper for multi-page save -- 
+    # -- helper for multi-page save --
     if im.encoderinfo.has_key("_debug_multipage"):
         #just to access o32 and o16 (using correct byte order)
         im._debug_multipage = ifd
