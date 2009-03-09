@@ -120,6 +120,8 @@ cms_profile_dealloc(CmsProfileObject* self)
 
 typedef struct {
     PyObject_HEAD
+    char mode_in[8];
+    char mode_out[8];
     cmsHTRANSFORM transform;
 } CmsTransformObject;
 
@@ -128,7 +130,7 @@ staticforward PyTypeObject CmsTransform_Type;
 #define CmsTransform_Check(op) ((op)->ob_type == &CmsTransform_Type)
 
 static PyObject*
-cms_transform_new(cmsHTRANSFORM transform)
+cms_transform_new(cmsHTRANSFORM transform, char* mode_in, char* mode_out)
 {
     CmsTransformObject* self;
 
@@ -137,6 +139,9 @@ cms_transform_new(cmsHTRANSFORM transform)
 	return NULL;
 
     self->transform = transform;
+
+    strcpy(self->mode_in, mode_in);
+    strcpy(self->mode_out, mode_out);
 
     return (PyObject*) self;
 }
@@ -150,6 +155,25 @@ cms_transform_dealloc(CmsTransformObject* self)
 
 /* -------------------------------------------------------------------- */
 /* internal functions */
+
+static const char*
+findICmode(icColorSpaceSignature cs)
+{
+  switch (cs) {
+  case icSigXYZData: return "XYZ";
+  case icSigLabData: return "LAB";
+  case icSigLuvData: return "LUV";
+  case icSigYCbCrData: return "YCbCr";
+  case icSigYxyData: return "YXY";
+  case icSigRgbData: return "RGB";
+  case icSigGrayData: return "L";
+  case icSigHsvData: return "HSV";
+  case icSigHlsData: return "HLS";
+  case icSigCmykData: return "CMYK";
+  case icSigCmyData: return "CMY";
+  default: return ""; /* other TBA */
+  }
+}
 
 static DWORD 
 findLCMStype(char* PILmode)
@@ -311,7 +335,7 @@ buildTransform(PyObject *self, PyObject *args) {
   if (!transform)
     return NULL;
 
-  return cms_transform_new(transform);
+  return cms_transform_new(transform, sInMode, sOutMode);
 }
 
 static PyObject *
@@ -337,7 +361,7 @@ buildProofTransform(PyObject *self, PyObject *args)
   if (!transform)
     return NULL;
 
-  return cms_transform_new(transform);
+  return cms_transform_new(transform, sInMode, sOutMode);
 
 }
 
@@ -544,6 +568,10 @@ cms_profile_getattr(CmsProfileObject* self, char* name)
     return PyString_FromString(cmsTakeCopyright(self->profile));
   if (!strcmp(name, "rendering_intent"))
     return PyInt_FromLong(cmsTakeRenderingIntent(self->profile));
+  if (!strcmp(name, "pcs"))
+    return PyString_FromString(findICmode(cmsGetPCS(self->profile)));
+  if (!strcmp(name, "color_space"))
+    return PyString_FromString(findICmode(cmsGetColorSpace(self->profile)));
   /* FIXME: add more properties (creation_datetime etc) */
 
   return Py_FindMethod(cms_profile_methods, (PyObject*) self, name);
@@ -572,6 +600,11 @@ static struct PyMethodDef cms_transform_methods[] = {
 static PyObject*  
 cms_transform_getattr(CmsTransformObject* self, char* name)
 {
+  if (!strcmp(name, "inputMode"))
+    return PyString_FromString(self->mode_in);
+  if (!strcmp(name, "outputMode"))
+    return PyString_FromString(self->mode_out);
+
   return Py_FindMethod(cms_transform_methods, (PyObject*) self, name);
 }
 

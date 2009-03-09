@@ -89,22 +89,6 @@ class PyCMSError(Exception):
     pass
 
 ##
-# Transform wrapper.
-
-class PyCMSTransform:
-    def __init__(self, transform=None, inputMode=None, outputMode=None):
-        self.transform = transform
-        self.inputMode = inputMode
-        self.outputMode = outputMode
-
-##
-# Profile wrapper.
-
-class PyCMSProfile:
-    def __init__(self, profile=None):
-        self.profile = profile
-
-##
 # Applies an ICC transformation to a given image, mapping from
 # inputProfile to outputProfile.
 
@@ -200,7 +184,7 @@ def getOpenProfile(profileFilename):
     """
     ImageCms.getOpenProfile(profileFilename)
     
-    Returns a PyCMSProfile class object.  
+    Returns a CmsProfile class object.  
 
     profileFilename = string, as a valid filename path to the ICC profile
         you wish to open
@@ -214,11 +198,9 @@ def getOpenProfile(profileFilename):
     """    
     
     try:
-        result = pyCMSdll.OpenProfile(profileFilename)
+        return pyCMSdll.OpenProfile(profileFilename)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
-
-    return PyCMSProfile(result)
 
 ##
 # Builds an ICC transform mapping from the inputProfile to the
@@ -230,7 +212,7 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     ImageCms.buildTransform(inputProfile, outputProfile, inMode, outMode,
         [renderingIntent])
         
-    Returns a PyCMSTransform class object.
+    Returns a CmsTransform class object.
     
     inputProfile = string, as a valid filename path to the ICC input
         profile you wish to use for this transform
@@ -282,11 +264,9 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
     try:
-        result = pyCMSdll.buildTransform(pyCMSdll.OpenProfile(inputProfile), pyCMSdll.OpenProfile(outputProfile), inMode, outMode, renderingIntent)
+        return pyCMSdll.buildTransform(pyCMSdll.OpenProfile(inputProfile), pyCMSdll.OpenProfile(outputProfile), inMode, outMode, renderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
-
-    return PyCMSTransform(result, inMode, outMode)
 
 ##
 # Builds an ICC transform mapping from the inputProfile to the
@@ -298,7 +278,7 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
     ImageCms.buildProofTransform(inputProfile, outputProfile, displayProfile,
         inMode, outMode, [renderingIntent], [displayRenderingIntent])
         
-    Returns a PyCMSTransform class object.
+    Returns a CmsTransform class object.
     
     inputProfile = string, as a valid filename path to the ICC input
         profile you wish to use for this transform
@@ -366,11 +346,9 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
     try:
-        result = pyCMSdll.buildProofTransform(pyCMSdll.OpenProfile(inputProfile), pyCMSdll.OpenProfile(outputProfile), pyCMSdll.OpenProfile(displayProfile), inMode, outMode, renderingIntent, displayRenderingIntent)
+        return pyCMSdll.buildProofTransform(pyCMSdll.OpenProfile(inputProfile), pyCMSdll.OpenProfile(outputProfile), pyCMSdll.OpenProfile(displayProfile), inMode, outMode, renderingIntent, displayRenderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
-
-    return PyCMSTransform(result, inMode, outMode)
 
 ##
 # Builds an ICC transform.  Same as {@link buildTransform}, but takes
@@ -381,10 +359,10 @@ def buildTransformFromOpenProfiles(inputProfile, outputProfile, inMode, outMode,
     ImageCms.buildTransformFromOpenProfiles(inputProfile, outputProfile,
         inMode, outMode, [renderingIntent])
         
-    Returns a PyCMSTransform class object
+    Returns a CmsTransform class object
 
-    inputProfile = a valid PyCMSProfile class object
-    outputProfile = a valid PyCMSProfile class object
+    inputProfile = a valid CmsProfile class object
+    outputProfile = a valid CmsProfile class object
     inMode = string, as a valid PIL mode that the appropriate profile also
         supports (i.e. "RGB", "RGBA", "CMYK", etc.)
     outMode = string, as a valid PIL mode that the appropriate profile also
@@ -400,8 +378,8 @@ def buildTransformFromOpenProfiles(inputProfile, outputProfile, inMode, outMode,
 
     This function operates exactly the same as ImageCms.buildTransform()
     except that the inputProfile and outputProfile arguments must be valid
-    PyCMSProfile objects rather than filenames.  Use this function to
-    create pre-calculated transforms from open PyCMSProfiles (such as
+    CmsProfile objects rather than filenames.  Use this function to
+    create pre-calculated transforms from open CmsProfiles (such as
     profiles created on-the-fly using ImageCms.createProfile(), or [in the
     future] profiles extracted from image files.
 
@@ -411,11 +389,9 @@ def buildTransformFromOpenProfiles(inputProfile, outputProfile, inMode, outMode,
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
     
     try:
-        result = pyCMSdll.buildTransform(inputProfile.profile, outputProfile.profile, inMode, outMode, renderingIntent)
+        return pyCMSdll.buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
-
-    return PyCMSTransform(result, inMode, outMode)
 
 ##
 # Builds an ICC proof transform.  Same as {@link buildProofTransform},
@@ -427,11 +403,11 @@ def buildProofTransformFromOpenProfiles(inputProfile, outputProfile, displayProf
         displayProfile, inMode, outMode, [renderingIntent],
         [displayRenderingIntent])
         
-    Returns a PyCMSTransform class object
+    Returns a CmsTransform class object
 
-    inputProfile = a valid PyCMSProfile class object
-    outputProfile = a valid PyCMSProfile class object
-    displayProfile = a valid PyCMSProfile class object
+    inputProfile = a valid CmsProfile class object
+    outputProfile = a valid CmsProfile class object
+    displayProfile = a valid CmsProfile class object
     inMode = string, as a valid PIL mode that the appropriate profile also
         supports (i.e. "RGB", "RGBA", "CMYK", etc.)
     outMode = string, as a valid PIL mode that the appropriate profile also
@@ -454,8 +430,8 @@ def buildProofTransformFromOpenProfiles(inputProfile, outputProfile, displayProf
         what they do.
     This function operates exactly the same as ImageCms.buildProofTransform()
     except that the profile arguments must be valid
-    PyCMSProfile objects rather than filenames.  Use this function to
-    create pre-calculated proof transforms from open PyCMSProfiles (such as
+    CmsProfile objects rather than filenames.  Use this function to
+    create pre-calculated proof transforms from open CmsProfiles (such as
     profiles created on-the-fly using ImageCms.createProfile(), or [in the
     future] profiles extracted from image files.
 
@@ -465,11 +441,9 @@ def buildProofTransformFromOpenProfiles(inputProfile, outputProfile, displayProf
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
     
     try:
-        result = pyCMSdll.buildProofTransform(inputProfile.profile, outputProfile.profile, displayProfile.profile, inMode, outMode, renderingIntent, displayRenderingIntent)
+        return pyCMSdll.buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent, displayRenderingIntent)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
-
-    return PyCMSTransform(result, inMode, outMode)    
 
 ##
 # Applies a transform to a given image.
@@ -483,7 +457,7 @@ def applyTransform(im, transform, inPlace=0):
 
     im = a PIL Image object, and im.mode must be the same as the inMode
         supported by the transform.
-    transform = a valid PyCMSTransform class object
+    transform = a valid CmsTransform class object
     inPlace = BOOL (1 == TRUE, 0 or None == FALSE).  If TRUE, im is
         modified in place and None is returned, if FALSE, a new Image
         object with the transform applied is returned (and im is not
@@ -514,12 +488,13 @@ def applyTransform(im, transform, inPlace=0):
     the same dimensions in mode transform.outMode.
 
     """  
+
     if im.mode != transform.inputMode:
-        raise PyCMSError("Image mode does not match profile input mode (%s vs %s)" % (im.mode, transform.inMode))
+        raise PyCMSError("Image mode does not match profile input mode (%s vs %s)" % (im.mode, transform.inputMode))
     
     if inPlace:
         if transform.inputMode != transform.outputMode:
-            raise PyCMSError("Cannot transform image in place, input mode and output mode are different (%s vs. %s)" % (transform.inMode, transform.outMode))
+            raise PyCMSError("Cannot transform image in place, input mode and output mode are different (%s vs. %s)" % (transform.inputMode, transform.outputMode))
         imOut = im
         if imOut.readonly:
             imOut._copy()
@@ -529,7 +504,7 @@ def applyTransform(im, transform, inPlace=0):
     im.load() #make sure it's loaded, or it may not have an .im attribute!
     
     try:
-        result = pyCMSdll.applyTransform (im.im.id, imOut.im.id, transform.transform)
+        result = pyCMSdll.applyTransform (im.im.id, imOut.im.id, transform)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -552,7 +527,7 @@ def createProfile(colorSpace, colorTemp=-1):
     """
     ImageCms.createProfile(colorSpace, [colorTemp])
     
-    Returns a PyCMSProfile class object
+    Returns a CmsProfile class object
 
     colorSpace = string, the color space of the profile you wish to create.
         Currently only "LAB", "XYZ", and "sRGB" are supported.
@@ -569,7 +544,7 @@ def createProfile(colorSpace, colorTemp=-1):
 
     Use this function to create common profiles on-the-fly instead of
     having to supply a profile on disk and knowing the path to it.  It
-    returns a normal PyCMSProfile object that can be passed to
+    returns a normal CmsProfile object that can be passed to
     ImageCms.buildTransformFromOpenProfiles() to create a transform to apply
     to images.
 
@@ -584,11 +559,9 @@ def createProfile(colorSpace, colorTemp=-1):
             raise PyCMSError("Color temperature must be a positive integer, \"%s\" not valid" % colorTemp)
         
     try:
-        result = pyCMSdll.createProfile(colorSpace, colorTemp)
+        return pyCMSdll.createProfile(colorSpace, colorTemp)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
-
-    return PyCMSProfile(result)
 
 ##
 # Gets the internal product name for the given profile.
@@ -600,10 +573,10 @@ def getProfileName(profile):
     Returns a string containing the internal name of the profile as stored
         in an ICC tag.
 
-    profile = EITHER a valid PyCMSProfile object, OR a string of the
+    profile = EITHER a valid CmsProfile object, OR a string of the
         filename of an ICC profile.
 
-    If profile isn't a valid PyCMSProfile object or filename to a profile,
+    If profile isn't a valid CmsProfile object or filename to a profile,
     a PyCMSError is raised If an error occurs while trying to obtain the
     name tag, a PyCMSError is raised.
 
@@ -616,8 +589,6 @@ def getProfileName(profile):
     try:
         if isinstance(profile, type("")):
             profile = pyCMSdll.OpenProfile(profile)
-        else:
-            profile = profile.profile
         # add an extra newline to preserve pyCMS compatibility
         return profile.product_name + "\n"
     except (AttributeError, IOError, TypeError, ValueError), v:
@@ -633,10 +604,10 @@ def getProfileInfo(profile):
     Returns a string containing the internal profile information stored in
         an ICC tag.
 
-    profile = EITHER a valid PyCMSProfile object, OR a string of the
+    profile = EITHER a valid CmsProfile object, OR a string of the
         filename of an ICC profile.
 
-    If profile isn't a valid PyCMSProfile object or filename to a profile,
+    If profile isn't a valid CmsProfile object or filename to a profile,
     a PyCMSError is raised.
 
     If an error occurs while trying to obtain the info tag, a PyCMSError
@@ -650,8 +621,6 @@ def getProfileInfo(profile):
     try:
         if isinstance(profile, type("")):
             profile = pyCMSdll.OpenProfile(profile)
-        else:
-            profile = profile.profile
         # add an extra newline to preserve pyCMS compatibility
         return profile.product_info + "\n"
     except (AttributeError, IOError, TypeError, ValueError), v:
@@ -673,10 +642,10 @@ def getDefaultIntent(profile):
         see the pyCMS documentation for details on rendering intents and
         what they do.
 
-    profile = EITHER a valid PyCMSProfile object, OR a string of the
+    profile = EITHER a valid CmsProfile object, OR a string of the
         filename of an ICC profile.
     
-    If profile isn't a valid PyCMSProfile object or filename to a profile,
+    If profile isn't a valid CmsProfile object or filename to a profile,
     a PyCMSError is raised.
     
     If an error occurs while trying to obtain the default intent, a
@@ -691,8 +660,6 @@ def getDefaultIntent(profile):
     try:
         if isinstance(profile, type("")):
             profile = pyCMSdll.OpenProfile(profile)
-        else:
-            profile = profile.profile
         return profile.rendering_intent
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
@@ -706,7 +673,7 @@ def isIntentSupported(profile, intent, direction):
     
     Returns 1 if the intent/direction are supported, -1 if they are not.
 
-    profile = EITHER a valid PyCMSProfile object, OR a string of the
+    profile = EITHER a valid CmsProfile object, OR a string of the
         filename of an ICC profile.
     intent = integer (0-3) specifying the rendering intent you wish to use
         with this profile
@@ -737,8 +704,6 @@ def isIntentSupported(profile, intent, direction):
     try:
         if isinstance(profile, type("")):
             profile = pyCMSdll.OpenProfile(profile)
-        else:
-            profile = profile.profile
         if profile.is_intent_supported(intent, direction):
             return 1
         else:

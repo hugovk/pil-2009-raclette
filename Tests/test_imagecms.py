@@ -31,6 +31,8 @@ def test_sanity():
     assert_image(i, "RGB", (128, 128))
 
     t = ImageCms.buildProofTransform(SRGB, SRGB, SRGB, "RGB", "RGB")
+    assert_equal(t.inputMode, "RGB")
+    assert_equal(t.outputMode, "RGB")
     i = ImageCms.applyTransform(lena(), t)
     assert_image(i, "RGB", (128, 128))
 
