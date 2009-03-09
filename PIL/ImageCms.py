@@ -64,7 +64,9 @@ VERSION = "0.1.0 pil"
 # --------------------------------------------------------------------.
 
 import Image
-import _imagingcms as pyCMSdll
+import _imagingcms
+
+cmscore = _imagingcms
 
 #
 # intent/direction values
@@ -81,6 +83,13 @@ DIRECTION_PROOF = 2
 # --------------------------------------------------------------------.
 # pyCMS compatible layer
 # --------------------------------------------------------------------.
+
+def _make_profile(profile):
+    if Image.isStringType(profile):
+        return cmscore.profile_open(profile)
+    if hasattr(profile, "read"):
+        return cmscore.profile_fromstring(profile.read())
+    return profile # assume it's already a profile
 
 ##
 # Exception class.  This is used for all errors in the pyCMS API.
@@ -162,7 +171,7 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     im.load() # make sure it's loaded, or it may not have a .im attribute!
 
     try:
-        result = pyCMSdll.profileToProfile(im.im.id, imOut.im.id, inputProfile, outputProfile, renderingIntent)
+        result = cmscore.profileToProfile(im.im.id, imOut.im.id, inputProfile, outputProfile, renderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -173,7 +182,7 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
             return imOut
 
     elif result == -1:
-        raise PyCMSError("Error occurred in pyCMSdll.profileToProfile()")
+        raise PyCMSError("Error occurred in _imagingcms.profileToProfile()")
     else:
         raise PyCMSError(result)
 
@@ -198,7 +207,7 @@ def getOpenProfile(profileFilename):
     """    
     
     try:
-        return pyCMSdll.OpenProfile(profileFilename)
+        return cmscore.profile_open(profileFilename)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -207,7 +216,7 @@ def getOpenProfile(profileFilename):
 
 def getMemoryProfile(buffer):
     try:
-        return pyCMSdll.OpenMemoryProfile(buffer)
+        return cmscore.profile_fromstring(buffer)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -272,18 +281,11 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
-    if Image.isStringType(inputProfile):
-        inputProfile = pyCMSdll.OpenProfile(inputProfile)
-    elif hasattr(inputProfile, "read"):
-        inputProfile = pyCMSdll.OpenMemoryProfile(inputProfile.read())
-
-    if Image.isStringType(outputProfile):
-        outputProfile = pyCMSdll.OpenProfile(outputProfile)
-    elif hasattr(inputProfile, "read"):
-        outputProfile = pyCMSdll.OpenMemoryProfile(outputProfile.read())
+    inputProfile = _make_profile(inputProfile)
+    outputProfile = _make_profile(outputProfile)
 
     try:
-        return pyCMSdll.buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent)
+        return cmscore.buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -365,23 +367,12 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
-    if Image.isStringType(inputProfile):
-        inputProfile = pyCMSdll.OpenProfile(inputProfile)
-    elif hasattr(inputProfile, "read"):
-        inputProfile = pyCMSdll.OpenMemoryProfile(inputProfile.read())
-
-    if Image.isStringType(outputProfile):
-        outputProfile = pyCMSdll.OpenProfile(outputProfile)
-    elif hasattr(inputProfile, "read"):
-        outputProfile = pyCMSdll.OpenMemoryProfile(outputProfile.read())
-
-    if Image.isStringType(displayProfile):
-        displayProfile = pyCMSdll.OpenProfile(displayProfile)
-    elif hasattr(inputProfile, "read"):
-        displayProfile = pyCMSdll.OpenMemoryProfile(displayProfile.read())
+    inputProfile = _make_profile(inputProfile)
+    outputProfile = _make_profile(outputProfile)
+    displayProfile = _make_profile(displayProfile)
 
     try:
-        return pyCMSdll.buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent, displayRenderingIntent)
+        return cmscore.buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent, displayRenderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -447,7 +438,7 @@ def applyTransform(im, transform, inPlace=0):
     im.load() #make sure it's loaded, or it may not have an .im attribute!
     
     try:
-        result = pyCMSdll.applyTransform (im.im.id, imOut.im.id, transform)
+        result = cmscore.applyTransform(im.im.id, imOut.im.id, transform)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -458,8 +449,7 @@ def applyTransform(im, transform, inPlace=0):
             return imOut
 
     elif result == -1:
-        raise PyCMSError("Error occurred in pyCMSdll.applyTransform()")
-
+        raise PyCMSError("Error occurred in _imagingcms.applyTransform()")
     else:
         raise PyCMSError(result)
 
@@ -502,7 +492,7 @@ def createProfile(colorSpace, colorTemp=-1):
             raise PyCMSError("Color temperature must be a positive integer, \"%s\" not valid" % colorTemp)
         
     try:
-        return pyCMSdll.createProfile(colorSpace, colorTemp)
+        return cmscore.createProfile(colorSpace, colorTemp)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -530,10 +520,8 @@ def getProfileName(profile):
     
     """
     try:
-        if isinstance(profile, type("")):
-            profile = pyCMSdll.OpenProfile(profile)
         # add an extra newline to preserve pyCMS compatibility
-        return profile.product_name + "\n"
+        return _make_profile(profile).product_name + "\n"
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -562,10 +550,8 @@ def getProfileInfo(profile):
 
     """
     try:
-        if isinstance(profile, type("")):
-            profile = pyCMSdll.OpenProfile(profile)
         # add an extra newline to preserve pyCMS compatibility
-        return profile.product_info + "\n"
+        return _make_profile(profile).product_info + "\n"
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -601,9 +587,7 @@ def getDefaultIntent(profile):
     ImageCms.isIntentSupported() to verify it will work first.
     """    
     try:
-        if isinstance(profile, type("")):
-            profile = pyCMSdll.OpenProfile(profile)
-        return profile.rendering_intent
+        return _make_profile(profile).rendering_intent
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -645,9 +629,7 @@ def isIntentSupported(profile, intent, direction):
 
     """
     try:
-        if isinstance(profile, type("")):
-            profile = pyCMSdll.OpenProfile(profile)
-        if profile.is_intent_supported(intent, direction):
+        if _make_profile(profile).is_intent_supported(intent, direction):
             return 1
         else:
             return -1
@@ -659,7 +641,7 @@ def isIntentSupported(profile, intent, direction):
 
 def versions():
     import sys
-    pycms, lcms = pyCMSdll.versions()
+    pycms, lcms = cmscore.versions()
     return pycms, "%d.%d" % divmod(lcms, 100), sys.version.split()[0], Image.VERSION
 
 # --------------------------------------------------------------------

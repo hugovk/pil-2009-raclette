@@ -536,6 +536,8 @@ cms_profile_is_intent_supported(CmsProfileObject *self, PyObject *args)
 
   result = cmsIsIntentSupported(self->profile, intent, direction);
 
+  /* printf("cmsIsIntentSupported(%p, %d, %d) => %d\n", self->profile, intent, direction, result); */
+
   return PyInt_FromLong(result != 0);
 }
 
@@ -543,22 +545,19 @@ cms_profile_is_intent_supported(CmsProfileObject *self, PyObject *args)
 /* Python interface setup */
 
 static PyMethodDef pyCMSdll_methods[] = {
-  /* object administration */
-  {"OpenProfile", cms_profile_open, 1}, /* open profile */
-  /* object administration */
-  {"OpenMemoryProfile", cms_profile_open_memory, 1}, /* open profile */
+
+  {"profile_open", cms_profile_open, 1},
+  {"profile_fromstring", cms_profile_open_memory, 1},
 
   /* pyCMS info */
-  {"versions", versions, 1, "pyCMSdll.versions() returs tuple of pyCMSversion, littleCMSversion that it was compiled with"},
+  {"versions", versions, 1},
 
   /* profile and transform functions */
-  {"profileToProfile", profileToProfile, 1, "pyCMSdll.profileToProfile (idIn, idOut, InputProfile, OutputProfile, [RenderingIntent]) returns 0 on success, -1 on failure.  If idOut is the same as idIn, idIn is modified in place, otherwise the results are applied to idOut"},
-  {"buildTransform", buildTransform, 1, "pyCMSdll.buildTransform (InputProfile, OutputProfile, InMode, OutMode, [RenderingIntent]) returns a handle to a pre-computed ICC transform that can be used for processing multiple images, saving calculation time"},
-  {"buildProofTransform", buildProofTransform, 1, "pyCMSdll.buildProofTransform (InputProfile, OutputProfile, DisplayProfile, InMode, OutMode, [RenderingIntent], [DisplayRenderingIntent]) returns a handle to a pre-computed soft-proofing (simulating the output device capabilities on the display device) ICC transform that can be used for processing multiple images, saving calculation time"},
-  {"applyTransform", applyTransform, 1, "pyCMSdll.applyTransform (idIn, idOut, hTransform) applys a pre-calcuated transform (from pyCMSdll.buildTransform) to an image.  If idIn and idOut are the same, it modifies the image in place, otherwise the new image is built in idOut.  Returns 0 on success, -1 on failure"},
-   
-  /* on-the-fly profile creation functions */
-  {"createProfile", createProfile, 1, "pyCMSdll.createProfile (colorSpace, [colorTemp]) returns a handle to an open profile created on the fly.  colorSpace can be 'LAB', 'XYZ', or 'xRGB'.  If using LAB, you can specify a white point color temperature, or let it default to D50 (5000K)"},
+  {"profileToProfile", profileToProfile, 1},
+  {"buildTransform", buildTransform, 1},
+  {"buildProofTransform", buildProofTransform, 1},
+  {"applyTransform", applyTransform, 1},
+  {"createProfile", createProfile, 1},
 
   {NULL, NULL}
 };
