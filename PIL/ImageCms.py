@@ -21,7 +21,6 @@ pyCMS
     While it is possible to call pyCMSdll functions directly, it's not highly
     recommended.
 
-
     Version History:
 
         0.1.0           March 2009 - added to PIL, as PIL.ImageCms
@@ -60,18 +59,27 @@ DIRECTION_INPUT = 0
 DIRECTION_OUTPUT = 1
 DIRECTION_PROOF = 2
 
+##
+# Exception class.  This is used for all errors in the pyCMS API.
+
 class PyCMSError(Exception):
     pass
 
+##
+# Transform wrapper.
+
 class PyCMSTransform:
     def __init__(self, transform=None, inputMode=None, outputMode=None):
-        self.transform = transform
+        self.transform = transform # CObject w. internal handle
         self.inputMode = inputMode
         self.outputMode = outputMode
 
+##
+# Profile wrapper.
+
 class PyCMSProfile:
     def __init__(self, profile=None):
-        self.profile = profile
+        self.profile = profile # CObject w. internal handle
 
 def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PERCEPTUAL, outputMode=None, inPlace=0):
     """
@@ -576,22 +584,19 @@ def getProfileName(profile):
     additional information supplied by the creator.
     
     """
-    try:
-        if type(profile) != type("string"):
-            profile = profile.profile
-        elif (not os.path.isfile(profile)):
+    if isinstance(profile, type("")):
+        # as configured, littlecms displays an error message if the
+        # file doesn't exist, so we'll test for that case here. get
+        # rid of this code when the binding is fixed.
+        if not os.path.isfile(profile):
             raise PyCMSError("Invalid  profile path provided: %s" % profile)
-        
-    except TypeError:
-        # you can't use type() on a PyCObject... argh!
-        profile = profile.profile
-
-    result = pyCMSdll.getProfileName(profile) + "\n"
-
-    if result[:7] == "ERROR: ":
-        raise PyCMSError(result)
     else:
-        return result
+        profile = profile.profile
+    try:
+        # add an extra newline to preserve pyCMS compatibility
+        return pyCMSdll.getProfileName(profile) + "\n"
+    except TypeError, v:
+        raise PyCMSError(v)
       
 def getProfileInfo(profile):
     """
@@ -614,23 +619,16 @@ def getProfileInfo(profile):
     was created, as supplied by the creator.
 
     """
-    try:
-        if type(profile) != type("string"):
-            profile = profile.profile
-        elif (not os.path.isfile(profile)):
+    if isinstance(profile, type("")):
+        if not os.path.isfile(profile):
             raise PyCMSError("Invalid  profile path provided: %s" % profile)
-        
-    except TypeError:
-        # you can't use type() on a PyCObject... argh!
-        profile = profile.profile
-        
-    result = pyCMSdll.getProfileInfo(profile) + "\n"
-
-    if result[:7] == "ERROR: ":
-        raise PyCMSError(result)
-
     else:
-        return result
+        profile = profile.profile
+    try:
+        # add an extra newline to preserve pyCMS compatibility
+        return pyCMSdll.getProfileInfo(profile) + "\n"
+    except TypeError, v:
+        raise PyCMSError(v)
       
 def getDefaultIntent(profile):
     """
@@ -660,27 +658,15 @@ def getDefaultIntent(profile):
     If you wish to use a different intent than returned, use
     pyCMS.isIntentSupported() to verify it will work first.
     """    
-    try:
-        if type(profile) != type("string"):
-            profile = profile.profile
-        elif (not os.path.isfile(profile)):
-            raise PyCMSError("Invalid  profile path provided: %s" % profile)
-        
-    except TypeError:
-        # you can't use type() on a PyCObject... argh!
+    if isinstance(profile, type("")):
+        if not os.path.isfile(profile):
+            raise PyCMSError("Invalid profile path provided: %s" % profile)
+    else:
         profile = profile.profile
-        
-    result = pyCMSdll.getDefaultIntent(profile)
-
     try:
-        if type(result) == type("string"):
-            raise PyCMSError(result)
-        else:
-            return result
-
-    except TypeError:
-        # you can't use type() on a PyCObject... argh!
-        return result
+        return pyCMSdll.getDefaultIntent(profile)
+    except TypeError, v:
+        raise PyCMSError(v)
       
 def isIntentSupported(profile, intent, direction):
     """
@@ -716,28 +702,16 @@ def isIntentSupported(profile, intent, direction):
     you select.
 
     """
-    try:
-        if type(profile) != type("string"):
-            profile = profile.profile
-        elif (not os.path.isfile(profile)):
-            raise PyCMSError("Invalid  profile path provided: %s" % profile)
-        
-    except TypeError:
-        # you can't use type() on a PyCObject... argh!
+    if isinstance(profile, type("")):
+        if not os.path.isfile(profile):
+            raise PyCMSError("Invalid profile path provided: %s" % profile)
+    else:
         profile = profile.profile
-        
-    result = pyCMSdll.isIntentSupported(profile, intent, direction)
-
     try:
-        if type(result) == type("string"):
-            raise PyCMSError(result)
+        return pyCMSdll.isIntentSupported(profile, intent, direction)
+    except TypeError, v:
+        raise PyCMSError(v)
 
-        else:
-            return result
-        
-    except TypeError:
-        # you can't use type() on a PyCObject... argh!
-        return result
 
 if __name__ == "__main__":
     # create a cheap manual from the __doc__ strings for the functions above

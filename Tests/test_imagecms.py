@@ -31,7 +31,7 @@ def test_sanity():
     i = ImageCms.applyTransform(lena(), t)
     assert_image(i, "RGB", (128, 128))
 
-    # FIXME: getProfileName et al crash if given a profile handle
+    # get profile information for file
     assert_equal(ImageCms.getProfileName(SRGB).strip(),
                  'IEC 61966-2.1 Default RGB colour space - sRGB')
     assert_equal(ImageCms.getProfileInfo(SRGB).splitlines(),
@@ -42,4 +42,15 @@ def test_sanity():
     assert_equal(ImageCms.getDefaultIntent(SRGB), 0)
     assert_equal(ImageCms.isIntentSupported(
             SRGB, ImageCms.INTENT_ABSOLUTE_COLORIMETRIC,
+            ImageCms.DIRECTION_INPUT), 1)
+
+    # same, using profile object
+    p = ImageCms.createProfile("sRGB")
+    assert_equal(ImageCms.getProfileName(p).strip(),
+                 'sRGB built-in - (lcms internal)')
+    assert_equal(ImageCms.getProfileInfo(p).splitlines(),
+                 ['sRGB built-in', '', 'WhitePoint : D65 (daylight)', '', ''])
+    assert_equal(ImageCms.getDefaultIntent(p), 0)
+    assert_equal(ImageCms.isIntentSupported(
+            p, ImageCms.INTENT_ABSOLUTE_COLORIMETRIC,
             ImageCms.DIRECTION_INPUT), 1)

@@ -223,22 +223,26 @@ _buildProofTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, cmsH
 // Python callable functions
 /////////////////////////////////////////////////////////////////////////////
 static PyObject *
-versions (PyObject *self, PyObject *args) {
-  return Py_BuildValue ("ssss", PYCMSVERSION, LITTLECMSVERSION, PYTHONVERSION, PILVERSION);
+versions (PyObject *self, PyObject *args)
+{
+  return Py_BuildValue("ssss", PYCMSVERSION, LITTLECMSVERSION, PYTHONVERSION, PILVERSION);
 }
 
 static PyObject *
-about (PyObject *self, PyObject *args) {
+about (PyObject *self, PyObject *args)
+{
   return Py_BuildValue("s", COPYRIGHTINFO);
 }
 
 static PyObject *
-copyright (PyObject *self, PyObject *args) {
+copyright (PyObject *self, PyObject *args)
+{
   return about(self, args);
 }
 
 static PyObject *
-getOpenProfile(PyObject *self, PyObject *args) {
+getOpenProfile(PyObject *self, PyObject *args)
+{
   char *sProfile = NULL;
 
   cmsHPROFILE hProfile;
@@ -284,12 +288,13 @@ buildTransform(PyObject *self, PyObject *args) {
 }
 
 static PyObject *
-buildTransformFromOpenProfiles (PyObject *self, PyObject *args) {
+buildTransformFromOpenProfiles (PyObject *self, PyObject *args)
+{
   char *sInMode;
   char *sOutMode;
   int iRenderingIntent = 0;
-  void *pInputProfile;
-  void *pOutputProfile;
+  PyObject *pInputProfile;
+  PyObject *pOutputProfile;
   cmsHPROFILE hInputProfile, hOutputProfile;
   void *hTransformPointer = NULL;
   cmsHTRANSFORM transform;
@@ -312,7 +317,8 @@ buildTransformFromOpenProfiles (PyObject *self, PyObject *args) {
 }
 
 static PyObject *
-buildProofTransform(PyObject *self, PyObject *args) {
+buildProofTransform(PyObject *self, PyObject *args)
+{
   char *sInputProfile;
   char *sOutputProfile;
   char *sDisplayProfile;
@@ -347,14 +353,15 @@ buildProofTransform(PyObject *self, PyObject *args) {
 }
 
 static PyObject *
-buildProofTransformFromOpenProfiles(PyObject *self, PyObject *args) {
+buildProofTransformFromOpenProfiles(PyObject *self, PyObject *args)
+{
   char *sInMode;
   char *sOutMode;
   int iRenderingIntent = 0;
   int iDisplayIntent = 0;
-  void *pInputProfile;
-  void *pOutputProfile;
-  void *pDisplayProfile;
+  PyObject *pInputProfile;
+  PyObject *pOutputProfile;
+  PyObject *pDisplayProfile;
   cmsHTRANSFORM transform;
 
   cmsHPROFILE hInputProfile, hOutputProfile, hDisplayProfile;
@@ -378,17 +385,18 @@ buildProofTransformFromOpenProfiles(PyObject *self, PyObject *args) {
 }
 
 static PyObject *
-applyTransform(PyObject *self, PyObject *args) {
+applyTransform(PyObject *self, PyObject *args)
+{
   long idIn;
   long idOut;
-  void *hTransformPointer;
+  PyObject *pTransform;
   cmsHTRANSFORM hTransform;
   Imaging im;
   Imaging imOut;
 
   int result;
 
-  if (!PyArg_ParseTuple(args, "llO", &idIn, &idOut, &hTransformPointer)) { 
+  if (!PyArg_ParseTuple(args, "llO", &idIn, &idOut, &pTransform)) { 
     PyErr_Clear(); /* FIXME */
     return Py_BuildValue("s", "ERROR: Could not parse the data passed to pyCMSdll.applyTransform()");
   }
@@ -398,7 +406,7 @@ applyTransform(PyObject *self, PyObject *args) {
 
   cmsErrorAction(cmsERROR_HANDLER);
 
-  hTransform = (cmsHTRANSFORM) PyCObject_AsVoidPtr(hTransformPointer); 
+  hTransform = (cmsHTRANSFORM) PyCObject_AsVoidPtr(pTransform); 
 
   result = pyCMSdoTransform(im, imOut, hTransform);
 
@@ -518,28 +526,38 @@ createProfile(PyObject *self, PyObject *args)
 //////////////////////////////////////////////////////////////////////////////
 // Python callable profile information functions
 //////////////////////////////////////////////////////////////////////////////
+
+static
+int getprofile(PyObject* profile, cmsHPROFILE *hProfile, BOOL *closeProfile)
+{
+  if (PyString_Check(profile)) {
+    *hProfile = cmsOpenProfileFromFile(PyString_AsString(profile), "r");
+    *closeProfile = TRUE;
+    return 1;
+  }
+
+  if (PyCObject_Check(profile)) {
+    *hProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(profile); 
+    *closeProfile = FALSE;
+    return 1;
+  }
+
+  PyErr_SetString(PyExc_TypeError, "illegal profile argument (must be string or profile handle");
+  return 0;
+}
+
 static PyObject *
 getProfileName(PyObject *self, PyObject *args)
 {
-  // I've had some intermittant problems with this function and getProfileInfo... look at them closer
-  char *sProfile;
   PyObject* result;
-
-  BOOL closeProfile = FALSE;
-
+  PyObject* profile;
   cmsHPROFILE hProfile;
+  BOOL closeProfile;
 
-  if (!PyArg_ParseTuple(args, "s", &sProfile)) { 
-    PyErr_Clear(); /* FIXME */
-    if (!PyArg_ParseTuple(args, "O", &hProfile)) {
-      PyErr_Clear(); /* FIXME */
-      return Py_BuildValue("s", "ERROR: Could not parse the argument tuple passed to pyCMSdll.getProfileName()");
-    }
-  }
-  else {
-    hProfile = cmsOpenProfileFromFile(sProfile, "r");
-    closeProfile = TRUE;
-  }
+  if (!PyArg_ParseTuple(args, "O", &profile))
+    return NULL;
+  if (!getprofile(profile, &hProfile, &closeProfile))
+    return NULL;
 
   result = PyString_FromString(cmsTakeProductName(hProfile));
 
@@ -552,23 +570,15 @@ getProfileName(PyObject *self, PyObject *args)
 static PyObject *
 getProfileInfo(PyObject *self, PyObject *args)
 {
-  char *sProfile;
+  PyObject* profile;
   PyObject* result;
-  BOOL closeProfile = FALSE;
-
   cmsHPROFILE hProfile;
+  BOOL closeProfile;
 
-  if (!PyArg_ParseTuple(args, "s", &sProfile)) { 
-    PyErr_Clear(); /* FIXME */
-    if (!PyArg_ParseTuple(args, "O", &hProfile)) {
-      PyErr_Clear(); /* FIXME */
-      return Py_BuildValue("s", "ERROR: Could not parse the argument tuple passed to pyCMSdll.getProfileInfo()");
-    }
-  }
-  else {
-    hProfile = cmsOpenProfileFromFile(sProfile, "r");
-    closeProfile = TRUE;
-  }
+  if (!PyArg_ParseTuple(args, "O", &profile))
+    return NULL;
+  if (!getprofile(profile, &hProfile, &closeProfile))
+    return NULL;
 
   result = PyString_FromString(cmsTakeProductInfo(hProfile));
 
@@ -581,29 +591,20 @@ getProfileInfo(PyObject *self, PyObject *args)
 static PyObject *
 getDefaultIntent(PyObject *self, PyObject *args)
 {
-  char *sProfile;
-  int intent = 0;
-  BOOL closeProfile = FALSE;
-
+  PyObject* profile;
+  int intent;
   cmsHPROFILE hProfile;
+  BOOL closeProfile;
 
-  if (!PyArg_ParseTuple(args, "s", &sProfile)) { 
-    PyErr_Clear(); /* FIXME */
-    if (!PyArg_ParseTuple(args, "O", &hProfile)) {
-      PyErr_Clear(); /* FIXME */
-      return Py_BuildValue("s", "ERROR: Could not parse the argument tuple passed to pyCMSdll.getDefaultIntent()"); 
-    }
-  }
-  else {
-    hProfile = cmsOpenProfileFromFile(sProfile, "r");
-    closeProfile = TRUE;
-  }
+  if (!PyArg_ParseTuple(args, "O", &profile))
+    return NULL;
+  if (!getprofile(profile, &hProfile, &closeProfile))
+    return NULL;
 
   intent = cmsTakeRenderingIntent(hProfile);
 
-  if (closeProfile == TRUE) {
+  if (closeProfile)
     cmsCloseProfile(hProfile);
-  }
 
   return PyInt_FromLong(intent);
 }
@@ -611,38 +612,27 @@ getDefaultIntent(PyObject *self, PyObject *args)
 static PyObject *
 isIntentSupported(PyObject *self, PyObject *args)
 {
-  char *sProfile;
+  BOOL result;
+  PyObject* profile;
   int iIntent;
   int iDirection;
-  BOOL closeProfile = FALSE;
-
-  BOOL result;
-
   cmsHPROFILE hProfile;
+  BOOL closeProfile;
 
-  if (!PyArg_ParseTuple(args, "sii", &sProfile, &iIntent, &iDirection)) { 
-    PyErr_Clear(); /* FIXME */
-    if (!PyArg_ParseTuple(args, "Oii", &hProfile, &iIntent, &iDirection)) {
-      PyErr_Clear(); /* FIXME */
-      return Py_BuildValue("s", "ERROR: Could not parse the argument tuple passed to pyCMSdll.isIntentSupported()");
-    }
-  }
-  else {
-    hProfile = cmsOpenProfileFromFile(sProfile, "r");
-    closeProfile = TRUE;
-  }
+  if (!PyArg_ParseTuple(args, "Oii", &profile, &iIntent, &iDirection))
+    return NULL;
+  if (!getprofile(profile, &hProfile, &closeProfile))
+    return NULL;
 
-  result =  cmsIsIntentSupported(hProfile, iIntent, iDirection);
+  result = cmsIsIntentSupported(hProfile, iIntent, iDirection);
 
-  if (closeProfile == TRUE) {
+  if (closeProfile)
     cmsCloseProfile(hProfile);
-  }
 
-  if (result == TRUE) {
-    return Py_BuildValue("i", 1);
-  }
-  else {
-    return Py_BuildValue("i", -1);
+  if (result) {
+    return PyInt_FromLong(1);
+  } else {
+    return PyInt_FromLong(-1);
   }
 }
 
