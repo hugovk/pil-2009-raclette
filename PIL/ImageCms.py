@@ -747,9 +747,13 @@ def isIntentSupported(profile, intent, direction):
     try:
         if isinstance(profile, type("")):
             open(profile).close()
+            profile = pyCMSdll.getOpenProfile(profile)
         else:
             profile = profile.profile
-        return pyCMSdll.isIntentSupported(profile, intent, direction)
+        if profile.is_intent_supported(intent, direction):
+            return 1
+        else:
+            return -1
     except (AttributeError, IOError, TypeError), v:
         raise PyCMSError(v)
 

@@ -531,52 +531,21 @@ createProfile(PyObject *self, PyObject *args)
 }
 
 /* -------------------------------------------------------------------- */
-/* Python callable profile information functions */
-
-static
-int getprofile(PyObject* profile, cmsHPROFILE *hProfile, BOOL *closeProfile)
-{
-  if (PyString_Check(profile)) {
-    *hProfile = cmsOpenProfileFromFile(PyString_AsString(profile), "r");
-    *closeProfile = TRUE;
-    return 1;
-  }
-
-  if (CmsProfile_Check(profile)) {
-    *hProfile = ((CmsProfileObject*) profile)->profile;
-    *closeProfile = FALSE;
-    return 1;
-  }
-
-  PyErr_SetString(PyExc_TypeError, "illegal profile argument (must be string or profile handle");
-  return 0;
-}
+/* profile methods */
 
 static PyObject *
-isIntentSupported(PyObject *self, PyObject *args)
+cms_profile_is_intent_supported(CmsProfileObject *self, PyObject *args)
 {
   BOOL result;
-  PyObject* profile;
-  int iIntent;
-  int iDirection;
-  cmsHPROFILE hProfile;
-  BOOL closeProfile;
 
-  if (!PyArg_ParseTuple(args, "Oii:isIntentSupported", &profile, &iIntent, &iDirection))
-    return NULL;
-  if (!getprofile(profile, &hProfile, &closeProfile))
+  int intent;
+  int direction;
+  if (!PyArg_ParseTuple(args, "ii:is_intent_supported", &intent, &direction))
     return NULL;
 
-  result = cmsIsIntentSupported(hProfile, iIntent, iDirection);
+  result = cmsIsIntentSupported(self->profile, intent, direction);
 
-  if (closeProfile)
-    cmsCloseProfile(hProfile);
-
-  if (result) {
-    return PyInt_FromLong(1);
-  } else {
-    return PyInt_FromLong(-1);
-  }
+  return PyInt_FromLong(result != 0);
 }
 
 /* -------------------------------------------------------------------- */
@@ -598,13 +567,11 @@ static PyMethodDef pyCMSdll_methods[] = {
   /* on-the-fly profile creation functions */
   {"createProfile", createProfile, 1, "pyCMSdll.createProfile (colorSpace, [colorTemp]) returns a handle to an open profile created on the fly.  colorSpace can be 'LAB', 'XYZ', or 'xRGB'.  If using LAB, you can specify a white point color temperature, or let it default to D50 (5000K)"},
 
-  /* profile info functions (name, info etc has been turned into attributes) */
-  {"isIntentSupported", isIntentSupported, 1, "pyCMSdll.isIntentSupported (profile, intent, direction) returns 1 if profile supports that intent, -1 if it doesnt.  Direction is what the profile is being used for: INPUT = 0, OUTPUT = 1, PROOF = 2"},
-
   {NULL, NULL}
 };
 
 static struct PyMethodDef cms_profile_methods[] = {
+    {"is_intent_supported", (PyCFunction) cms_profile_is_intent_supported, 1},
     {NULL, NULL} /* sentinel */
 };
 
@@ -613,10 +580,19 @@ cms_profile_getattr(CmsProfileObject* self, char* name)
 {
   if (!strcmp(name, "product_name"))
     return PyString_FromString(cmsTakeProductName(self->profile));
+  if (!strcmp(name, "product_desc"))
+    return PyString_FromString(cmsTakeProductDesc(self->profile));
   if (!strcmp(name, "product_info"))
     return PyString_FromString(cmsTakeProductInfo(self->profile));
+  if (!strcmp(name, "manufacturer"))
+    return PyString_FromString(cmsTakeManufacturer(self->profile));
+  if (!strcmp(name, "model"))
+    return PyString_FromString(cmsTakeModel(self->profile));
+  if (!strcmp(name, "copyright"))
+    return PyString_FromString(cmsTakeCopyright(self->profile));
   if (!strcmp(name, "rendering_intent"))
     return PyInt_FromLong(cmsTakeRenderingIntent(self->profile));
+  /* FIXME: add more properties (creation_datetime etc) */
 
   return Py_FindMethod(cms_profile_methods, (PyObject*) self, name);
 }
