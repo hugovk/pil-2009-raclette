@@ -103,9 +103,9 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     im = an open PIL image object (i.e. Image.new(...) or
         Image.open(...), etc.)
     inputProfile = string, as a valid filename path to the ICC input
-        profile you wish to use for this image
+        profile you wish to use for this image, or a profile object
     outputProfile = string, as a valid filename path to the ICC output
-        profile you wish to use for this image
+        profile you wish to use for this image, or a profile object
     renderingIntent = integer (0-3) specifying the rendering intent you
         wish to use for the transform
         INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
@@ -224,9 +224,9 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     Returns a CmsTransform class object.
     
     inputProfile = string, as a valid filename path to the ICC input
-        profile you wish to use for this transform
+        profile you wish to use for this transform, or a profile object
     outputProfile = string, as a valid filename path to the ICC output
-        profile you wish to use for this transform
+        profile you wish to use for this transform, or a profile object
     inMode = string, as a valid PIL mode that the appropriate profile also
         supports (i.e. "RGB", "RGBA", "CMYK", etc.)
     outMode = string, as a valid PIL mode that the appropriate profile also
@@ -300,11 +300,12 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
     Returns a CmsTransform class object.
     
     inputProfile = string, as a valid filename path to the ICC input
-        profile you wish to use for this transform
+        profile you wish to use for this transform, or a profile object
     outputProfile = string, as a valid filename path to the ICC output
-        profile you wish to use for this transform
+        profile you wish to use for this transform, or a profile object
     displayProfile = string, as a valid filename path to the ICC display
-        (monitor, usually) profile you wish to use for this transform
+        (monitor, usually) profile you wish to use for this transform,
+        or a profile object
     inMode = string, as a valid PIL mode that the appropriate profile also
         supports (i.e. "RGB", "RGBA", "CMYK", etc.)
     outMode = string, as a valid PIL mode that the appropriate profile also
