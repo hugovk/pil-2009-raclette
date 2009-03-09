@@ -380,18 +380,16 @@ buildProofTransform(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-applyTransform(PyObject *self, PyObject *args)
+cms_transform_apply(CmsTransformObject *self, PyObject *args)
 {
   long idIn;
   long idOut;
-  CmsTransformObject *pTransform;
-  cmsHTRANSFORM hTransform;
   Imaging im;
   Imaging imOut;
 
   int result;
 
-  if (!PyArg_ParseTuple(args, "llO!:applyTransform", &idIn, &idOut, &CmsTransform_Type, &pTransform))
+  if (!PyArg_ParseTuple(args, "ll:apply", &idIn, &idOut))
     return NULL;
 
   im = (Imaging) idIn;
@@ -399,9 +397,7 @@ applyTransform(PyObject *self, PyObject *args)
 
   cmsErrorAction(LCMS_ERROR_SHOW); /* FIXME */
 
-  hTransform = pTransform->transform; 
-
-  result = pyCMSdoTransform(im, imOut, hTransform);
+  result = pyCMSdoTransform(im, imOut, self->transform);
 
   return Py_BuildValue("i", result);
 }
@@ -556,7 +552,6 @@ static PyMethodDef pyCMSdll_methods[] = {
   {"profileToProfile", profileToProfile, 1},
   {"buildTransform", buildTransform, 1},
   {"buildProofTransform", buildProofTransform, 1},
-  {"applyTransform", applyTransform, 1},
   {"createProfile", createProfile, 1},
 
   {NULL, NULL}
@@ -610,6 +605,7 @@ statichere PyTypeObject CmsProfile_Type = {
 };
 
 static struct PyMethodDef cms_transform_methods[] = {
+    {"apply", (PyCFunction) cms_transform_apply, 1},
     {NULL, NULL} /* sentinel */
 };
 

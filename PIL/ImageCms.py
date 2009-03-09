@@ -438,7 +438,7 @@ def applyTransform(im, transform, inPlace=0):
     im.load() #make sure it's loaded, or it may not have an .im attribute!
     
     try:
-        result = cmscore.applyTransform(im.im.id, imOut.im.id, transform)
+        result = transform.apply(im.im.id, imOut.im.id)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
 
