@@ -132,10 +132,6 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     profile must handle CMYK data.
 
     """    
-    if not os.path.isfile(inputProfile):
-        raise PyCMSError("Invalid input profile path provided: %s" % inputProfile)
-    if not os.path.isfile(outputProfile):
-        raise PyCMSError("Invalid output profile path provided: %s" % outputProfile)
     
     if outputMode is None:
         outputMode = im.mode
@@ -249,10 +245,6 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     time that would be of use, or would even work).
 
     """   
-    if not os.path.isfile(inputProfile):
-        raise PyCMSError("Invalid input profile path provided: %s" % inputProfile)
-    if not os.path.isfile(outputProfile):
-        raise PyCMSError("Invalid output profile path provided: %s" % outputProfile)
 
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
@@ -333,12 +325,6 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
     device, you may obtain marginal results.
     
     """ 
-    if not os.path.isfile(inputProfile):
-        raise PyCMSError("Invalid input profile path provided: %s" % inputProfile)
-    if not os.path.isfile(outputProfile):
-        raise PyCMSError("Invalid output profile path provided: %s" % outputProfile)
-    if not os.path.isfile(displayProfile):
-        raise PyCMSError("Invalid display profile path provided: %s" % displayProfile)
 
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
