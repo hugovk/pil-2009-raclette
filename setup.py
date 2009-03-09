@@ -323,6 +323,14 @@ class pil_build_ext(build_ext):
                 "_imagingtiff", ["_imagingtiff.c"], libraries=["tiff"]
                 ))
 
+        if os.path.isfile("_imagingcms.c") and feature.lcms:
+            extra = []
+            if sys.platform == "win32":
+                extra.append("user32") # FIXME: littlecms build error?
+            exts.append(Extension(
+                "_imagingcms", ["_imagingcms.c"], libraries=["lcms"] + extra
+                ))
+
         if sys.platform == "darwin":
             # locate Tcl/Tk frameworks
             frameworks = []
@@ -387,7 +395,7 @@ class pil_build_ext(build_ext):
             (feature.zlib, "ZLIB (PNG/ZIP)"),
             # (feature.tiff, "experimental TIFF G3/G4 read"),
             (feature.freetype, "FREETYPE2"),
-            # (feature.lcms, "LITTLECMS"),
+            (feature.lcms, "LITTLECMS"),
             ]
 
         all = 1
