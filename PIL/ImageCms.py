@@ -151,13 +151,13 @@ class ImageCmsTransform:
 # --------------------------------------------------------------------.
 
 ##
-# Exception class.  This is used for all errors in the pyCMS API.
+# (pyCMS) Exception class.  This is used for all errors in the pyCMS API.
 
 class PyCMSError(Exception):
     pass
 
 ##
-# Applies an ICC transformation to a given image, mapping from
+# (pyCMS) Applies an ICC transformation to a given image, mapping from
 # inputProfile to outputProfile.
 
 def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PERCEPTUAL, outputMode=None, inPlace=0):
@@ -236,7 +236,7 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     return imOut
 
 ##
-# Opens an ICC profile file.
+# (pyCMS) Opens an ICC profile file.
 
 def getOpenProfile(profileFilename):
     """
@@ -261,9 +261,9 @@ def getOpenProfile(profileFilename):
         raise PyCMSError(v)
 
 ##
-# Builds an ICC transform mapping from the inputProfile to the
-# outputProfile.  Use applyTransform to apply the transform to
-# a given image.
+# (pyCMS) Builds an ICC transform mapping from the inputProfile to the
+# outputProfile.  Use applyTransform to apply the transform to a given
+# image.
 
 def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL):
     """
@@ -331,7 +331,7 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
         raise PyCMSError(v)
 
 ##
-# Builds an ICC transform mapping from the inputProfile to the
+# (pyCMS) Builds an ICC transform mapping from the inputProfile to the
 # displayProfile, but tries to simulate the result that would be
 # obtained on the outputProfile device.
 
@@ -423,7 +423,7 @@ buildTransformFromOpenProfiles = buildTransform
 buildProofTransformFromOpenProfiles = buildProofTransform
 
 ##
-# Applies a transform to a given image.
+# (pyCMS) Applies a transform to a given image.
 
 def applyTransform(im, transform, inPlace=0):
     """
@@ -478,7 +478,7 @@ def applyTransform(im, transform, inPlace=0):
     return imOut
 
 ##
-# Creates a profile.
+# (pyCMS) Creates a profile.
 
 def createProfile(colorSpace, colorTemp=-1):
     """
@@ -521,7 +521,7 @@ def createProfile(colorSpace, colorTemp=-1):
         raise PyCMSError(v)
 
 ##
-# Gets the internal product name for the given profile.
+# (pyCMS) Gets the internal product name for the given profile.
 
 def getProfileName(profile):
     """
@@ -552,7 +552,7 @@ def getProfileName(profile):
         raise PyCMSError(v)
 
 ##
-# Gets the internal product information for the given profile.
+# (pyCMS) Gets the internal product information for the given profile.
 
 def getProfileInfo(profile):
     """
@@ -584,7 +584,7 @@ def getProfileInfo(profile):
         raise PyCMSError(v)
 
 ##
-# Gets the default intent name for the given profile.
+# (pyCMS) Gets the default intent name for the given profile.
 
 def getDefaultIntent(profile):
     """
@@ -622,7 +622,7 @@ def getDefaultIntent(profile):
         raise PyCMSError(v)
 
 ##
-# Checks if a given intent is supported.
+# (pyCMS) Checks if a given intent is supported.
 
 def isIntentSupported(profile, intent, direction):
     """
@@ -671,12 +671,13 @@ def isIntentSupported(profile, intent, direction):
         raise PyCMSError(v)
 
 ##
-# Fetches versions.
+# (pyCMS) Fetches versions.
 
 def versions():
     import sys
     pycms, lcms = cmscore.versions()
-    return pycms, "%d.%d" % divmod(lcms, 100), sys.version.split()[0], Image.VERSION
+    return (pycms, "%d.%d" % divmod(lcms, 100),
+            sys.version.split()[0], Image.VERSION)
 
 # --------------------------------------------------------------------
 
