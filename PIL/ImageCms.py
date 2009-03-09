@@ -81,15 +81,74 @@ DIRECTION_OUTPUT = 1
 DIRECTION_PROOF = 2
 
 # --------------------------------------------------------------------.
-# pyCMS compatible layer
+# Experimental PIL-level API
 # --------------------------------------------------------------------.
 
-def _make_profile(profile):
-    if Image.isStringType(profile):
-        return cmscore.profile_open(profile)
-    if hasattr(profile, "read"):
-        return cmscore.profile_fromstring(profile.read())
-    return profile # assume it's already a profile
+##
+# Profile.
+
+class ImageCmsProfile:
+
+    def __init__(self, profile):
+        # accepts a string (filename), a file-like object, or a low-level
+        # profile object
+        if Image.isStringType(profile):
+            self._set(cmscore.profile_open(profile))
+        elif hasattr(profile, "read"):
+            self._set(cmscore.profile_fromstring(profile.read()))
+        else:
+            self._set(profile) # assume it's already a profile
+
+    def _set(self, profile):
+        self.profile = profile
+        if profile:
+            self.product_name = profile.product_name
+            self.product_info = profile.product_info
+        else:
+            self.product_name = None
+            self.product_info = None
+
+##
+# Transform.
+
+class ImageCmsTransform:
+
+    def __init__(self, input, output, input_mode, output_mode,
+                 intent=INTENT_PERCEPTUAL,
+                 display=None, display_intent=INTENT_PERCEPTUAL):
+        if display is None:
+            self.transform = cmscore.buildTransform(
+                input.profile, output.profile,
+                input_mode, output_mode,
+                intent
+                )
+        else:
+            self.transform = cmscore.buildProofTransform(
+                input.profile, output.profile, display.profile,
+                input_mode, output_mode,
+                intent, display_intent
+                )
+        # Note: inputMode and outputMode are for pyCMS compatibility only
+        self.input_mode = self.inputMode = input_mode
+        self.output_mode = self.outputMode = output_mode
+
+    def apply(self, im, imOut=None):
+        im.load()
+        if imOut is None:
+            imOut = Image.new(self.output_mode, im.size, None)
+        result = self.transform.apply(im.im.id, imOut.im.id)
+        return imOut
+
+    def apply_in_place(self, im):
+        im.load()
+        if im.mode != self.output_mode:
+            raise ValueError("mode mismatch") # wrong output mode
+        result = self.transform.apply(im.im.id, im.im.id)
+        return im
+
+# --------------------------------------------------------------------.
+# pyCMS compatible layer
+# --------------------------------------------------------------------.
 
 ##
 # Exception class.  This is used for all errors in the pyCMS API.
@@ -158,35 +217,21 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
-    if inPlace and im.mode != outputMode:
-        raise PyCMSError("Cannot transform image in place, im.mode and output mode are different (%s vs. %s)" % (im.mode, outputMode))
-
-    if inPlace:
-        imOut = im
-        if imOut.readonly:
-            imOut._copy()
-    else:
-        imOut = Image.new(outputMode, im.size)
-
-    im.load() # make sure it's loaded, or it may not have a .im attribute!
-
     try:
-        transform = buildTransform(inputProfile, outputProfile,
-                                   im.mode, outputMode, renderingIntent)
-        result = transform.apply(im.im.id, imOut.im.id)
+        inputProfile = ImageCmsProfile(inputProfile)
+        outputProfile = ImageCmsProfile(outputProfile)
+        transform = ImageCmsTransform(
+            inputProfile, outputProfile, im.mode, outputMode, renderingIntent
+            )
+        if inPlace:
+            transform.apply_in_place(im)
+            imOut = None
+        else:
+            imOut = transform.apply(im)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
-    if result == 0:
-        if inPlace:
-            return None
-        else:
-            return imOut
-
-    elif result == -1:
-        raise PyCMSError("Error occurred in _imagingcms.profileToProfile()")
-    else:
-        raise PyCMSError(result)
+    return imOut
 
 ##
 # Opens an ICC profile file.
@@ -198,7 +243,7 @@ def getOpenProfile(profileFilename):
     Returns a CmsProfile class object.  
 
     profileFilename = string, as a valid filename path to the ICC profile
-        you wish to open
+        you wish to open, or a file-like object.
 
     The PyCMSProfile object can be passed back into pyCMS for use in creating
     transforms and such (as in ImageCms.buildTransformFromOpenProfiles()).
@@ -209,16 +254,7 @@ def getOpenProfile(profileFilename):
     """    
     
     try:
-        return cmscore.profile_open(profileFilename)
-    except (IOError, TypeError, ValueError), v:
-        raise PyCMSError(v)
-
-##
-# Creates an ICC profile from data in a buffer.
-
-def getMemoryProfile(buffer):
-    try:
-        return cmscore.profile_fromstring(buffer)
+        return ImageCmsProfile(profileFilename)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -284,9 +320,11 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
     try:
-        inputProfile = _make_profile(inputProfile)
-        outputProfile = _make_profile(outputProfile)
-        return cmscore.buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent)
+        if not isinstance(inputProfile, ImageCmsProfile):
+            inputProfile = ImageCmsProfile(inputProfile)
+        if not isinstance(outputProfile, ImageCmsProfile):
+            outputProfile = ImageCmsProfile(outputProfile)
+        return ImageCmsTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -369,10 +407,10 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
     try:
-        inputProfile = _make_profile(inputProfile)
-        outputProfile = _make_profile(outputProfile)
-        displayProfile = _make_profile(displayProfile)
-        return cmscore.buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent, displayRenderingIntent)
+        inputProfile = ImageCmsProfile(inputProfile)
+        outputProfile = ImageCmsProfile(outputProfile)
+        displayProfile = ImageCmsProfile(displayProfile)
+        return ImageCmsTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent, display=displayProfile, display_intent=displayRenderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -423,35 +461,16 @@ def applyTransform(im, transform, inPlace=0):
 
     """  
 
-    if im.mode != transform.inputMode:
-        raise PyCMSError("Image mode does not match profile input mode (%s vs %s)" % (im.mode, transform.inputMode))
-    
-    if inPlace:
-        if transform.inputMode != transform.outputMode:
-            raise PyCMSError("Cannot transform image in place, input mode and output mode are different (%s vs. %s)" % (transform.inputMode, transform.outputMode))
-        imOut = im
-        if imOut.readonly:
-            imOut._copy()
-    else:
-        imOut = Image.new(transform.outputMode, im.size)
-
-    im.load() #make sure it's loaded, or it may not have an .im attribute!
-    
     try:
-        result = transform.apply(im.im.id, imOut.im.id)
+        if inPlace:
+            transform.apply_in_place(im)
+            imOut = None
+        else:
+            imOut = transform.apply(im)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
 
-    if result == 0:
-        if inPlace:
-            return None
-        else:
-            return imOut
-
-    elif result == -1:
-        raise PyCMSError("Error occurred in _imagingcms.applyTransform()")
-    else:
-        raise PyCMSError(result)
+    return imOut
 
 ##
 # Creates a profile.
@@ -521,7 +540,7 @@ def getProfileName(profile):
     """
     try:
         # add an extra newline to preserve pyCMS compatibility
-        return _make_profile(profile).product_name + "\n"
+        return ImageCmsProfile(profile).profile.product_name + "\n"
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -551,7 +570,7 @@ def getProfileInfo(profile):
     """
     try:
         # add an extra newline to preserve pyCMS compatibility
-        return _make_profile(profile).product_info + "\n"
+        return ImageCmsProfile(profile).profile.product_info + "\n"
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -587,7 +606,7 @@ def getDefaultIntent(profile):
     ImageCms.isIntentSupported() to verify it will work first.
     """    
     try:
-        return _make_profile(profile).rendering_intent
+        return ImageCmsProfile(profile).profile.rendering_intent
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -629,7 +648,9 @@ def isIntentSupported(profile, intent, direction):
 
     """
     try:
-        if _make_profile(profile).is_intent_supported(intent, direction):
+        # FIXME: I get different results for the same data w. different
+        # compilers.  Bug in LittleCMS or in the binding?
+        if ImageCmsProfile(profile).profile.is_intent_supported(intent, direction):
             return 1
         else:
             return -1

@@ -62,7 +62,7 @@ def test_sanity():
 
     # extensions
     i = Image.open("Tests/images/rgb.jpg")
-    p = ImageCms.getMemoryProfile(i.info["icc_profile"])
+    p = ImageCms.getOpenProfile(StringIO(i.info["icc_profile"]))
     assert_equal(ImageCms.getProfileName(p).strip(),
                  'IEC 61966-2.1 Default RGB colour space - sRGB')
 
