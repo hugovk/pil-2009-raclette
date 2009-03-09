@@ -44,9 +44,6 @@ http://www.cazabon.com\n\
 /* known to-do list with current version */
 
 /*
-getDefaultIntent doesn't seem to work properly... whassup??? I'm getting very large int return values instead of 0-3 -DONE/FL
-getProfileName and getProfileInfo are a bit shaky... work on these to solidify them! -DONE/FL
-
 Add comments to code to make it clearer for others to read/understand!!!
 Verify that PILmode->littleCMStype conversion in findLCMStype is correct for all PIL modes (it probably isn't for the more obscure ones)
   
@@ -107,6 +104,25 @@ cms_profile_open(PyObject* self, PyObject* args)
     hProfile = cmsOpenProfileFromFile(sProfile, "r");
     if (!hProfile)
       PyErr_SetString(PyExc_IOError, "cannot open profile file");
+
+    return cms_profile_new(hProfile);
+}
+
+static PyObject*
+cms_profile_open_memory(PyObject* self, PyObject* args)
+{
+    cmsHPROFILE hProfile;
+
+    char* pProfile;
+    int nProfile;
+    if (!PyArg_ParseTuple(args, "s#:OpenMemoryProfile", &pProfile, &nProfile))
+      return NULL;
+
+    cmsErrorAction(LCMS_ERROR_IGNORE);
+
+    hProfile = cmsOpenProfileFromMem(pProfile, nProfile);
+    if (!hProfile)
+      PyErr_SetString(PyExc_IOError, "cannot open memory profile");
 
     return cms_profile_new(hProfile);
 }
@@ -530,6 +546,8 @@ cms_profile_is_intent_supported(CmsProfileObject *self, PyObject *args)
 static PyMethodDef pyCMSdll_methods[] = {
   /* object administration */
   {"OpenProfile", cms_profile_open, 1}, /* open profile */
+  /* object administration */
+  {"OpenMemoryProfile", cms_profile_open_memory, 1}, /* open profile */
 
   /* pyCMS info */
   {"versions", versions, 1, "pyCMSdll.versions() returs tuple of pyCMSversion, littleCMSversion that it was compiled with"},

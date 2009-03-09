@@ -60,6 +60,12 @@ def test_sanity():
             p, ImageCms.INTENT_ABSOLUTE_COLORIMETRIC,
             ImageCms.DIRECTION_INPUT), 1)
 
+    # extensions
+    i = Image.open("Tests/images/rgb.jpg")
+    p = ImageCms.getMemoryProfile(i.info["icc_profile"])
+    assert_equal(ImageCms.getProfileName(p).strip(),
+                 'IEC 61966-2.1 Default RGB colour space - sRGB')
+
     # the procedural pyCMS API uses PyCMSError for all sorts of errors
     assert_exception(ImageCms.PyCMSError, lambda: ImageCms.profileToProfile(lena(), "foo", "bar"))
     assert_exception(ImageCms.PyCMSError, lambda: ImageCms.getProfileName(None))

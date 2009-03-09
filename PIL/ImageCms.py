@@ -203,6 +203,15 @@ def getOpenProfile(profileFilename):
         raise PyCMSError(v)
 
 ##
+# Creates an ICC profile from data in a buffer.
+
+def getMemoryProfile(buffer):
+    try:
+        return pyCMSdll.OpenMemoryProfile(buffer)
+    except (IOError, TypeError, ValueError), v:
+        raise PyCMSError(v)
+
+##
 # Builds an ICC transform mapping from the inputProfile to the
 # outputProfile.  Use applyTransform to apply the transform to
 # a given image.
