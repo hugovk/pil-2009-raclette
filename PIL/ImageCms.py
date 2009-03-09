@@ -752,6 +752,11 @@ def isIntentSupported(profile, intent, direction):
         raise PyCMSError(v)
 
 
+def versions():
+    import sys
+    pycms, lcms = pyCMSdll.versions()
+    return pycms, "%d.%d" % divmod(lcms, 100), sys.version.split()[0], Image.VERSION
+
 if __name__ == "__main__":
     # create a cheap manual from the __doc__ strings for the functions above
     

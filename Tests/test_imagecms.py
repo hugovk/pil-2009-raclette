@@ -13,6 +13,10 @@ def test_sanity():
     # basic smoke test.
     # this mostly follows the cms_test outline.
 
+    v = ImageCms.versions() # should return four strings
+    assert_equal(v[0], '0.1.0 pil')
+    assert_equal(map(type, v), [str, str, str, str])
+
     i = ImageCms.profileToProfile(lena(), SRGB, SRGB)
     assert_image(i, "RGB", (128, 128))
 

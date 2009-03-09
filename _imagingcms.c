@@ -21,34 +21,16 @@ kevin@cazabon.com\n\
 http://www.cazabon.com\n\
 "
 
-/////////////////////////////////////////////////////////////////////////////
-// includes
-/////////////////////////////////////////////////////////////////////////////
 #include "Python.h"
-//#include "patchlevel.h" // so we can include the Python version automatically in pyCMSdll.versions()
 #include "lcms.h"
 #include "Imaging.h"
 
+#define PYCMSVERSION "0.1.0 pil"
 
-/////////////////////////////////////////////////////////////////////////////
-// version information: update this before compiling for the versions you're using
-/////////////////////////////////////////////////////////////////////////////
-#define PYCMSVERSION        "0.0.2 alpha"
-#define LITTLECMSVERSION    "1.09b"
-#define PILVERSION          "1.1.3"
+/* version history */
 
-//#ifndef PY_MAJOR_VERSION
-  // before 1.5.2b2, these were not supported
-//  #define PY_MAJOR_VERSION 0
-//  #define PY_MINOR_VERSION 0
-//  #define PY_MICRO_VERSION 0
-//#endif
-#define PYTHONVERSION       "2.2.0"
-
-/////////////////////////////////////////////////////////////////////////////
-// version history
-/////////////////////////////////////////////////////////////////////////////
 /*
+0.1.0 pil integration
 0.0.2 alpha:  Minor updates, added interfaces to littleCMS features, Jan 6, 2003
     - fixed some memory holes in how transforms/profiles were created and passed back to Python
        due to improper destructor setup for PyCObjects
@@ -59,12 +41,11 @@ http://www.cazabon.com\n\
 
 */
 
-/////////////////////////////////////////////////////////////////////////////
-// known to-do list with current version
-/////////////////////////////////////////////////////////////////////////////
+/* known to-do list with current version */
+
 /*
-getDefaultIntent doesn't seem to work properly... whassup??? I'm getting very large int return values instead of 0-3
-getProfileName and getProfileInfo are a bit shaky... work on these to solidify them!
+getDefaultIntent doesn't seem to work properly... whassup??? I'm getting very large int return values instead of 0-3 -DONE/FL
+getProfileName and getProfileInfo are a bit shaky... work on these to solidify them! -DONE/FL
 
 Add comments to code to make it clearer for others to read/understand!!!
 Verify that PILmode->littleCMStype conversion in findLCMStype is correct for all PIL modes (it probably isn't for the more obscure ones)
@@ -77,19 +58,17 @@ Add support for other littleCMS features as required
 */
 
 
-/////////////////////////////////////////////////////////////////////////////
-// options / configuration
-/////////////////////////////////////////////////////////////////////////////
-// Set the action to take upon error within the CMS module
-// LCMS_ERROR_SHOW      pop-up window showing error, do not close application
-// LCMS_ERROR_ABORT     pop-up window showing error, close the application
-// LCMS_ERROR_IGNORE    ignore the error and continue
+/* options / configuration */
+/* Set the action to take upon error within the CMS module
+ * LCMS_ERROR_SHOW      pop-up window showing error, do not close application
+ * LCMS_ERROR_ABORT     pop-up window showing error, close the application
+ * LCMS_ERROR_IGNORE    ignore the error and continue */
 #define cmsERROR_HANDLER LCMS_ERROR_SHOW
 
+/* FIXME: should change to IGNORE and robustify the code below */
 
-/////////////////////////////////////////////////////////////////////////////
-// reference
-/////////////////////////////////////////////////////////////////////////////
+/* reference */
+
 /*
 INTENT_PERCEPTUAL                 0
 INTENT_RELATIVE_COLORIMETRIC      1
@@ -97,21 +76,12 @@ INTENT_SATURATION                 2
 INTENT_ABSOLUTE_COLORIMETRIC      3
 */
 
+/* -------------------------------------------------------------------- */
+/* internal functions */
 
-/////////////////////////////////////////////////////////////////////////////
-// structs
-/////////////////////////////////////////////////////////////////////////////
-typedef struct {
-    PyObject_HEAD
-    Imaging image;
-} ImagingObject;
-
-
-/////////////////////////////////////////////////////////////////////////////
-// internal functions
-/////////////////////////////////////////////////////////////////////////////
-DWORD 
-findLCMStype (char* PILmode) {
+static DWORD 
+findLCMStype(char* PILmode)
+{
   char *errorMsg = NULL;
 
   if (strcmp(PILmode, "RGB") == 0) {
@@ -146,13 +116,14 @@ findLCMStype (char* PILmode) {
   }
 
   else {
-    // take a wild guess... but you probably should fail instead.
-    return TYPE_GRAY_8; // so there's no buffer overrun... 
+    /* take a wild guess... but you probably should fail instead. */
+    return TYPE_GRAY_8; /* so there's no buffer overrun... */
   }
 }
 
-int
-pyCMSdoTransform (Imaging im, Imaging imOut, cmsHTRANSFORM hTransform) {
+static int
+pyCMSdoTransform(Imaging im, Imaging imOut, cmsHTRANSFORM hTransform)
+{
   int i;
 
   if (im->xsize > imOut->xsize) {
@@ -176,15 +147,16 @@ pyCMSdoTransform (Imaging im, Imaging imOut, cmsHTRANSFORM hTransform) {
   return 0;
 }
 
-cmsHTRANSFORM
-_buildTransform (cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, char *sInMode, char *sOutMode, int iRenderingIntent) {
+static cmsHTRANSFORM
+_buildTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, char *sInMode, char *sOutMode, int iRenderingIntent)
+{
   cmsHTRANSFORM hTransform;
 
   cmsErrorAction(cmsERROR_HANDLER);
 
   Py_BEGIN_ALLOW_THREADS
 
-  // create the transform
+  /* create the transform */
   hTransform = cmsCreateTransform(hInputProfile,
                                  findLCMStype(sInMode),
                                  hOutputProfile,
@@ -196,15 +168,16 @@ _buildTransform (cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, char *sI
   return hTransform;
 }
 
-cmsHTRANSFORM
-_buildProofTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, cmsHPROFILE hDisplayProfile, char *sInMode, char *sOutMode, int iRenderingIntent, int iDisplayIntent) {
+static cmsHTRANSFORM
+_buildProofTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, cmsHPROFILE hDisplayProfile, char *sInMode, char *sOutMode, int iRenderingIntent, int iDisplayIntent)
+{
   cmsHTRANSFORM hTransform;
 
   cmsErrorAction(cmsERROR_HANDLER);
 
   Py_BEGIN_ALLOW_THREADS
 
-  // create the transform
+  /* create the transform */
   hTransform =  cmsCreateProofingTransform(hInputProfile,
                           findLCMStype(sInMode),
                           hOutputProfile,
@@ -219,13 +192,13 @@ _buildProofTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, cmsH
   return hTransform;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// Python callable functions
-/////////////////////////////////////////////////////////////////////////////
+/* -------------------------------------------------------------------- */
+/* Python callable functions */
+
 static PyObject *
 versions (PyObject *self, PyObject *args)
 {
-  return Py_BuildValue("ssss", PYCMSVERSION, LITTLECMSVERSION, PYTHONVERSION, PILVERSION);
+  return Py_BuildValue("si", PYCMSVERSION, LCMS_VERSION);
 }
 
 static PyObject *
@@ -267,7 +240,7 @@ buildTransform(PyObject *self, PyObject *args) {
   cmsCloseProfile(hInputProfile);
   cmsCloseProfile(hOutputProfile);
 
-  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); // this may not be right way to call the destructor...?
+  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); /* this may not be right way to call the destructor...? */
 }
 
 static PyObject *
@@ -292,9 +265,9 @@ buildTransformFromOpenProfiles (PyObject *self, PyObject *args)
 
   transform = _buildTransform(hInputProfile, hOutputProfile, sInMode, sOutMode, iRenderingIntent);
 
-  // we don't have to close these profiles... but do we have to decref them?
+  /* we don't have to close these profiles... but do we have to decref them? */
 
-  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); // this may not be right way to call the destructor...?
+  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); /* this may not be right way to call the destructor...? */
 }
 
 static PyObject *
@@ -316,7 +289,7 @@ buildProofTransform(PyObject *self, PyObject *args)
 
   cmsErrorAction(cmsERROR_HANDLER);
 
-  // open the input and output profiles
+  /* open the input and output profiles */
   hInputProfile  = cmsOpenProfileFromFile(sInputProfile, "r");
   hOutputProfile = cmsOpenProfileFromFile(sOutputProfile, "r");
   hDisplayProfile = cmsOpenProfileFromFile(sDisplayProfile, "r");
@@ -327,7 +300,7 @@ buildProofTransform(PyObject *self, PyObject *args)
   cmsCloseProfile(hOutputProfile);
   cmsCloseProfile(hDisplayProfile);
 
-  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); // this may not be right way to call the destructor...?
+  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); /* this may not be right way to call the destructor...? */
 
 }
 
@@ -356,9 +329,9 @@ buildProofTransformFromOpenProfiles(PyObject *self, PyObject *args)
 
   transform = _buildProofTransform(hInputProfile, hOutputProfile, hDisplayProfile, sInMode, sOutMode, iRenderingIntent, iDisplayIntent);
   
-  // we don't have to close these profiles, but do we have to decref them?
+  /* we don't have to close these profiles, but do we have to decref them? */
 
-  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); // this may not be right way to call the destructor...?
+  return PyCObject_FromVoidPtr(transform, cmsDeleteTransform); /* this may not be right way to call the destructor...? */
 }
 
 static PyObject *
@@ -404,7 +377,7 @@ profileToProfile(PyObject *self, PyObject *args)
   cmsHPROFILE hInputProfile, hOutputProfile;
   cmsHTRANSFORM hTransform;
 
-  // parse the PyObject arguments, assign to variables accordingly
+  /* parse the PyObject arguments, assign to variables accordingly */
   if (!PyArg_ParseTuple(args, "llss|i:profileToProfile", &idIn, &idOut, &sInputProfile, &sOutputProfile, &iRenderingIntent))
     return NULL;
 
@@ -416,26 +389,26 @@ profileToProfile(PyObject *self, PyObject *args)
 
   cmsErrorAction(cmsERROR_HANDLER);
 
-  // Check the modes of imIn and imOut to set the color type for the transform
-  // Note that the modes do NOT have to be the same, as long as they are each
-  //    supported by the relevant profile specified
+  /* Check the modes of imIn and imOut to set the color type for the
+     transform.  Note that the modes do NOT have to be the same, as
+     long as they are each supported by the relevant profile
+     specified */
 
   inMode = im->mode;
   if (idOut == 0L) {
     outMode = inMode;
-  }
-  else {
+  } else {
     outMode = imOut->mode;
   }
 
-  // open the input and output profiles
+  /* open the input and output profiles */
   hInputProfile  = cmsOpenProfileFromFile(sInputProfile, "r");
   hOutputProfile = cmsOpenProfileFromFile(sOutputProfile, "r");
 
-  // create the transform
+  /* create the transform */
   hTransform = _buildTransform(hInputProfile, hOutputProfile, inMode, outMode, iRenderingIntent);
 
-  // apply the transform to imOut (or directly to im in place if idOut is not supplied)
+  /* apply the transform to imOut (or directly to im in place if idOut is not supplied) */
   if (idOut != 0L) {
     result = pyCMSdoTransform (im, imOut, hTransform);
   }
@@ -443,18 +416,18 @@ profileToProfile(PyObject *self, PyObject *args)
     result = pyCMSdoTransform (im, im, hTransform);
   }
 
-  // free the transform and profiles
+  /* free the transform and profiles */
   cmsDeleteTransform(hTransform);
   cmsCloseProfile(hInputProfile);
   cmsCloseProfile(hOutputProfile);
 
-  // return 0 on success, -1 on failure
+  /* return 0 on success, -1 on failure */
   return Py_BuildValue("i", result);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Python-Callable On-The-Fly profile creation functions
-//////////////////////////////////////////////////////////////////////////////
+/* -------------------------------------------------------------------- */
+/* Python-Callable On-The-Fly profile creation functions */
+
 static PyObject *
 createProfile(PyObject *self, PyObject *args)
 {
@@ -494,9 +467,8 @@ createProfile(PyObject *self, PyObject *args)
   return Py_BuildValue("O", PyCObject_FromVoidPtr(hProfile, cmsCloseProfile));
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Python callable profile information functions
-//////////////////////////////////////////////////////////////////////////////
+/* -------------------------------------------------------------------- */
+/* Python callable profile information functions */
 
 static
 int getprofile(PyObject* profile, cmsHPROFILE *hProfile, BOOL *closeProfile)
@@ -607,14 +579,14 @@ isIntentSupported(PyObject *self, PyObject *args)
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// Python interface setup
-/////////////////////////////////////////////////////////////////////////////
-static PyMethodDef pyCMSdll_methods[] = {
-  // pyCMS info
-  {"versions", versions, 1, "pyCMSdll.versions() returs tuple of pyCMSversion, littleCMSversion, pythonVersion that it was compiled with (don't trust this 100%, they must be set manually in the source code for now)"},
+/* -------------------------------------------------------------------- */
+/* Python interface setup */
 
-  // profile and transform functions
+static PyMethodDef pyCMSdll_methods[] = {
+  /* pyCMS info */
+  {"versions", versions, 1, "pyCMSdll.versions() returs tuple of pyCMSversion, littleCMSversion that it was compiled with"},
+
+  /* profile and transform functions */
   {"profileToProfile", profileToProfile, 1, "pyCMSdll.profileToProfile (idIn, idOut, InputProfile, OutputProfile, [RenderingIntent]) returns 0 on success, -1 on failure.  If idOut is the same as idIn, idIn is modified in place, otherwise the results are applied to idOut"},
   {"getOpenProfile", getOpenProfile, 1, "pyCMSdll.getOpenProfile (profileName) returns a handle to an open pyCMS profile that can be used to build a transform"},
   {"buildTransform", buildTransform, 1, "pyCMSdll.buildTransform (InputProfile, OutputProfile, InMode, OutMode, [RenderingIntent]) returns a handle to a pre-computed ICC transform that can be used for processing multiple images, saving calculation time"},
@@ -623,10 +595,10 @@ static PyMethodDef pyCMSdll_methods[] = {
   {"applyTransform", applyTransform, 1, "pyCMSdll.applyTransform (idIn, idOut, hTransform) applys a pre-calcuated transform (from pyCMSdll.buildTransform) to an image.  If idIn and idOut are the same, it modifies the image in place, otherwise the new image is built in idOut.  Returns 0 on success, -1 on failure"},
   {"buildTransformFromOpenProfiles", buildTransformFromOpenProfiles, 1, "pyCMSdll.buildTransformFromOpenProfiles (InputProfile, OutputProfile, InMode, OutMode, RenderingIntent) returns a handle to a pre-computed ICC transform that can be used for processing multiple images, saving calculation time"},
    
-  // on-the-fly profile creation functions
+  /* on-the-fly profile creation functions */
   {"createProfile", createProfile, 1, "pyCMSdll.createProfile (colorSpace, [colorTemp]) returns a handle to an open profile created on the fly.  colorSpace can be 'LAB', 'XYZ', or 'xRGB'.  If using LAB, you can specify a white point color temperature, or let it default to D50 (5000K)"},
 
-  // profile info functions
+  /* profile info functions */
   {"getProfileName", getProfileName, 1, "pyCMSdll.getProfileName (profile) returns the internal name of the profile"},
   {"getProfileInfo", getProfileInfo, 1, "pyCMSdll.getProfileInfo (profile) returns additional information about the profile"},
   {"getDefaultIntent", getDefaultIntent, 1, "pyCMSdll.getDefaultIntent (profile) returns the default rendering intent of the profile (as an integer)"},
