@@ -553,69 +553,6 @@ int getprofile(PyObject* profile, cmsHPROFILE *hProfile, BOOL *closeProfile)
 }
 
 static PyObject *
-getProfileName(PyObject *self, PyObject *args)
-{
-  PyObject* result;
-  PyObject* profile;
-  cmsHPROFILE hProfile;
-  BOOL closeProfile;
-
-  if (!PyArg_ParseTuple(args, "O:getProfileName", &profile))
-    return NULL;
-  if (!getprofile(profile, &hProfile, &closeProfile))
-    return NULL;
-
-  result = PyString_FromString(cmsTakeProductName(hProfile));
-
-  if (closeProfile)
-    cmsCloseProfile(hProfile);
-
-  return result;
-}
-
-static PyObject *
-getProfileInfo(PyObject *self, PyObject *args)
-{
-  PyObject* profile;
-  PyObject* result;
-  cmsHPROFILE hProfile;
-  BOOL closeProfile;
-
-  if (!PyArg_ParseTuple(args, "O:getProfileInfo", &profile))
-    return NULL;
-  if (!getprofile(profile, &hProfile, &closeProfile))
-    return NULL;
-
-  result = PyString_FromString(cmsTakeProductInfo(hProfile));
-
-  if (closeProfile)
-    cmsCloseProfile(hProfile);
-
-  return result;
-}
-
-static PyObject *
-getDefaultIntent(PyObject *self, PyObject *args)
-{
-  PyObject* profile;
-  int intent;
-  cmsHPROFILE hProfile;
-  BOOL closeProfile;
-
-  if (!PyArg_ParseTuple(args, "O:getDefaultIntent", &profile))
-    return NULL;
-  if (!getprofile(profile, &hProfile, &closeProfile))
-    return NULL;
-
-  intent = cmsTakeRenderingIntent(hProfile);
-
-  if (closeProfile)
-    cmsCloseProfile(hProfile);
-
-  return PyInt_FromLong(intent);
-}
-
-static PyObject *
 isIntentSupported(PyObject *self, PyObject *args)
 {
   BOOL result;
@@ -661,14 +598,28 @@ static PyMethodDef pyCMSdll_methods[] = {
   /* on-the-fly profile creation functions */
   {"createProfile", createProfile, 1, "pyCMSdll.createProfile (colorSpace, [colorTemp]) returns a handle to an open profile created on the fly.  colorSpace can be 'LAB', 'XYZ', or 'xRGB'.  If using LAB, you can specify a white point color temperature, or let it default to D50 (5000K)"},
 
-  /* profile info functions */
-  {"getProfileName", getProfileName, 1, "pyCMSdll.getProfileName (profile) returns the internal name of the profile"},
-  {"getProfileInfo", getProfileInfo, 1, "pyCMSdll.getProfileInfo (profile) returns additional information about the profile"},
-  {"getDefaultIntent", getDefaultIntent, 1, "pyCMSdll.getDefaultIntent (profile) returns the default rendering intent of the profile (as an integer)"},
+  /* profile info functions (name, info etc has been turned into attributes) */
   {"isIntentSupported", isIntentSupported, 1, "pyCMSdll.isIntentSupported (profile, intent, direction) returns 1 if profile supports that intent, -1 if it doesnt.  Direction is what the profile is being used for: INPUT = 0, OUTPUT = 1, PROOF = 2"},
 
   {NULL, NULL}
 };
+
+static struct PyMethodDef cms_profile_methods[] = {
+    {NULL, NULL} /* sentinel */
+};
+
+static PyObject*  
+cms_profile_getattr(CmsProfileObject* self, char* name)
+{
+  if (!strcmp(name, "product_name"))
+    return PyString_FromString(cmsTakeProductName(self->profile));
+  if (!strcmp(name, "product_info"))
+    return PyString_FromString(cmsTakeProductInfo(self->profile));
+  if (!strcmp(name, "rendering_intent"))
+    return PyInt_FromLong(cmsTakeRenderingIntent(self->profile));
+
+  return Py_FindMethod(cms_profile_methods, (PyObject*) self, name);
+}
 
 statichere PyTypeObject CmsProfile_Type = {
     PyObject_HEAD_INIT(NULL)
@@ -676,7 +627,7 @@ statichere PyTypeObject CmsProfile_Type = {
     /* methods */
     (destructor) cms_profile_dealloc, /*tp_dealloc*/
     0, /*tp_print*/
-    0, /*tp_getattr*/
+    (getattrfunc) cms_profile_getattr, /*tp_getattr*/
     0, /*tp_setattr*/
     0, /*tp_compare*/
     0, /*tp_repr*/
@@ -686,13 +637,23 @@ statichere PyTypeObject CmsProfile_Type = {
     0 /*tp_hash*/
 };
 
+static struct PyMethodDef cms_transform_methods[] = {
+    {NULL, NULL} /* sentinel */
+};
+
+static PyObject*  
+cms_transform_getattr(CmsTransformObject* self, char* name)
+{
+  return Py_FindMethod(cms_transform_methods, (PyObject*) self, name);
+}
+
 statichere PyTypeObject CmsTransform_Type = {
     PyObject_HEAD_INIT(NULL)
     0, "CmsTransform", sizeof(CmsTransformObject), 0,
     /* methods */
     (destructor) cms_transform_dealloc, /*tp_dealloc*/
     0, /*tp_print*/
-    0, /*tp_getattr*/
+    (getattrfunc) cms_transform_getattr, /*tp_getattr*/
     0, /*tp_setattr*/
     0, /*tp_compare*/
     0, /*tp_repr*/

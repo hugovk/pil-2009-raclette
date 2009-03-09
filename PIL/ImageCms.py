@@ -630,10 +630,10 @@ def getProfileName(profile):
             # file doesn't exist, so we'll test for that case here. get
             # rid of this code when the binding is fixed.
             open(profile).close()
+            profile = pyCMSdll.getOpenProfile(profile)
         else:
             profile = profile.profile
-        # add an extra newline to preserve pyCMS compatibility
-        return pyCMSdll.getProfileName(profile) + "\n"
+        return profile.product_name + "\n"
     except (AttributeError, IOError, TypeError), v:
         raise PyCMSError(v)
 
@@ -662,10 +662,11 @@ def getProfileInfo(profile):
     try:
         if isinstance(profile, type("")):
             open(profile).close()
+            profile = pyCMSdll.getOpenProfile(profile)
         else:
             profile = profile.profile
         # add an extra newline to preserve pyCMS compatibility
-        return pyCMSdll.getProfileInfo(profile) + "\n"
+        return profile.product_info + "\n"
     except (AttributeError, IOError, TypeError), v:
         raise PyCMSError(v)
 
@@ -701,9 +702,10 @@ def getDefaultIntent(profile):
     try:
         if isinstance(profile, type("")):
             open(profile).close()
+            profile = pyCMSdll.getOpenProfile(profile)
         else:
             profile = profile.profile
-        return pyCMSdll.getDefaultIntent(profile)
+        return profile.rendering_intent
     except (AttributeError, IOError, TypeError), v:
         raise PyCMSError(v)
 
