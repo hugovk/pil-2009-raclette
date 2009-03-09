@@ -218,8 +218,10 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
     try:
-        inputProfile = ImageCmsProfile(inputProfile)
-        outputProfile = ImageCmsProfile(outputProfile)
+        if not isinstance(inputProfile, ImageCmsProfile):
+            inputProfile = ImageCmsProfile(inputProfile)
+        if not isinstance(outputProfile, ImageCmsProfile):
+            outputProfile = ImageCmsProfile(outputProfile)
         transform = ImageCmsTransform(
             inputProfile, outputProfile, im.mode, outputMode, renderingIntent
             )
@@ -407,9 +409,12 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
     try:
-        inputProfile = ImageCmsProfile(inputProfile)
-        outputProfile = ImageCmsProfile(outputProfile)
-        displayProfile = ImageCmsProfile(displayProfile)
+        if not isinstance(inputProfile, ImageCmsProfile):
+            inputProfile = ImageCmsProfile(inputProfile)
+        if not isinstance(outputProfile, ImageCmsProfile):
+            outputProfile = ImageCmsProfile(outputProfile)
+        if not isinstance(displayProfile, ImageCmsProfile):
+            displayProfile = ImageCmsProfile(displayProfile)
         return ImageCmsTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent, display=displayProfile, display_intent=displayRenderingIntent)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
@@ -540,7 +545,9 @@ def getProfileName(profile):
     """
     try:
         # add an extra newline to preserve pyCMS compatibility
-        return ImageCmsProfile(profile).profile.product_name + "\n"
+        if not isinstance(profile, ImageCmsProfile):
+            profile = ImageCmsProfile(profile)
+        return profile.profile.product_name + "\n"
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -569,8 +576,10 @@ def getProfileInfo(profile):
 
     """
     try:
+        if not isinstance(profile, ImageCmsProfile):
+            profile = ImageCmsProfile(profile)
         # add an extra newline to preserve pyCMS compatibility
-        return ImageCmsProfile(profile).profile.product_info + "\n"
+        return profile.product_info + "\n"
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -606,7 +615,9 @@ def getDefaultIntent(profile):
     ImageCms.isIntentSupported() to verify it will work first.
     """    
     try:
-        return ImageCmsProfile(profile).profile.rendering_intent
+        if not isinstance(profile, ImageCmsProfile):
+            profile = ImageCmsProfile(profile)
+        return profile.profile.rendering_intent
     except (AttributeError, IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -648,9 +659,11 @@ def isIntentSupported(profile, intent, direction):
 
     """
     try:
+        if not isinstance(profile, ImageCmsProfile):
+            profile = ImageCmsProfile(profile)
         # FIXME: I get different results for the same data w. different
         # compilers.  Bug in LittleCMS or in the binding?
-        if ImageCmsProfile(profile).profile.is_intent_supported(intent, direction):
+        if profile.profile.is_intent_supported(intent, direction):
             return 1
         else:
             return -1
