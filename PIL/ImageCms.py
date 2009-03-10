@@ -50,7 +50,7 @@ pyCMS
                         input colorspace -> using 'renderingIntent' -> proof
                         colorspace -> using 'proofRenderingIntent' -> output
                         colorspace
-                        
+
                         Added LCMS FLAGS support.
                         Added FLAGS["SOFTPROOFING"] as default flag for
                         buildProofTransform (otherwise the proof profile/intent
@@ -59,20 +59,20 @@ pyCMS
         0.1.0 pil       March 2009 - added to PIL, as PIL.ImageCms
 
         0.0.2 alpha     Jan 6, 2002
-        
+
                         Added try/except statements arount type() checks of
                         potential CObjects... Python won't let you use type()
                         on them, and raises a TypeError (stupid, if you ask me!)
 
-                        Added buildProofTransformFromOpenProfiles() function.                        
+                        Added buildProofTransformFromOpenProfiles() function.
                         Additional fixes in DLL, see DLL code for details.
-                        
+
         0.0.1 alpha     first public release, Dec. 26, 2002
 
     Known to-do list with current version (of Python interface, not pyCMSdll):
 
         none
-      
+
 """
 
 VERSION = "0.1.0 pil"
@@ -103,7 +103,7 @@ FLAGS = {
     "MATRIXINPUT": 1,
     "MATRIXOUTPUT": 2,
     "MATRIXONLY": (1|2),
-    "NOWHITEONWHITEFIXUP": 4, # Don't hot fix scum dot   
+    "NOWHITEONWHITEFIXUP": 4, # Don't hot fix scum dot
     "NOPRELINEARIZATION": 16, # Don't create prelinearization tables on precalculated transforms (internal use)
     "GUESSDEVICECLASS": 32, # Guess device class (for transform2devicelink)
     "NOTCACHE": 64, # Inhibit 1-pixel cache
@@ -206,9 +206,9 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     """
     ImageCms.profileToProfile(im, inputProfile, outputProfile,
         [renderingIntent], [outputMode], [inPlace])
-        
+
     Returns either None or a new PIL image object, depending on value of
-    inPlace (see below).  
+    inPlace (see below).
 
     im = an open PIL image object (i.e. Image.new(...) or
         Image.open(...), etc.)
@@ -252,8 +252,8 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     profiles, the input profile must handle RGB data, and the output
     profile must handle CMYK data.
 
-    """    
-    
+    """
+
     if outputMode is None:
         outputMode = im.mode
 
@@ -288,8 +288,8 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
 def getOpenProfile(profileFilename):
     """
     ImageCms.getOpenProfile(profileFilename)
-    
-    Returns a CmsProfile class object.  
+
+    Returns a CmsProfile class object.
 
     profileFilename = string, as a valid filename path to the ICC profile
         you wish to open, or a file-like object.
@@ -298,10 +298,10 @@ def getOpenProfile(profileFilename):
     transforms and such (as in ImageCms.buildTransformFromOpenProfiles()).
 
     If profileFilename is not a vaild filename for an ICC profile, a
-    PyCMSError will be raised.    
+    PyCMSError will be raised.
 
-    """    
-    
+    """
+
     try:
         return ImageCmsProfile(profileFilename)
     except (IOError, TypeError, ValueError), v:
@@ -316,9 +316,9 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     """
     ImageCms.buildTransform(inputProfile, outputProfile, inMode, outMode,
         [renderingIntent])
-        
+
     Returns a CmsTransform class object.
-    
+
     inputProfile = string, as a valid filename path to the ICC input
         profile you wish to use for this transform, or a profile object
     outputProfile = string, as a valid filename path to the ICC output
@@ -340,7 +340,7 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     If the input or output profiles specified are not valid filenames, a
     PyCMSError will be raised.  If an error occurs during creation of the
     transform, a PyCMSError will be raised.
-    
+
     If inMode or outMode are not a mode supported by the outputProfile (or
     by pyCMS), a PyCMSError will be raised.
 
@@ -364,7 +364,7 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     manually overridden if you really want to, but I don't know of any
     time that would be of use, or would even work).
 
-    """   
+    """
 
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
@@ -391,13 +391,13 @@ def buildProofTransform(inputProfile, outputProfile, proofProfile, inMode, outMo
     """
     ImageCms.buildProofTransform(inputProfile, outputProfile, proofProfile,
         inMode, outMode, [renderingIntent], [proofRenderingIntent])
-        
+
     Returns a CmsTransform class object.
-    
+
     inputProfile = string, as a valid filename path to the ICC input
         profile you wish to use for this transform, or a profile object
     outputProfile = string, as a valid filename path to the ICC output
-        (monitor, usually) profile you wish to use for this transform, 
+        (monitor, usually) profile you wish to use for this transform,
         or a profile object
     proofProfile = string, as a valid filename path to the ICC proof
         profile you wish to use for this transform, or a profile object
@@ -422,13 +422,13 @@ def buildProofTransform(inputProfile, outputProfile, proofProfile, inMode, outMo
         see the pyCMS documentation for details on rendering intents and
         what they do.
     flags = integer (0-...) specifying additional flags
-        
+
     If the input, output, or proof profiles specified are not valid
     filenames, a PyCMSError will be raised.
-    
+
     If an error occurs during creation of the transform, a PyCMSError will
     be raised.
-    
+
     If inMode or outMode are not a mode supported by the outputProfile
     (or by pyCMS), a PyCMSError will be raised.
 
@@ -455,8 +455,8 @@ def buildProofTransform(inputProfile, outputProfile, proofProfile, inMode, outMo
     output device to match the colors of the device being simulated. However,
     when the simulated device has a much wider gamut than the output
     device, you may obtain marginal results.
-    
-    """ 
+
+    """
 
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
@@ -485,7 +485,7 @@ buildProofTransformFromOpenProfiles = buildProofTransform
 def applyTransform(im, transform, inPlace=0):
     """
     ImageCms.applyTransform(im, transform, [inPlace])
-    
+
     Returns either None, or a new PIL Image object, depending on the value
         of inPlace (see below)
 
@@ -498,14 +498,14 @@ def applyTransform(im, transform, inPlace=0):
         changed).  The default is FALSE.
 
     If im.mode != transform.inMode, a PyCMSError is raised.
-    
+
     If inPlace == TRUE and transform.inMode != transform.outMode, a
     PyCMSError is raised.
-    
+
     If im.mode, transfer.inMode, or transfer.outMode is not supported by
     pyCMSdll or the profiles you used for the transform, a PyCMSError is
     raised.
-    
+
     If an error occurs while the transform is being applied, a PyCMSError
     is raised.
 
@@ -521,7 +521,7 @@ def applyTransform(im, transform, inPlace=0):
     different).  The  default behavior is to return a new Image object of
     the same dimensions in mode transform.outMode.
 
-    """  
+    """
 
     try:
         if inPlace:
@@ -540,7 +540,7 @@ def applyTransform(im, transform, inPlace=0):
 def createProfile(colorSpace, colorTemp=-1):
     """
     ImageCms.createProfile(colorSpace, [colorTemp])
-    
+
     Returns a CmsProfile class object
 
     colorSpace = string, the color space of the profile you wish to create.
@@ -551,9 +551,9 @@ def createProfile(colorSpace, colorTemp=-1):
         LAB profiles, and is ignored for XYZ and sRGB.
 
     If colorSpace not in ["LAB", "XYZ", "sRGB"], a PyCMSError is raised
-    
+
     If using LAB and colorTemp != a positive integer, a PyCMSError is raised.
-    
+
     If an error occurs while creating the profile, a PyCMSError is raised.
 
     Use this function to create common profiles on-the-fly instead of
@@ -562,7 +562,7 @@ def createProfile(colorSpace, colorTemp=-1):
     ImageCms.buildTransformFromOpenProfiles() to create a transform to apply
     to images.
 
-    """    
+    """
     if colorSpace not in ["LAB", "XYZ", "sRGB"]:
         raise PyCMSError("Color space not supported for on-the-fly profile creation (%s)" % colorSpace)
 
@@ -571,7 +571,7 @@ def createProfile(colorSpace, colorTemp=-1):
             colorTemp = int(colorTemp + 0.5)
         if type (colorTemp) != type (5000):
             raise PyCMSError("Color temperature must be a positive integer, \"%s\" not valid" % colorTemp)
-        
+
     try:
         return cmscore.createProfile(colorSpace, colorTemp)
     except (TypeError, ValueError), v:
@@ -583,7 +583,7 @@ def createProfile(colorSpace, colorTemp=-1):
 def getProfileName(profile):
     """
     ImageCms.getProfileName(profile)
-    
+
     Returns a string containing the internal name of the profile as stored
         in an ICC tag.
 
@@ -598,7 +598,7 @@ def getProfileName(profile):
     in an ICC tag in the profile itself), usually the one used when the
     profile was originally created.  Sometimes this tag also contains
     additional information supplied by the creator.
-    
+
     """
     try:
         # add an extra newline to preserve pyCMS compatibility
@@ -614,7 +614,7 @@ def getProfileName(profile):
 def getProfileInfo(profile):
     """
     ImageCms.getProfileInfo(profile)
-    
+
     Returns a string containing the internal profile information stored in
         an ICC tag.
 
@@ -646,7 +646,7 @@ def getProfileInfo(profile):
 def getDefaultIntent(profile):
     """
     ImageCms.getDefaultIntent(profile)
-    
+
     Returns integer 0-3 specifying the default rendering intent for this
         profile.
         INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
@@ -658,10 +658,10 @@ def getDefaultIntent(profile):
 
     profile = EITHER a valid CmsProfile object, OR a string of the
         filename of an ICC profile.
-    
+
     If profile isn't a valid CmsProfile object or filename to a profile,
     a PyCMSError is raised.
-    
+
     If an error occurs while trying to obtain the default intent, a
     PyCMSError is raised.
 
@@ -670,7 +670,7 @@ def getDefaultIntent(profile):
     rendering intents, but are intended mostly for one type of conversion.
     If you wish to use a different intent than returned, use
     ImageCms.isIntentSupported() to verify it will work first.
-    """    
+    """
     try:
         if not isinstance(profile, ImageCmsProfile):
             profile = ImageCmsProfile(profile)
@@ -684,7 +684,7 @@ def getDefaultIntent(profile):
 def isIntentSupported(profile, intent, direction):
     """
     ImageCms.isIntentSupported(profile, intent, direction)
-    
+
     Returns 1 if the intent/direction are supported, -1 if they are not.
 
     profile = EITHER a valid CmsProfile object, OR a string of the
@@ -740,7 +740,7 @@ def versions():
 
 if __name__ == "__main__":
     # create a cheap manual from the __doc__ strings for the functions above
-    
+
     import ImageCms
     import string
     print __doc__
@@ -756,4 +756,3 @@ if __name__ == "__main__":
                 print doc
         except AttributeError:
             pass
-   
