@@ -40,6 +40,22 @@ pyCMS
 
     Version History:
 
+        0.1.0 pil mod   March 10, 2009
+
+                        Renamed display profile to proof profile. The proof
+                        profile is the profile of the device that is being
+                        simulated, not the profile of the device which is
+                        actually used to display/print the final simulation
+                        (that'd be the output profile) - also see LCMSAPI.txt
+                        input colorspace -> using 'renderingIntent' -> proof
+                        colorspace -> using 'proofRenderingIntent' -> output
+                        colorspace
+                        
+                        Added LCMS FLAGS support.
+                        Added FLAGS["SOFTPROOFING"] as default flag for
+                        buildProofTransform (otherwise the proof profile/intent
+                        would be ignored).
+
         0.1.0 pil       March 2009 - added to PIL, as PIL.ImageCms
 
         0.0.2 alpha     Jan 6, 2002
@@ -80,6 +96,30 @@ DIRECTION_INPUT = 0
 DIRECTION_OUTPUT = 1
 DIRECTION_PROOF = 2
 
+#
+# flags
+
+FLAGS = {
+    "MATRIXINPUT": 1,
+    "MATRIXOUTPUT": 2,
+    "MATRIXONLY": (1|2),
+    "NOWHITEONWHITEFIXUP": 4, # Don't hot fix scum dot   
+    "NOPRELINEARIZATION": 16, # Don't create prelinearization tables on precalculated transforms (internal use)
+    "GUESSDEVICECLASS": 32, # Guess device class (for transform2devicelink)
+    "NOTCACHE": 64, # Inhibit 1-pixel cache
+    "NOTPRECALC": 256,
+    "NULLTRANSFORM": 512, # Don't transform anyway
+    "HIGHRESPRECALC": 1024, # Use more memory to give better accurancy
+    "LOWRESPRECALC": 2048, # Use less memory to minimize resouces
+    "WHITEBLACKCOMPENSATION": 8192,
+    "BLACKPOINTCOMPENSATION": 8192,
+    "GAMUTCHECK": 4096, # Out of Gamut alarm
+    "SOFTPROOFING": 16384, # Do softproofing
+    "PRESERVEBLACK": 32768, # Black preservation
+    "NODEFAULTRESOURCEDEF": 16777216, # CRD special
+    "GRIDPOINTS": lambda n: ((n) & 0xFF) << 16 # Gridpoints
+}
+
 # --------------------------------------------------------------------.
 # Experimental PIL-level API
 # --------------------------------------------------------------------.
@@ -115,18 +155,20 @@ class ImageCmsTransform:
 
     def __init__(self, input, output, input_mode, output_mode,
                  intent=INTENT_PERCEPTUAL,
-                 display=None, display_intent=INTENT_PERCEPTUAL):
-        if display is None:
+                 proof=None, proof_intent=INTENT_ABSOLUTE_COLORIMETRIC, flags=0):
+        if proof is None:
             self.transform = cmscore.buildTransform(
                 input.profile, output.profile,
                 input_mode, output_mode,
-                intent
+                intent,
+                flags
                 )
         else:
             self.transform = cmscore.buildProofTransform(
-                input.profile, output.profile, display.profile,
+                input.profile, output.profile, proof.profile,
                 input_mode, output_mode,
-                intent, display_intent
+                intent, proof_intent,
+                flags
                 )
         # Note: inputMode and outputMode are for pyCMS compatibility only
         self.input_mode = self.inputMode = input_mode
@@ -160,7 +202,7 @@ class PyCMSError(Exception):
 # (pyCMS) Applies an ICC transformation to a given image, mapping from
 # inputProfile to outputProfile.
 
-def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PERCEPTUAL, outputMode=None, inPlace=0):
+def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PERCEPTUAL, outputMode=None, inPlace=0, flags=0):
     """
     ImageCms.profileToProfile(im, inputProfile, outputProfile,
         [renderingIntent], [outputMode], [inPlace])
@@ -191,6 +233,7 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
         image is modified in-place, and None is returned.  If FALSE
         (default), a new Image object is returned with the transform
         applied.
+    flags = integer (0-...) specifying additional flags
 
     If the input or output profiles specified are not valid filenames, a
     PyCMSError will be raised.  If inPlace == TRUE and outputMode != im.mode,
@@ -217,13 +260,17 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
+    flagsum = sum([flag if type(flag) == type(1) else 0 for flag in FLAGS.values()])
+    if type(flags) != type(1) or not (0 <= flags <=flagsum):
+        raise PyCMSError("flags must be an integer between 0 and " + flagsum)
+
     try:
         if not isinstance(inputProfile, ImageCmsProfile):
             inputProfile = ImageCmsProfile(inputProfile)
         if not isinstance(outputProfile, ImageCmsProfile):
             outputProfile = ImageCmsProfile(outputProfile)
         transform = ImageCmsTransform(
-            inputProfile, outputProfile, im.mode, outputMode, renderingIntent
+            inputProfile, outputProfile, im.mode, outputMode, renderingIntent, flags=flags
             )
         if inPlace:
             transform.apply_in_place(im)
@@ -265,7 +312,7 @@ def getOpenProfile(profileFilename):
 # outputProfile.  Use applyTransform to apply the transform to a given
 # image.
 
-def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL):
+def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL, flags=0):
     """
     ImageCms.buildTransform(inputProfile, outputProfile, inMode, outMode,
         [renderingIntent])
@@ -288,6 +335,7 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
         INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
+    flags = integer (0-...) specifying additional flags
 
     If the input or output profiles specified are not valid filenames, a
     PyCMSError will be raised.  If an error occurs during creation of the
@@ -321,56 +369,61 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
+    flagsum = sum([flag if type(flag) == type(1) else 0 for flag in FLAGS.values()])
+    if type(flags) != type(1) or not (0 <= flags <=flagsum):
+        raise PyCMSError("flags must be an integer between 0 and " + flagsum)
+
     try:
         if not isinstance(inputProfile, ImageCmsProfile):
             inputProfile = ImageCmsProfile(inputProfile)
         if not isinstance(outputProfile, ImageCmsProfile):
             outputProfile = ImageCmsProfile(outputProfile)
-        return ImageCmsTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent)
+        return ImageCmsTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent, flags=flags)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
 ##
 # (pyCMS) Builds an ICC transform mapping from the inputProfile to the
-# displayProfile, but tries to simulate the result that would be
-# obtained on the outputProfile device.
+# outputProfile, but tries to simulate the result that would be
+# obtained on the proofProfile device.
 
-def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL, displayRenderingIntent=INTENT_PERCEPTUAL):
+def buildProofTransform(inputProfile, outputProfile, proofProfile, inMode, outMode, renderingIntent=INTENT_PERCEPTUAL, proofRenderingIntent=INTENT_ABSOLUTE_COLORIMETRIC, flags=FLAGS["SOFTPROOFING"]):
     """
-    ImageCms.buildProofTransform(inputProfile, outputProfile, displayProfile,
-        inMode, outMode, [renderingIntent], [displayRenderingIntent])
+    ImageCms.buildProofTransform(inputProfile, outputProfile, proofProfile,
+        inMode, outMode, [renderingIntent], [proofRenderingIntent])
         
     Returns a CmsTransform class object.
     
     inputProfile = string, as a valid filename path to the ICC input
         profile you wish to use for this transform, or a profile object
     outputProfile = string, as a valid filename path to the ICC output
-        profile you wish to use for this transform, or a profile object
-    displayProfile = string, as a valid filename path to the ICC display
-        (monitor, usually) profile you wish to use for this transform,
+        (monitor, usually) profile you wish to use for this transform, 
         or a profile object
+    proofProfile = string, as a valid filename path to the ICC proof
+        profile you wish to use for this transform, or a profile object
     inMode = string, as a valid PIL mode that the appropriate profile also
         supports (i.e. "RGB", "RGBA", "CMYK", etc.)
     outMode = string, as a valid PIL mode that the appropriate profile also
         supports (i.e. "RGB", "RGBA", "CMYK", etc.)
     renderingIntent = integer (0-3) specifying the rendering intent you
-        wish to use for the input->output (simulated) transform
+        wish to use for the input->proof (simulated) transform
         INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
         INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
         INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
         INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
-    displayRenderingIntent = integer (0-3) specifying the rendering intent
-        you wish to use for (input/output simulation)->display transform
+    proofRenderingIntent = integer (0-3) specifying the rendering intent
+        you wish to use for proof->output transform
         INTENT_PERCEPTUAL =           0 (DEFAULT) (ImageCms.INTENT_PERCEPTUAL)
         INTENT_RELATIVE_COLORIMETRIC =1 (ImageCms.INTENT_RELATIVE_COLORIMETRIC)
         INTENT_SATURATION =           2 (ImageCms.INTENT_SATURATION)
         INTENT_ABSOLUTE_COLORIMETRIC =3 (ImageCms.INTENT_ABSOLUTE_COLORIMETRIC)
         see the pyCMS documentation for details on rendering intents and
         what they do.
+    flags = integer (0-...) specifying additional flags
         
-    If the input, output, or display profiles specified are not valid
+    If the input, output, or proof profiles specified are not valid
     filenames, a PyCMSError will be raised.
     
     If an error occurs during creation of the transform, a PyCMSError will
@@ -380,9 +433,9 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
     (or by pyCMS), a PyCMSError will be raised.
 
     This function builds and returns an ICC transform from the inputProfile
-    to the displayProfile, but tries to simulate the result that would be
-    obtained on the outputProfile device using renderingIntent and
-    displayRenderingIntent to determine what to do with out-of-gamut
+    to the outputProfile, but tries to simulate the result that would be
+    obtained on the proofProfile device using renderingIntent and
+    proofRenderingIntent to determine what to do with out-of-gamut
     colors.  This is known as "soft-proofing".  It will ONLY work for
     converting images that are in inMode to images that are in outMode
     color format (PIL mode, i.e. "RGB", "RGBA", "CMYK", etc.).
@@ -390,17 +443,17 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
     Usage of the resulting transform object is exactly the same as with
     ImageCms.buildTransform().
 
-    Proof profiling is generally used when using a "proof" device to get a
+    Proof profiling is generally used when using an output device to get a
     good idea of what the final printed/displayed image would look like on
-    the outputProfile device when it's quicker and easier to use the
-    display device for judging color.  Generally, this means that
-    displayDevice is a monitor, or a dye-sub printer (etc.), and the output
+    the proofProfile device when it's quicker and easier to use the
+    output device for judging color.  Generally, this means that the
+    output device is a monitor, or a dye-sub printer (etc.), and the simulated
     device is something more expensive, complicated, or time consuming
     (making it difficult to make a real print for color judgement purposes).
 
-    Soft-proofing basically functions by limiting the color gamut on the
-    display device to the gamut availabile on the output device.  However,
-    when the final output device has a much wider gamut than the display
+    Soft-proofing basically functions by adjusting the colors on the
+    output device to match the colors of the device being simulated. However,
+    when the simulated device has a much wider gamut than the output
     device, you may obtain marginal results.
     
     """ 
@@ -408,14 +461,18 @@ def buildProofTransform(inputProfile, outputProfile, displayProfile, inMode, out
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
+    flagsum = sum([flag if type(flag) == type(1) else 0 for flag in FLAGS.values()])
+    if type(flags) != type(1) or not (0 <= flags <=flagsum):
+        raise PyCMSError("flags must be an integer between 0 and " + flagsum)
+
     try:
         if not isinstance(inputProfile, ImageCmsProfile):
             inputProfile = ImageCmsProfile(inputProfile)
         if not isinstance(outputProfile, ImageCmsProfile):
             outputProfile = ImageCmsProfile(outputProfile)
-        if not isinstance(displayProfile, ImageCmsProfile):
-            displayProfile = ImageCmsProfile(displayProfile)
-        return ImageCmsTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent, display=displayProfile, display_intent=displayRenderingIntent)
+        if not isinstance(proofProfile, ImageCmsProfile):
+            proofProfile = ImageCmsProfile(proofProfile)
+        return ImageCmsTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent, proofProfile, proofRenderingIntent, flags)
     except (IOError, TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -641,14 +698,14 @@ def isIntentSupported(profile, intent, direction):
         see the pyCMS documentation for details on rendering intents and
         what they do.
     direction = integer specifing if the profile is to be used for input,
-        output, or display/proof
+        output, or proof
         INPUT =               0 (or use ImageCms.DIRECTION_INPUT)
         OUTPUT =              1 (or use ImageCms.DIRECTION_OUTPUT)
-        PROOF (or display) =  2 (or use ImageCms.DIRECTION_PROOF)
+        PROOF =               2 (or use ImageCms.DIRECTION_PROOF)
 
     Use this function to verify that you can use your desired
     renderingIntent with profile, and that profile can be used for the
-    input/output/display profile as you desire.
+    input/output/proof profile as you desire.
 
     Some profiles are created specifically for one "direction", can cannot
     be used for others.  Some profiles can only be used for certain
