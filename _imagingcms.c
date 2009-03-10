@@ -260,7 +260,7 @@ pyCMSdoTransform(Imaging im, Imaging imOut, cmsHTRANSFORM hTransform)
 }
 
 static cmsHTRANSFORM
-_buildTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, char *sInMode, char *sOutMode, int iRenderingIntent)
+_buildTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, char *sInMode, char *sOutMode, int iRenderingIntent, DWORD cmsFLAGS)
 {
   cmsHTRANSFORM hTransform;
 
@@ -273,7 +273,7 @@ _buildTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, char *sIn
                                  findLCMStype(sInMode),
                                  hOutputProfile,
                                  findLCMStype(sOutMode),
-                                 iRenderingIntent, 0);
+                                 iRenderingIntent, cmsFLAGS);
 
   Py_END_ALLOW_THREADS
 
@@ -284,7 +284,7 @@ _buildTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, char *sIn
 }
 
 static cmsHTRANSFORM
-_buildProofTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, cmsHPROFILE hDisplayProfile, char *sInMode, char *sOutMode, int iRenderingIntent, int iDisplayIntent)
+_buildProofTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, cmsHPROFILE hProofProfile, char *sInMode, char *sOutMode, int iRenderingIntent, int iProofIntent, DWORD cmsFLAGS)
 {
   cmsHTRANSFORM hTransform;
 
@@ -297,10 +297,10 @@ _buildProofTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, cmsH
                           findLCMStype(sInMode),
                           hOutputProfile,
                           findLCMStype(sOutMode),
-                          hDisplayProfile,
+                          hProofProfile,
                           iRenderingIntent,
-                          iDisplayIntent,
-                          0);
+                          iProofIntent,
+                          cmsFLAGS);
 
   Py_END_ALLOW_THREADS
 
@@ -326,15 +326,16 @@ buildTransform(PyObject *self, PyObject *args) {
   char *sInMode;
   char *sOutMode;
   int iRenderingIntent = 0;
+  int cmsFLAGS = 0;
 
   cmsHTRANSFORM transform = NULL;
 
-  if (!PyArg_ParseTuple(args, "O!O!ss|i:buildTransform", &CmsProfile_Type, &pInputProfile, &CmsProfile_Type, &pOutputProfile, &sInMode, &sOutMode, &iRenderingIntent))
+  if (!PyArg_ParseTuple(args, "O!O!ss|ii:buildTransform", &CmsProfile_Type, &pInputProfile, &CmsProfile_Type, &pOutputProfile, &sInMode, &sOutMode, &iRenderingIntent, &cmsFLAGS))
     return NULL;
 
   cmsErrorAction(LCMS_ERROR_IGNORE);
 
-  transform = _buildTransform(pInputProfile->profile, pOutputProfile->profile, sInMode, sOutMode, iRenderingIntent);
+  transform = _buildTransform(pInputProfile->profile, pOutputProfile->profile, sInMode, sOutMode, iRenderingIntent, cmsFLAGS);
 
   if (!transform)
     return NULL;
@@ -347,20 +348,21 @@ buildProofTransform(PyObject *self, PyObject *args)
 {
   CmsProfileObject *pInputProfile;
   CmsProfileObject *pOutputProfile;
-  CmsProfileObject *pDisplayProfile;
+  CmsProfileObject *pProofProfile;
   char *sInMode;
   char *sOutMode;
   int iRenderingIntent = 0;
-  int iDisplayIntent = 0;
+  int iProofIntent = 0;
+  int cmsFLAGS = 0;
 
   cmsHTRANSFORM transform = NULL;
 
-  if (!PyArg_ParseTuple(args, "O!O!O!ss|ii:buildProofTransform", &CmsProfile_Type, &pInputProfile, &CmsProfile_Type, &pOutputProfile, &CmsProfile_Type, &pDisplayProfile, &sInMode, &sOutMode, &iRenderingIntent, &iDisplayIntent))
+  if (!PyArg_ParseTuple(args, "O!O!O!ss|iii:buildProofTransform", &CmsProfile_Type, &pInputProfile, &CmsProfile_Type, &pOutputProfile, &CmsProfile_Type, &pProofProfile, &sInMode, &sOutMode, &iRenderingIntent, &iProofIntent, &cmsFLAGS))
     return NULL;
 
   cmsErrorAction(LCMS_ERROR_IGNORE);
 
-  transform = _buildProofTransform(pInputProfile->profile, pOutputProfile->profile, pDisplayProfile->profile, sInMode, sOutMode, iRenderingIntent, iDisplayIntent);
+  transform = _buildProofTransform(pInputProfile->profile, pOutputProfile->profile, pProofProfile->profile, sInMode, sOutMode, iRenderingIntent, iProofIntent, cmsFLAGS);
   
   if (!transform)
     return NULL;
