@@ -71,3 +71,6 @@ def test_sanity():
     assert_exception(ImageCms.PyCMSError, lambda: ImageCms.buildTransform("foo", "bar", "RGB", "RGB"))
     assert_exception(ImageCms.PyCMSError, lambda: ImageCms.getProfileName(None))
     assert_exception(ImageCms.PyCMSError, lambda: ImageCms.isIntentSupported(SRGB, None, None))
+
+    # test PointTransform convenience API
+    im = lena().point(t)

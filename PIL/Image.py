@@ -1110,6 +1110,9 @@ class Image:
 
         self.load()
 
+        if isinstance(lut, ImagePointHandler):
+            return lut.point(self)
+
         if not isSequenceType(lut):
             # if it isn't a list, it should be a function
             if self.mode in ("I", "I;16", "F"):
@@ -1586,7 +1589,10 @@ class Image:
     def transform(self, size, method, data=None, resample=NEAREST, fill=1):
         "Transform image"
 
+        if isinstance(method, ImageTransformHandler):
+            return method.transform(size, self, resample=resample, fill=fill)
         if hasattr(method, "getdata"):
+            # compatibility w. old-style transform objects
             method, data = method.getdata()
         if data is None:
             raise ValueError("missing method data")
@@ -1695,6 +1701,17 @@ class _ImageCrop(Image):
 
         # FIXME: future versions should optimize crop/paste
         # sequences!
+
+# --------------------------------------------------------------------
+# Abstract handlers.
+
+class ImagePointHandler:
+    # used as a mixin by point transforms (for use with im.point)
+    pass
+
+class ImageTransformHandler:
+    # used as a mixin by geometry transforms (for use with im.transform)
+    pass
 
 # --------------------------------------------------------------------
 # Factories
