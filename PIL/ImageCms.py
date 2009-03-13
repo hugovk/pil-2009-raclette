@@ -82,7 +82,7 @@ VERSION = "0.1.0 pil"
 import Image
 import _imagingcms
 
-cmscore = _imagingcms
+core = _imagingcms
 
 #
 # intent/direction values
@@ -138,14 +138,15 @@ class ImageCmsProfile:
         # accepts a string (filename), a file-like object, or a low-level
         # profile object
         if Image.isStringType(profile):
-            self._set(cmscore.profile_open(profile))
+            self._set(core.profile_open(profile), profile)
         elif hasattr(profile, "read"):
-            self._set(cmscore.profile_fromstring(profile.read()))
+            self._set(core.profile_fromstring(profile.read()))
         else:
             self._set(profile) # assume it's already a profile
 
-    def _set(self, profile):
+    def _set(self, profile, filename=None):
         self.profile = profile
+        self.filename = filename
         if profile:
             self.product_name = profile.product_name
             self.product_info = profile.product_info
@@ -163,14 +164,14 @@ class ImageCmsTransform(Image.ImagePointHandler):
                  intent=INTENT_PERCEPTUAL,
                  proof=None, proof_intent=INTENT_ABSOLUTE_COLORIMETRIC, flags=0):
         if proof is None:
-            self.transform = cmscore.buildTransform(
+            self.transform = core.buildTransform(
                 input.profile, output.profile,
                 input_mode, output_mode,
                 intent,
                 flags
                 )
         else:
-            self.transform = cmscore.buildProofTransform(
+            self.transform = core.buildProofTransform(
                 input.profile, output.profile, proof.profile,
                 input_mode, output_mode,
                 intent, proof_intent,
@@ -196,6 +197,27 @@ class ImageCmsTransform(Image.ImagePointHandler):
             raise ValueError("mode mismatch") # wrong output mode
         result = self.transform.apply(im.im.id, im.im.id)
         return im
+
+##
+# (experimental) Fetches the profile for the current display device.
+# Returns None if the profile is not known.
+
+def get_display_profile(handle=None):
+    import sys
+    if sys.platform == "win32":
+        import ImageWin
+        if isinstance(handle, ImageWin.HDC):
+            profile = core.get_display_profile_win32(handle, 1)
+        else:
+            profile = core.get_display_profile_win32(handle or 0)
+    else:
+        try:
+            get = _imagingcms.get_display_profile
+        except AttributeError:
+            return None
+        else:
+            profile = get()
+    return ImageCmsProfile(profile)
 
 # --------------------------------------------------------------------.
 # pyCMS compatible layer
@@ -579,7 +601,7 @@ def createProfile(colorSpace, colorTemp=-1):
             raise PyCMSError("Color temperature must be a positive integer, \"%s\" not valid" % colorTemp)
 
     try:
-        return cmscore.createProfile(colorSpace, colorTemp)
+        return core.createProfile(colorSpace, colorTemp)
     except (TypeError, ValueError), v:
         raise PyCMSError(v)
 
@@ -738,9 +760,7 @@ def isIntentSupported(profile, intent, direction):
 
 def versions():
     import sys
-    pycms, lcms = cmscore.versions()
-    return (pycms, "%d.%d" % divmod(lcms, 100),
-            sys.version.split()[0], Image.VERSION)
+    return (VERSION, core.getversion(), sys.version.split()[0], Image.VERSION)
 
 # --------------------------------------------------------------------
 

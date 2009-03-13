@@ -329,7 +329,7 @@ class pil_build_ext(build_ext):
         if os.path.isfile("_imagingcms.c") and feature.lcms:
             extra = []
             if sys.platform == "win32":
-                extra.append("user32") # FIXME: littlecms build error?
+                extra.extend(["user32", "gdi32"])
             exts.append(Extension(
                 "_imagingcms", ["_imagingcms.c"], libraries=["lcms"] + extra
                 ))
@@ -482,7 +482,7 @@ if __name__ == "__main__":
             ],
         cmdclass = {"build_ext": pil_build_ext},
         description=DESCRIPTION,
-        download_url="http://effbot.org/zone/pil-changes-116.htm",
+        download_url="http://effbot.org/downloads",
         ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
         extra_path = "PIL",
         license="Python (MIT style)",

@@ -27,6 +27,10 @@ http://www.cazabon.com\n\
 #include "lcms.h"
 #include "Imaging.h"
 
+#ifdef WIN32
+#include <wingdi.h>
+#endif
+
 #define PYCMSVERSION "0.1.0 pil"
 
 /* version history */
@@ -314,9 +318,9 @@ _buildProofTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, cmsH
 /* Python callable functions */
 
 static PyObject *
-versions (PyObject *self, PyObject *args)
+getversion(PyObject *self, PyObject *args)
 {
-  return Py_BuildValue("si", PYCMSVERSION, LCMS_VERSION);
+  return PyString_FromFormat("%d.%d", LCMS_VERSION / 100, LCMS_VERSION % 100);
 }
 
 static PyObject *
@@ -457,6 +461,37 @@ cms_profile_is_intent_supported(CmsProfileObject *self, PyObject *args)
   return PyInt_FromLong(result != 0);
 }
 
+#ifdef WIN32
+static PyObject *
+cms_get_display_profile_win32(PyObject* self, PyObject* args)
+{
+  char filename[MAX_PATH];
+  DWORD filename_size;
+  BOOL ok;
+
+  int handle = 0;
+  int is_dc = 0;
+  if (!PyArg_ParseTuple(args, "|ii:get_display_profile", &handle, &is_dc))
+    return NULL;
+
+  filename_size = sizeof(filename);
+
+  if (is_dc) {
+    ok = GetICMProfile((HDC) handle, &filename_size, filename);
+  } else {
+    HDC dc = GetDC((HWND) handle);
+    ok = GetICMProfile(dc, &filename_size, filename);
+    ReleaseDC((HWND) handle, dc);
+  }
+
+  if (ok)
+    return PyString_FromStringAndSize(filename, filename_size-1);
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+#endif
+
 /* -------------------------------------------------------------------- */
 /* Python interface setup */
 
@@ -465,13 +500,17 @@ static PyMethodDef pyCMSdll_methods[] = {
   {"profile_open", cms_profile_open, 1},
   {"profile_fromstring", cms_profile_fromstring, 1},
 
-  /* pyCMS info */
-  {"versions", versions, 1},
-
   /* profile and transform functions */
   {"buildTransform", buildTransform, 1},
   {"buildProofTransform", buildProofTransform, 1},
   {"createProfile", createProfile, 1},
+
+  /* platform specific tools */
+#ifdef WIN32
+  {"get_display_profile_win32", cms_get_display_profile_win32, 1},
+#endif
+
+  {"getversion", getversion, 1},
 
   {NULL, NULL}
 };

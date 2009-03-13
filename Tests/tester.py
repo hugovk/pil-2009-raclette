@@ -46,6 +46,13 @@ def assert_equal(a, b, msg=None):
     else:
         failure(msg or "got %r, expected %r" % (a, b))
 
+def assert_match(p, s, msg=None):
+    import re
+    if re.match(p, s):
+        success()
+    else:
+        failure(msg or "got %r, doesn't match pattern %r" % (s, p))
+
 def assert_exception(exc_class, func):
     import sys, traceback
     try:

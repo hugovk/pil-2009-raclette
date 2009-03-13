@@ -17,6 +17,9 @@ def test_sanity():
     assert_equal(v[0], '0.1.0 pil')
     assert_equal(map(type, v), [str, str, str, str])
 
+    v = ImageCms.core.getversion() # should return a "major.minor" string
+    assert_match("\d+\.\d+$", v)
+
     i = ImageCms.profileToProfile(lena(), SRGB, SRGB)
     assert_image(i, "RGB", (128, 128))
 
@@ -74,3 +77,6 @@ def test_sanity():
 
     # test PointTransform convenience API
     im = lena().point(t)
+
+    # try fetching the profile for the current display device
+    assert_no_exception(lambda: ImageCms.get_display_profile())
