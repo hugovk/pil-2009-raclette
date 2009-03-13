@@ -153,7 +153,7 @@ def SOF(self, marker):
         raise SyntaxError("cannot handle %d-layer images" % self.layers)
 
     if marker in [0xFFC2, 0xFFC6, 0xFFCA, 0xFFCE]:
-        self.info["progression"] = 1
+        self.info["progressive"] = self.info["progression"] = 1
 
     for i in range(6, len(s), 3):
         t = s[i:i+3]

@@ -14,8 +14,11 @@ data = open(file, "rb").read()
 def roundtrip(im, **options):
     out = StringIO()
     im.save(out, "JPEG", **options)
+    bytes = out.tell()
     out.seek(0)
-    return Image.open(out)
+    im = Image.open(out)
+    im.bytes = bytes # for testing only
+    return im
 
 # --------------------------------------------------------------------
 
@@ -68,6 +71,36 @@ def test_dpi():
     assert_equal(test(300), (300, 300))
     assert_equal(test(100, 200), (100, 200))
     assert_equal(test(0), None) # square pixels
+
+def test_optimize():
+    im1 = roundtrip(lena())
+    im2 = roundtrip(lena(), optimize=1)
+    assert_image_equal(im1, im2)
+    assert_true(im1.bytes >= im2.bytes)
+
+def test_progressive():
+    im1 = roundtrip(lena())
+    im2 = roundtrip(lena(), progressive=1)
+    im3 = roundtrip(lena(), progression=1) # compatibility
+    assert_image_equal(im1, im2)
+    assert_image_equal(im1, im3)
+    assert_false(im1.info.get("progressive"))
+    assert_false(im1.info.get("progression"))
+    assert_true(im2.info.get("progressive"))
+    assert_true(im2.info.get("progression"))
+    assert_true(im3.info.get("progressive"))
+    assert_true(im3.info.get("progression"))
+
+def test_quality():
+    im1 = roundtrip(lena())
+    im2 = roundtrip(lena(), quality=50)
+    assert_image(im1, im2.mode, im2.size)
+    assert_true(im1.bytes >= im2.bytes)
+
+def test_smooth():
+    im1 = roundtrip(lena())
+    im2 = roundtrip(lena(), smooth=100)
+    assert_image(im1, im2.mode, im2.size)
 
 def test_subsampling():
     def getsampling(im):
