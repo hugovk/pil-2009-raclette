@@ -104,6 +104,32 @@ geterror(int code)
 }
 
 static PyObject*
+getversion(PyObject* self, PyObject* args)
+{
+    int major, minor, patch;
+
+    if (!library && FT_Init_FreeType(&library)) {
+        PyErr_SetString(
+            PyExc_IOError,
+            "cannot initialize FreeType library"
+            );
+        return NULL;
+    }
+
+    FT_Library_Version(library, &major, &minor, &patch);
+
+#if 1
+    return PyString_FromFormat("%d.%d.%d", major, minor, patch);
+#else
+  {
+    char version[100];
+    sprintf(version, "%d.%d.%d", major, minor, patch);
+    return PyString_FromString(version);
+  }
+#endif
+}
+
+static PyObject*
 getfont(PyObject* self_, PyObject* args, PyObject* kw)
 {
     /* create a font object from a file name and a size (in pixels) */
@@ -468,6 +494,7 @@ statichere PyTypeObject Font_Type = {
 
 static PyMethodDef _functions[] = {
     {"getfont", (PyCFunction) getfont, METH_VARARGS|METH_KEYWORDS},
+    {"getversion", (PyCFunction) getversion, METH_VARARGS},
     {NULL, NULL}
 };
 

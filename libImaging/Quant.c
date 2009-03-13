@@ -306,6 +306,7 @@ mergesort_pixels(PixelList *head, int i)
    return head;
 }
 
+#if defined(TEST_MERGESORT) || defined(TEST_SORTED)
 static int
 test_sorted(PixelList *pl[3])
 {
@@ -322,6 +323,7 @@ test_sorted(PixelList *pl[3])
    }
    return 1;
 }
+#endif
 
 static int
 box_heap_cmp(const Heap h, const void *A, const void *B)

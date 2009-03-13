@@ -120,6 +120,11 @@ FLAGS = {
     "GRIDPOINTS": lambda n: ((n) & 0xFF) << 16 # Gridpoints
 }
 
+_MAX_FLAG = 0
+for flag in FLAGS.values():
+    if isinstance(flag, type(0)):
+        _MAX_FLAG = _MAX_FLAG | flag
+
 # --------------------------------------------------------------------.
 # Experimental PIL-level API
 # --------------------------------------------------------------------.
@@ -264,9 +269,8 @@ def profileToProfile(im, inputProfile, outputProfile, renderingIntent=INTENT_PER
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
-    flagsum = sum([flag if type(flag) == type(1) else 0 for flag in FLAGS.values()])
-    if type(flags) != type(1) or not (0 <= flags <=flagsum):
-        raise PyCMSError("flags must be an integer between 0 and " + flagsum)
+    if type(flags) != type(1) or not (0 <= flags <= _MAX_FLAG):
+        raise PyCMSError("flags must be an integer between 0 and %s" + _MAX_FLAG)
 
     try:
         if not isinstance(inputProfile, ImageCmsProfile):
@@ -373,9 +377,8 @@ def buildTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
-    flagsum = sum([flag if type(flag) == type(1) else 0 for flag in FLAGS.values()])
-    if type(flags) != type(1) or not (0 <= flags <=flagsum):
-        raise PyCMSError("flags must be an integer between 0 and " + flagsum)
+    if type(flags) != type(1) or not (0 <= flags <= _MAX_FLAG):
+        raise PyCMSError("flags must be an integer between 0 and %s" + _MAX_FLAG)
 
     try:
         if not isinstance(inputProfile, ImageCmsProfile):
@@ -465,9 +468,8 @@ def buildProofTransform(inputProfile, outputProfile, proofProfile, inMode, outMo
     if type(renderingIntent) != type(1) or not (0 <= renderingIntent <=3):
         raise PyCMSError("renderingIntent must be an integer between 0 and 3")
 
-    flagsum = sum([flag if type(flag) == type(1) else 0 for flag in FLAGS.values()])
-    if type(flags) != type(1) or not (0 <= flags <=flagsum):
-        raise PyCMSError("flags must be an integer between 0 and " + flagsum)
+    if type(flags) != type(1) or not (0 <= flags <= _MAX_FLAG):
+        raise PyCMSError("flags must be an integer between 0 and %s" + _MAX_FLAG)
 
     try:
         if not isinstance(inputProfile, ImageCmsProfile):

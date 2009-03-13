@@ -28,6 +28,18 @@
 import Image
 import os, string, sys
 
+class _imagingft_not_installed:
+    # module placeholder
+    def __getattr__(self, id):
+        raise ImportError("The _imagingft C module is not installed")
+
+try:
+    import _imagingft
+    core = _imagingft
+    del _imagingft
+except ImportError:
+    core = _imagingft_not_installed()
+
 # FIXME: add support for pilfont2 format (see FontFile.py)
 
 # --------------------------------------------------------------------
@@ -119,8 +131,7 @@ class FreeTypeFont:
 
     def __init__(self, file, size, index=0, encoding=""):
         # FIXME: use service provider instead
-        import _imagingft
-        self.font = _imagingft.getfont(file, size, index, encoding)
+        self.font = core.getfont(file, size, index, encoding)
 
     def getname(self):
         return self.font.family, self.font.style
