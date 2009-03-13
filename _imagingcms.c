@@ -318,9 +318,9 @@ _buildProofTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, cmsH
 /* Python callable functions */
 
 static PyObject *
-versions (PyObject *self, PyObject *args)
+getversion(PyObject *self, PyObject *args)
 {
-  return Py_BuildValue("si", PYCMSVERSION, LCMS_VERSION);
+  return PyString_FromFormat("%d.%d", LCMS_VERSION / 100, LCMS_VERSION % 100);
 }
 
 static PyObject *
@@ -500,9 +500,6 @@ static PyMethodDef pyCMSdll_methods[] = {
   {"profile_open", cms_profile_open, 1},
   {"profile_fromstring", cms_profile_fromstring, 1},
 
-  /* pyCMS info */
-  {"versions", versions, 1},
-
   /* profile and transform functions */
   {"buildTransform", buildTransform, 1},
   {"buildProofTransform", buildProofTransform, 1},
@@ -512,6 +509,8 @@ static PyMethodDef pyCMSdll_methods[] = {
 #ifdef WIN32
   {"get_display_profile_win32", cms_get_display_profile_win32, 1},
 #endif
+
+  {"getversion", getversion, 1},
 
   {NULL, NULL}
 };
