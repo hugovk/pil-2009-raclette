@@ -467,16 +467,22 @@ cms_get_display_profile_win32(PyObject* self, PyObject* args)
 {
   char filename[MAX_PATH];
   DWORD filename_size;
-  HWND wnd = NULL; /* FIXME: pass in as parameter */
-  HDC dc;
   BOOL ok;
 
-  dc = GetDC(wnd);
+  int handle = 0;
+  int is_dc = 0;
+  if (!PyArg_ParseTuple(args, "|ii:get_display_profile", &handle, &is_dc))
+    return NULL;
 
   filename_size = sizeof(filename);
-  ok = GetICMProfile(dc, &filename_size, filename);
 
-  ReleaseDC(wnd, dc);
+  if (is_dc) {
+    ok = GetICMProfile((HDC) handle, &filename_size, filename);
+  } else {
+    HDC dc = GetDC((HWND) handle);
+    ok = GetICMProfile(dc, &filename_size, filename);
+    ReleaseDC((HWND) handle, dc);
+  }
 
   if (ok)
     return PyString_FromStringAndSize(filename, filename_size-1);
@@ -504,7 +510,7 @@ static PyMethodDef pyCMSdll_methods[] = {
 
   /* platform specific tools */
 #ifdef WIN32
-  {"get_display_profile", cms_get_display_profile_win32, 1},
+  {"get_display_profile_win32", cms_get_display_profile_win32, 1},
 #endif
 
   {NULL, NULL}

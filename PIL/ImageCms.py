@@ -197,13 +197,22 @@ class ImageCmsTransform(Image.ImagePointHandler):
 # (experimental) Fetches the profile for the current display device.
 # Returns None if the profile is not known.
 
-def get_display_profile():
-    try:
-        get = _imagingcms.get_display_profile
-    except AttributeError:
-        return None
+def get_display_profile(handle=None):
+    import sys
+    if sys.platform == "win32":
+        import ImageWin
+        if isinstance(handle, ImageWin.HDC):
+            profile = cmscore.get_display_profile_win32(handle, 1)
+        else:
+            profile = cmscore.get_display_profile_win32(handle or 0)
     else:
-        return ImageCmsProfile(get())
+        try:
+            get = _imagingcms.get_display_profile
+        except AttributeError:
+            return None
+        else:
+            profile = get()
+    return ImageCmsProfile(profile)
 
 # --------------------------------------------------------------------.
 # pyCMS compatible layer

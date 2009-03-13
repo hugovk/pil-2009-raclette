@@ -76,4 +76,4 @@ def test_sanity():
     im = lena().point(t)
 
     # try fetching the profile for the current display device
-    assert_no_exception(lambda: ImageCms._imagingcms.get_display_profile())
+    assert_no_exception(lambda: ImageCms.get_display_profile())
