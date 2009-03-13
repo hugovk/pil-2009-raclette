@@ -1,3 +1,5 @@
+-*- coding: utf-8 -*-
+
 The Python Imaging Library
 $Id$
 
@@ -10,8 +12,8 @@ Tim Docker, Fred Drake, Graham Dumpleton, Matthew Ellis, Eric
 Etheridge, Robin Friedrich, Pier Paolo Glave, Federico Di Gregorio,
 Markus Gritsch, Daniel Haertle, Greg Hamilton, Mark Hammond, Bernhard
 Herzog, Rob Hooft, Bob Ippolito, Jack Jansen, Bill Janssen, Edward
-Jones, Richard Jones, Håkan Karlsson, Robert Kern, David Kirtley, Bob
-Klimek, Matthias Klose, Andrew Kuchling, Magnus Källström, Victor
+Jones, Richard Jones, HÃ¥kan Karlsson, Robert Kern, David Kirtley, Bob
+Klimek, Matthias Klose, Andrew Kuchling, Magnus KÃ¤llstrÃ¶m, Victor
 Lacina, Ben Last, Hamish Lawson, Cesare Leonardi, Andrew MacIntyre,
 Jan Matejek, Naveen Michaud-Agrawal, Gordon McMillan, Skip Montanaro,
 Fredrik Nehr, Russell Nelson, Luciano Nocera, Travis Oliphant, Piet
@@ -59,7 +61,7 @@ Added Kevin Cazabon's pyCMS package.
   The profile can now be either a filename, a profile object, or a
   file-like object containing an in-memory profile.
 
-  Additional fixes from Florian Böch:
+  Additional fixes from Florian BÃ¶ch:
 
     Very nice - it just needs LCMS flags support so we can use black
     point compensation and softproofing :) See attached patches.  They
@@ -125,7 +127,7 @@ Revised JPEG CMYK handling.
   Always assume Adobe behaviour, both when reading and writing (based on
   a patch by Kevin Cazabon, and test data by Tim V. and Charlie Clark).
 
-Support for preserving ICC profiles (by Florian Höch via Tim Hatch).
+Support for preserving ICC profiles (by Florian BÃ¶ch via Tim Hatch).
 
   Florian writes:
 
@@ -164,7 +166,7 @@ bearing (from Ned Batchelder):
   first slash will be clipped at the left, and the string will be
   mis-positioned.
 
-Fixed resolution unit bug in tiff reader/writer (from Florian Höch,
+Fixed resolution unit bug in tiff reader/writer (from Florian HÃ¶ch,
 Gary Bloom, and others).
 
 Added simple transparency support for RGB images (reported by
@@ -273,7 +275,7 @@ Fixed encoding issue in PIL/WalImageFile (from Santiago M. Mola).
 
 + Fixed building on Cygwin (from Miki Tebeka).
 
-+ Fixed "point(callable)" on unloaded images (reported by Håkan
++ Fixed "point(callable)" on unloaded images (reported by HÃ¥kan
   Karlsson).
 
 + Fixed size bug in ImageWin.ImageWindow constructor (from Victor
@@ -1008,7 +1010,7 @@ Fixed encoding issue in PIL/WalImageFile (from Santiago M. Mola).
   also affects the ImageDraw class (from Richard Jones).
 
 + Fixed a bug in JpegDecode that caused PIL to report "decoder error
-  -2" for some progressive JPEG files (reported by Magnus Källström,
+  -2" for some progressive JPEG files (reported by Magnus KÃ¤llstrÃ¶m,
   who also provided samples).
 
 + Fixed a bug in JpegImagePlugin that caused PIL to hang when loading
