@@ -27,6 +27,10 @@ http://www.cazabon.com\n\
 #include "lcms.h"
 #include "Imaging.h"
 
+#ifdef WIN32
+#include <wingdi.h>
+#endif
+
 #define PYCMSVERSION "0.1.0 pil"
 
 /* version history */
@@ -457,6 +461,31 @@ cms_profile_is_intent_supported(CmsProfileObject *self, PyObject *args)
   return PyInt_FromLong(result != 0);
 }
 
+#ifdef WIN32
+static PyObject *
+cms_get_display_profile_win32(PyObject* self, PyObject* args)
+{
+  char filename[MAX_PATH];
+  DWORD filename_size;
+  HWND wnd = NULL; /* FIXME: pass in as parameter */
+  HDC dc;
+  BOOL ok;
+
+  dc = GetDC(wnd);
+
+  filename_size = sizeof(filename);
+  ok = GetICMProfile(dc, &filename_size, filename);
+
+  ReleaseDC(wnd, dc);
+
+  if (ok)
+    return PyString_FromStringAndSize(filename, filename_size-1);
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+#endif
+
 /* -------------------------------------------------------------------- */
 /* Python interface setup */
 
@@ -472,6 +501,11 @@ static PyMethodDef pyCMSdll_methods[] = {
   {"buildTransform", buildTransform, 1},
   {"buildProofTransform", buildProofTransform, 1},
   {"createProfile", createProfile, 1},
+
+  /* platform specific tools */
+#ifdef WIN32
+  {"get_display_profile", cms_get_display_profile_win32, 1},
+#endif
 
   {NULL, NULL}
 };

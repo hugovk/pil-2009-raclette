@@ -133,14 +133,15 @@ class ImageCmsProfile:
         # accepts a string (filename), a file-like object, or a low-level
         # profile object
         if Image.isStringType(profile):
-            self._set(cmscore.profile_open(profile))
+            self._set(cmscore.profile_open(profile), profile)
         elif hasattr(profile, "read"):
             self._set(cmscore.profile_fromstring(profile.read()))
         else:
             self._set(profile) # assume it's already a profile
 
-    def _set(self, profile):
+    def _set(self, profile, filename=None):
         self.profile = profile
+        self.filename = filename
         if profile:
             self.product_name = profile.product_name
             self.product_info = profile.product_info
@@ -191,6 +192,18 @@ class ImageCmsTransform(Image.ImagePointHandler):
             raise ValueError("mode mismatch") # wrong output mode
         result = self.transform.apply(im.im.id, im.im.id)
         return im
+
+##
+# (experimental) Fetches the profile for the current display device.
+# Returns None if the profile is not known.
+
+def get_display_profile():
+    try:
+        get = _imagingcms.get_display_profile
+    except AttributeError:
+        return None
+    else:
+        return ImageCmsProfile(get())
 
 # --------------------------------------------------------------------.
 # pyCMS compatible layer

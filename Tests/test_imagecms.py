@@ -74,3 +74,6 @@ def test_sanity():
 
     # test PointTransform convenience API
     im = lena().point(t)
+
+    # try fetching the profile for the current display device
+    assert_no_exception(lambda: ImageCms._imagingcms.get_display_profile())
