@@ -57,7 +57,6 @@ static Imaging
 gblur(Imaging im, Imaging imOut, float floatRadius, int channels, int padding)
 {
   float *maskData = NULL;
-  double mult = 0.0;
   int y = 0;
   int x = 0;
   float z = 0;

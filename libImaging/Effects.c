@@ -161,6 +161,8 @@ ImagingEffectSpread(Imaging imIn, int distance)
 /* Taken from the "C" code in the W3C SVG specification.  Translated
    to C89 by Fredrik Lundh */
 
+#if 0
+
 /* Produces results in the range [1, 2**31 - 2].
 Algorithm is: r = (a * r) mod m
 where a = 16807 and m = 2**31 - 1 = 2147483647
@@ -368,3 +370,4 @@ perlin_turbulence(
   return fSum;
 }
 
+#endif
