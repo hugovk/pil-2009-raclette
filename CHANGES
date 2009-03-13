@@ -25,10 +25,157 @@ Dan Wolfe, and Ka-Ping Yee.
 
 *** Changes from release 1.1.6 to 1.1.7 ***
 
-FIXME: This section will be updated before the first alpha.  For now,
-see the repository revision history, available here:
+This section is not complete.  For changes since this file was last
+updated, see the repository revision history:
 
   http://bitbucket.org/effbot/pil-2009-raclette/changesets/
+
+Partial history (last updated 2009-03-13):
+
+Added version query mechanism to ImageCms and ImageFont, for debugging.
+
+Added (experimental) ImageCms function for fetching the ICC profile
+for the current display (currently Windows only).
+
+  Added HWND/HDC support to ImageCms.get_display_profile().
+
+Added WMF renderer (Windows only).
+
+Added ImagePointHandler and ImageTransformHandler mixins; made
+ImageCmsTransform work with im.point.
+
+Fixed potential endless loop in the XVThumbnail reader (from Nikolai
+Ugelvik).
+
+Added Kevin Cazabon's pyCMS package.
+
+  The C code has been moved to _imagingcms.c, the Python interface
+  module is installed as PIL.ImageCMS.
+
+  Added support for in-memory ICC profiles.
+
+  Unified buildTransform and buildTransformFromOpenProfiles.
+
+  The profile can now be either a filename, a profile object, or a
+  file-like object containing an in-memory profile.
+
+  Additional fixes from Florian Böch:
+
+    Very nice - it just needs LCMS flags support so we can use black
+    point compensation and softproofing :) See attached patches.  They
+    also fix a naming issue which could cause confusion - display
+    profile (ImageCms wording) actually means proof profile (lcms
+    wording), so I changed variable names and docstrings where
+    applicable. Patches are tested under Python 2.6.
+
+Improved support for layer names in PSD files (from Sylvain Baubeau)
+
+  Sylvain writes: I needed to be able to retrieve the names of the
+  layers in a PSD files. But PsdImagePlugin.py didn't do the job so I
+  wrote this very small patch.
+
+Improved RGBA support for ImageTk for 8.4 and newer (from Con Radchenko).
+
+  This replaces the slow run-length based encoding model with true
+  compositing at the Tk level.
+
+Added support for 16- and 32-bit images to McIdas loader.
+
+  Based on file samples and stand-alone reader code provided by Craig
+  Swank.
+
+Added ImagePalette support to putpalette.
+
+Fixed problem with incremental parsing of PNG files.
+
+Make selftest.py report non-zero status on failure (from Mark Sienkiewicz)
+
+Add big endian save support and multipage infrastructure to the TIFF
+writer (from Sebastian Haase).
+
+Added zTXT support (from Andrew Kuchling via Lowell Alleman).
+
+Fixed potential infinite loop bug in ImageFont (from Guilherme Polo).
+
+Added sample ICC profiles (from Kevin Cazabon)
+
+Fixed array interface for I, F, and RGBA/RGBX images.
+
+Added Chroma subsampling support for JPEG (from Justin Huff).
+
+  Justin writes: Attached is a patch (against PIL 1.1.6) to provide
+  control over the chroma subsampling done by the JPEG encoder.  This
+  is often useful for reducing compression artifacts around edges of
+  clipart and text.
+
+Added USM/Gaussian Blur code from Kevin Cazabon.
+
+Fixed bug w. uninitialized image data when cropping outside the source image.
+
+Use ImageShow to implement the Image.show method.
+
+  Most notably, this picks the 'display' utility when available.  It
+  also allows application code to register new display utilities via
+  the ImageShow registry.
+
+Release the GIL in the PNG compressor (from Michael van Tellingen).
+
+Revised JPEG CMYK handling.
+
+  Always assume Adobe behaviour, both when reading and writing (based on
+  a patch by Kevin Cazabon, and test data by Tim V. and Charlie Clark).
+
+Support for preserving ICC profiles (by Florian Höch via Tim Hatch).
+
+  Florian writes:
+
+  It's a beta, so still needs some testing, but should allow you to:
+  - retain embedded ICC profiles when saving from/to JPEG, PNG, TIFF.
+     Existing code doesn't need to be changed.
+  - access embedded profiles in JPEG, PNG, PSD, TIFF.
+
+  It also includes patches for TIFF to retain IPTC, Photoshop and XMP
+  metadata when saving as TIFF again, read/write TIFF resolution
+  information correctly, and to correct inverted CMYK JPEG files.
+
+Fixed potential memory leak in median cut quantizer (from Evgeny Salmin).
+
+Fixed OverflowError when reading upside-down BMP images.
+
+Added resolution save option for PDF files.
+
+  Andreas Kostyrka writes: I've included a patched PdfImagePlugin.py
+  based on 1.1.6 as included in Ubuntu, that supports a "resolution"
+  save option. Not great, but it makes the PDF saving more useful by
+  allowing PDFs that are not exactly 72dpi.
+
+Look for Tcl/Tk include files in version-specific include directory
+(from Encolpe Degoute).
+
+Fixed grayscale rounding error in ImageColor.getcolor (from Tim
+Hatch).
+
+Fixed truetype positioning when first character has a negative left
+bearing (from Ned Batchelder):
+
+  Ned writes: In PIL 1.1.6, ImageDraw.text will position the string
+  incorrectly if the first character has a negative left bearing.  To
+  see the problem, show a string like "///" in an italic font.  The
+  first slash will be clipped at the left, and the string will be
+  mis-positioned.
+
+Fixed resolution unit bug in tiff reader/writer (from Florian Höch,
+Gary Bloom, and others).
+
+Added simple transparency support for RGB images (reported by
+Sebastian Spaeth).
+
+Added support for Unicode filenames in ImageFont.truetype (from Donn
+Ingle).
+
+Fixed potential crash in ImageFont.getname method (from Donn Ingle).
+
+Fixed encoding issue in PIL/WalImageFile (from Santiago M. Mola).
 
 *** Changes from release 1.1.5 to 1.1.6 ***
 
