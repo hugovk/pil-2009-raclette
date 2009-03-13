@@ -248,4 +248,12 @@ ImagingJpegEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 
 }
 
+const char*
+ImagingJpegVersion(void)
+{
+    static char version[10];
+    sprintf(version, "%d.%d", JPEG_LIB_VERSION / 10, JPEG_LIB_VERSION % 10);
+    return version;
+}
+
 #endif

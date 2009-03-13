@@ -760,7 +760,9 @@ def isIntentSupported(profile, intent, direction):
 
 def versions():
     import sys
-    return (VERSION, core.getversion(), sys.version.split()[0], Image.VERSION)
+    return (
+        VERSION, core.littlecms_version, sys.version.split()[0], Image.VERSION
+        )
 
 # --------------------------------------------------------------------
 

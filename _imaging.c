@@ -3192,6 +3192,9 @@ static PyMethodDef functions[] = {
 DL_EXPORT(void)
 init_imaging(void)
 {
+    PyObject* m;
+    PyObject* d;
+
     /* Patch object type */
     Imaging_Type.ob_type = &PyType_Type;
 #ifdef WITH_IMAGEDRAW
@@ -3200,5 +3203,20 @@ init_imaging(void)
 #endif
     PixelAccess_Type.ob_type = &PyType_Type;
 
-    Py_InitModule("_imaging", functions);
+    m = Py_InitModule("_imaging", functions);
+    d = PyModule_GetDict(m);
+
+#ifdef HAVE_LIBJPEG
+  {
+    extern const char* ImagingJpegVersion(void);
+    PyDict_SetItemString(d, "jpeglib_version", PyString_FromString(ImagingJpegVersion()));
+  }
+#endif
+
+#ifdef HAVE_LIBZ
+  {
+    extern const char* ImagingZipVersion(void);
+    PyDict_SetItemString(d, "zlib_version", PyString_FromString(ImagingZipVersion()));
+  }
+#endif
 }

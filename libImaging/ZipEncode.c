@@ -314,4 +314,10 @@ ImagingZipEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
     return -1;
 }
 
+const char*
+ImagingZipVersion(void)
+{
+    return ZLIB_VERSION;
+}
+
 #endif

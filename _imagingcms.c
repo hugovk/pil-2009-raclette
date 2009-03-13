@@ -318,12 +318,6 @@ _buildProofTransform(cmsHPROFILE hInputProfile, cmsHPROFILE hOutputProfile, cmsH
 /* Python callable functions */
 
 static PyObject *
-getversion(PyObject *self, PyObject *args)
-{
-  return PyString_FromFormat("%d.%d", LCMS_VERSION / 100, LCMS_VERSION % 100);
-}
-
-static PyObject *
 buildTransform(PyObject *self, PyObject *args) {
   CmsProfileObject *pInputProfile;
   CmsProfileObject *pOutputProfile;
@@ -510,8 +504,6 @@ static PyMethodDef pyCMSdll_methods[] = {
   {"get_display_profile_win32", cms_get_display_profile_win32, 1},
 #endif
 
-  {"getversion", getversion, 1},
-
   {NULL, NULL}
 };
 
@@ -591,9 +583,18 @@ statichere PyTypeObject CmsTransform_Type = {
 DL_EXPORT(void)
 init_imagingcms(void)
 {
+  PyObject *m;
+  PyObject *d;
+
   /* Patch up object types */
   CmsProfile_Type.ob_type = &PyType_Type;
   CmsTransform_Type.ob_type = &PyType_Type;
 
-  Py_InitModule("_imagingcms", pyCMSdll_methods);
+  m = Py_InitModule("_imagingcms", pyCMSdll_methods);
+  d = PyModule_GetDict(m);
+
+  PyDict_SetItemString(
+    d, "littlecms_version",
+    PyString_FromFormat("%d.%d", LCMS_VERSION / 100, LCMS_VERSION % 100)
+  );
 }

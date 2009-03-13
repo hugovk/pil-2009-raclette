@@ -104,32 +104,6 @@ geterror(int code)
 }
 
 static PyObject*
-getversion(PyObject* self, PyObject* args)
-{
-    int major, minor, patch;
-
-    if (!library && FT_Init_FreeType(&library)) {
-        PyErr_SetString(
-            PyExc_IOError,
-            "cannot initialize FreeType library"
-            );
-        return NULL;
-    }
-
-    FT_Library_Version(library, &major, &minor, &patch);
-
-#if 1
-    return PyString_FromFormat("%d.%d.%d", major, minor, patch);
-#else
-  {
-    char version[100];
-    sprintf(version, "%d.%d.%d", major, minor, patch);
-    return PyString_FromString(version);
-  }
-#endif
-}
-
-static PyObject*
 getfont(PyObject* self_, PyObject* args, PyObject* kw)
 {
     /* create a font object from a file name and a size (in pixels) */
@@ -156,10 +130,10 @@ getfont(PyObject* self_, PyObject* args, PyObject* kw)
         return NULL;
 #endif
 
-    if (!library && FT_Init_FreeType(&library)) {
+    if (!library) {
         PyErr_SetString(
             PyExc_IOError,
-            "cannot initialize FreeType library"
+            "failed to initialize FreeType library"
             );
         return NULL;
     }
@@ -494,15 +468,29 @@ statichere PyTypeObject Font_Type = {
 
 static PyMethodDef _functions[] = {
     {"getfont", (PyCFunction) getfont, METH_VARARGS|METH_KEYWORDS},
-    {"getversion", (PyCFunction) getversion, METH_VARARGS},
     {NULL, NULL}
 };
 
 DL_EXPORT(void)
 init_imagingft(void)
 {
+    PyObject* m;
+    PyObject* d;
+    int major, minor, patch;
+
     /* Patch object type */
     Font_Type.ob_type = &PyType_Type;
 
-    Py_InitModule("_imagingft", _functions);
+    m = Py_InitModule("_imagingft", _functions);
+    d = PyModule_GetDict(m);
+
+    if (FT_Init_FreeType(&library))
+        return; /* leave it uninitalized */
+
+    FT_Library_Version(library, &major, &minor, &patch);
+
+    PyDict_SetItemString(
+	d, "freetype2_version",
+	PyString_FromFormat("%d.%d.%d", major, minor, patch)
+    );
 }

@@ -20,6 +20,10 @@ def roundtrip(im, **options):
 # --------------------------------------------------------------------
 
 def test_sanity():
+
+    # internal version number
+    assert_match(Image.core.jpeglib_version, "\d+\.\d+$")
+
     im = Image.open(file)
     im.load()
     assert_equal(im.mode, "RGB")
