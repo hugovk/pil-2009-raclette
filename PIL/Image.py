@@ -1016,29 +1016,6 @@ class Image:
         return self.im.histogram()
 
     ##
-    # (Deprecated) Returns a copy of the image where the data has been
-    # offset by the given distances. Data wraps around the edges. If
-    # yoffset is omitted, it is assumed to be equal to xoffset.
-    # <p>
-    # This method is deprecated. New code should use the <b>offset</b>
-    # function in the <b>ImageChops</b> module.
-    #
-    # @param xoffset The horizontal distance.
-    # @param yoffset The vertical distance.  If omitted, both
-    #    distances are set to the same value.
-    # @return An Image object.
-
-    def offset(self, xoffset, yoffset=None):
-        "(deprecated) Offset image in horizontal and/or vertical direction"
-        if warnings:
-            warnings.warn(
-                "'offset' is deprecated; use 'ImageChops.offset' instead",
-                DeprecationWarning, stacklevel=2
-                )
-        import ImageChops
-        return ImageChops.offset(self, xoffset, yoffset)
-
-    ##
     # Pastes another image into this image. The box argument is either
     # a 2-tuple giving the upper left corner, a 4-tuple defining the
     # left, upper, right, and lower pixel coordinate, or None (same as
