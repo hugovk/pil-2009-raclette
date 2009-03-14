@@ -16,3 +16,13 @@ def test_sanity():
     draw.rectangle(range(4))
 
     success()
+
+def test_deprecated():
+    
+    im = lena().copy()
+
+    draw = ImageDraw.Draw(im)
+
+    assert_warning(DeprecationWarning, lambda: draw.setink(0))
+    assert_warning(DeprecationWarning, lambda: draw.setfill(0))
+

@@ -76,6 +76,25 @@ def assert_no_exception(func):
     else:
         success()
 
+def assert_warning(warn_class, func):
+    # note: this assert calls func three times!
+    import warnings
+    def warn_error(message, category, **options):
+        raise category(message)
+    def warn_ignore(message, category, **options):
+        pass
+    warn = warnings.warn
+    result = None
+    try:
+        warnings.warn = warn_ignore
+        assert_no_exception(func)
+        result = func()
+        warnings.warn = warn_error
+        assert_exception(warn_class, func)
+    finally:
+        warnings.warn = warn # restore
+    return result
+
 # helpers
 
 from cStringIO import StringIO
