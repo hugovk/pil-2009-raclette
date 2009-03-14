@@ -16,14 +16,15 @@
 # 2003-05-10 fl   PIL release 1.1.4
 # 2005-03-28 fl   PIL release 1.1.5
 # 2006-12-02 fl   PIL release 1.1.6
+# 2009-03-XX fl   PIL release 1.1.7
 #
-# Copyright (c) 1997-2008 by Secret Labs AB.  All rights reserved.
-# Copyright (c) 1995-2008 by Fredrik Lundh.
+# Copyright (c) 1997-2009 by Secret Labs AB.  All rights reserved.
+# Copyright (c) 1995-2009 by Fredrik Lundh.
 #
 # See the README file for information on usage and redistribution.
 #
 
-VERSION = "1.1.7-snapshot"
+VERSION = "1.1.7a0"
 
 try:
     import warnings

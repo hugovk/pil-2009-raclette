@@ -177,7 +177,7 @@ if __name__ == "__main__":
     exit_status = 0
 
     print "-"*68
-    print "PIL", Image.VERSION, "BUILD SUMMARY"
+    print "PIL", Image.VERSION, "TEST SUMMARY "
     print "-"*68
     print "Python modules loaded from", os.path.dirname(Image.__file__)
     print "Binary modules loaded from", os.path.dirname(Image.core.__file__)
@@ -187,16 +187,19 @@ if __name__ == "__main__":
     check_codec("JPEG", "jpeg")
     check_codec("ZLIB (PNG/ZIP)", "zip")
     check_module("FREETYPE2", "_imagingft")
+    check_module("LITTLECMS", "_imagingcms")
+    if sys.platform == "win32":
+        check_module("WINDOWS (WMF)", "_imagingwmf")
     print "-"*68
 
     # use doctest to make sure the test program behaves as documented!
     import doctest, selftest
-    print "Running self test:"
+    print "Running selftest:"
     status = doctest.testmod(selftest)
     if status[0]:
         print "*** %s tests of %d failed." % status
         exit_status = 1
     else:
-        print "%s tests passed." % status[1]
+        print "--- %s tests passed." % status[1]
 
     sys.exit(exit_status)

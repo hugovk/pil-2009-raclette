@@ -208,7 +208,7 @@ For a list of changes in this release, see the CHANGES document.
    that the optional components you need are included.
 
         ----------------------------------------------------------------
-        PIL 1.1.7 BUILD SUMMARY
+        PIL 1.1.7 SETUP SUMMARY
         ----------------------------------------------------------------
         *** TKINTER support not available (Tcl/Tk 8.5 libraries needed)
         --- JPEG support available
@@ -267,12 +267,12 @@ Microsoft Visual Studio.  To build extensions using other tool chains,
 see the "Using non-Microsoft compilers on Windows" section in the
 distutils handbook:
 
-        http://www.python.org/doc/current/inst/non-ms-compilers.html
+    http://www.python.org/doc/current/inst/non-ms-compilers.html
 
 For additional information on how to build extensions using the
 popular MinGW compiler, see:
 
-        http://mingw.org (compiler)
-        http://sebsauvage.net/python/mingw.html (build instructions)
-        http://sourceforge.net/projects/gnuwin32 (prebuilt libraries)
+    http://mingw.org (compiler)
+    http://sebsauvage.net/python/mingw.html (build instructions)
+    http://sourceforge.net/projects/gnuwin32 (prebuilt libraries)
 
