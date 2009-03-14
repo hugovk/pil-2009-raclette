@@ -1488,8 +1488,7 @@ im_setmode(ImagingObject* self, PyObject* args)
 
     im = self->image;
 
-    /* FIXME: move this to a libImaging primitive (?) */
-    /* FIXME: add support for 1->L and L->1 */
+    /* move all logic in here to the libImaging primitive */
 
     if (!strcmp(im->mode, mode)) {
         ; /* same mode; always succeeds */
@@ -1499,8 +1498,11 @@ im_setmode(ImagingObject* self, PyObject* args)
         im->bands = modelen;
         if (!strcmp(mode, "RGBA"))
             ImagingFillBand(im, 3, 255);
-    } else
-        return ImagingError_ModeError();
+    } else {
+        /* trying doing an in-place conversion */
+        if (!ImagingConvertInPlace(im, mode))
+            return NULL;
+    }
 
     Py_INCREF(Py_None);
     return Py_None;

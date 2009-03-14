@@ -243,8 +243,8 @@ typedef int (*ImagingTransformFilter)(void* out, Imaging im,
 
 extern Imaging ImagingBlend(Imaging imIn1, Imaging imIn2, float alpha);
 extern Imaging ImagingCopy(Imaging im);
-extern Imaging ImagingConvert(
-    Imaging im, const char* mode, ImagingPalette palette, int dither);
+extern Imaging ImagingConvert(Imaging im, const char* mode, ImagingPalette palette, int dither);
+extern Imaging ImagingConvertInPlace(Imaging im, const char* mode);
 extern Imaging ImagingConvertMatrix(Imaging im, const char *mode, float m[]);
 extern Imaging ImagingCrop(Imaging im, int x0, int y0, int x1, int y1);
 extern Imaging ImagingExpand(Imaging im, int x, int y, int mode);
