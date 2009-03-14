@@ -286,7 +286,6 @@ Imaging/Scripts/README
 Imaging/Scripts/enhancer.py
 Imaging/Scripts/explode.py
 Imaging/Scripts/gifmaker.py
-Imaging/Scripts/image2py.py
 Imaging/Scripts/painter.py
 Imaging/Scripts/player.py
 Imaging/Scripts/viewer.py
