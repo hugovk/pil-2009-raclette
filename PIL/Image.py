@@ -1778,13 +1778,6 @@ def fromstring(mode, size, data, decoder_name="raw", *args):
 # Note that this function decodes pixel data only, not entire images.
 # If you have an entire image file in a string, wrap it in a
 # <b>StringIO</b> object, and use {@link #open} to load it.
-# <p>
-# In the current version, the default parameters used for the "raw"
-# decoder differs from that used for {@link fromstring}.  This is a
-# bug, and will probably be fixed in a future release.  The current
-# release issues a warning if you do this; to disable the warning,
-# you should provide the full set of parameters.  See below for
-# details.
 #
 # @param mode The image mode.
 # @param size The image size.
@@ -1807,14 +1800,7 @@ def frombuffer(mode, size, data, decoder_name="raw", *args):
 
     if decoder_name == "raw":
         if args == ():
-            if warnings:
-                warnings.warn(
-                    "the frombuffer defaults may change in a future release; "
-                    "for portability, change the call to read:\n"
-                    "  frombuffer(mode, size, data, 'raw', mode, 0, 1)",
-                    RuntimeWarning, stacklevel=2
-                )
-            args = mode, 0, -1 # may change to (mode, 0, 1) post-1.1.6
+            args = mode, 0, 1
         if args[0] in _MAPMODES:
             im = new(mode, (1,1))
             im = im._new(
