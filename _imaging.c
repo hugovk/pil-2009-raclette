@@ -3047,7 +3047,7 @@ statichere PyTypeObject PixelAccess_Type = {
 /* -------------------------------------------------------------------- */
 
 /* FIXME: this is something of a mess.  Should replace this with
-   pluggable codecs, but not before PIL 1.1 */
+   pluggable codecs, but not before PIL 1.2 */
 
 /* Decoders (in decode.c) */
 extern PyObject* PyImaging_BitDecoderNew(PyObject* self, PyObject* args);
@@ -3075,7 +3075,7 @@ extern PyObject* PyImaging_RawEncoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_XbmEncoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_ZipEncoderNew(PyObject* self, PyObject* args);
 
-/* Display support (in display.c) */
+/* Display support etc (in display.c) */
 #ifdef WIN32
 extern PyObject* PyImaging_CreateWindowWin32(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_DisplayWin32(PyObject* self, PyObject* args);
@@ -3084,6 +3084,7 @@ extern PyObject* PyImaging_GrabScreenWin32(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_GrabClipboardWin32(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_ListWindowsWin32(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_EventLoopWin32(PyObject* self, PyObject* args);
+extern PyObject* PyImaging_DrawWmf(PyObject* self, PyObject* args);
 #endif
 
 /* Experimental path stuff (in path.c) */
@@ -3154,6 +3155,7 @@ static PyMethodDef functions[] = {
     {"createwindow", (PyCFunction)PyImaging_CreateWindowWin32, 1},
     {"eventloop", (PyCFunction)PyImaging_EventLoopWin32, 1},
     {"listwindows", (PyCFunction)PyImaging_ListWindowsWin32, 1},
+    {"drawwmf", (PyCFunction)PyImaging_DrawWmf, 1},
 #endif
 
     /* Utilities */

@@ -188,8 +188,6 @@ if __name__ == "__main__":
     check_codec("ZLIB (PNG/ZIP)", "zip")
     check_module("FREETYPE2", "_imagingft")
     check_module("LITTLECMS", "_imagingcms")
-    if sys.platform == "win32":
-        check_module("WINDOWS (WMF)", "_imagingwmf")
     print "-"*68
 
     # use doctest to make sure the test program behaves as documented!

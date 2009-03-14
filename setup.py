@@ -225,7 +225,7 @@ class pil_build_ext(build_ext):
         # look for available libraries
 
         class feature:
-            zlib = jpeg = tiff = freetype = tcl = tk = lcms = win32 = None
+            zlib = jpeg = tiff = freetype = tcl = tk = lcms = None
         feature = feature()
 
         if find_include_file(self, "zlib.h"):
@@ -279,9 +279,6 @@ class pil_build_ext(build_ext):
                 feature.tk = "tk" + version
             elif find_library_file(self, "tk" + TCL_VERSION):
                 feature.tk = "tk" + TCL_VERSION
-
-        if sys.platform == "win32":
-            feature.win32 = 1
 
         #
         # core library
@@ -366,10 +363,6 @@ class pil_build_ext(build_ext):
         if os.path.isfile("_imagingmath.c"):
             exts.append(Extension("_imagingmath", ["_imagingmath.c"]))
 
-        if feature.win32:
-            exts.append(Extension("_imagingwmf", ["_imagingwmf.c"],
-                                  libraries=["user32", "gdi32"]))
-
         self.extensions[:] = exts
 
         build_ext.build_extensions(self)
@@ -404,9 +397,6 @@ class pil_build_ext(build_ext):
             (feature.freetype, "FREETYPE2"),
             (feature.lcms, "LITTLECMS"),
             ]
-
-        if feature.win32:
-            options.append((feature.win32, "WINDOWS (WMF)"))
 
         all = 1
         for option in options:
