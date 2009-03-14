@@ -98,6 +98,7 @@ Imaging/path.c
 
 Imaging/_imagingtk.c
 Imaging/_imagingft.c
+Imaging/_imagingcms.c
 Imaging/_imagingmath.c
 
 Imaging/PIL.pth
@@ -126,6 +127,7 @@ Imaging/PIL/IcoImagePlugin.py
 Imaging/PIL/IcnsImagePlugin.py
 Imaging/PIL/Image.py
 Imaging/PIL/ImageChops.py
+Imaging/PIL/ImageCms.py
 Imaging/PIL/ImageColor.py
 Imaging/PIL/ImageDraw.py
 Imaging/PIL/ImageDraw2.py
