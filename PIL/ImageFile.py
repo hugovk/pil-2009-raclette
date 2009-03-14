@@ -272,7 +272,7 @@ class StubImageFile(ImageFile):
 ##
 # (Internal) Support class for the <b>Parser</b> file.
 
-class _ParserFile:
+class _ParserFile(object):
     # parser support class.
 
     def __init__(self, data):
@@ -319,7 +319,7 @@ class _ParserFile:
 # Incremental image parser.  This class implements the standard
 # feed/close consumer interface.
 
-class Parser:
+class Parser(object):
 
     incremental = None
     image = None

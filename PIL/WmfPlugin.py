@@ -20,7 +20,7 @@ try:
 except ImportError:
     raise ImportError("WMF support is not available for this platform")
 
-class WmfHandler:
+class WmfHandler(object):
 
     def open(self, im):
         im.mode = "RGB"
