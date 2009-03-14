@@ -27,4 +27,5 @@ def test_sanity():
     assert_no_exception(lambda: ImageFilter.SMOOTH_MORE)
     assert_no_exception(lambda: ImageFilter.SHARPEN)
 
-success()
+
+

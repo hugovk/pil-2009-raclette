@@ -14,11 +14,15 @@ if not os.path.isfile("PIL/Image.py"):
 
 print "-"*68
 
-if "--installed" in sys.argv:
-    options = ""
-else:
-    options = "-S"
+python_options = []
+tester_options = []
+
+if "--installed" not in sys.argv:
+    python_options.append("-S")
     os.environ["PYTHONPATH"] = "."
+
+if "--log" in sys.argv:
+    tester_options.append("--log")
 
 files = glob.glob(os.path.join(root, "test_*.py"))
 files.sort()
@@ -27,6 +31,9 @@ success = failure = 0
 include = [x for x in sys.argv[1:] if x[:2] != "--"]
 skipped = []
 
+python_options = " ".join(python_options)
+tester_options = " ".join(tester_options)
+
 for file in files:
     test, ext = os.path.splitext(os.path.basename(file))
     if include and test not in include:
@@ -34,7 +41,9 @@ for file in files:
     print "running", test, "..."
     # 2>&1 works on unix and on modern windowses.  we might care about
     # very old Python versions, but not ancient microsoft products :-)
-    out = os.popen("%s %s -u %s 2>&1" % (sys.executable, options, file))
+    out = os.popen("%s %s -u %s %s 2>&1" % (
+            sys.executable, python_options, file, tester_options
+            ))
     result = out.read().strip()
     if result == "ok":
         result = None

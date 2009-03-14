@@ -2,11 +2,13 @@
 
 _target = None
 _tempfiles = []
+_logfile = None
 
 def success():
     import sys
     success.count += 1
-    # print >>open("test.log", "a"), sys.argv[0], success.count, failure.count
+    if _logfile:
+        print >>_logfile, sys.argv[0], success.count, failure.count
 
 def failure(msg=None, frame=None):
     import sys, linecache
@@ -22,7 +24,8 @@ def failure(msg=None, frame=None):
         print prefix + line.strip() + " failed:"
     if msg:
         print "- " + msg
-    # print >>open("test.log", "a"), sys.argv[0], success.count, failure.count
+    if _logfile:
+        print >>_logfile, sys.argv[0], success.count, failure.count
 
 success.count = failure.count = 0
 
@@ -192,6 +195,7 @@ def skip(msg=None):
     os._exit(0) # don't run exit handlers
 
 def _setup():
+    global _logfile
     def report():
         if run:
             run()
@@ -204,7 +208,9 @@ def _setup():
                     os.remove(file)
                 except OSError:
                     pass # report?
-    import atexit
+    import atexit, sys
     atexit.register(report)
+    if "--log" in sys.argv:
+        _logfile = open("test.log", "a")
 
 _setup()
