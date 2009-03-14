@@ -409,6 +409,14 @@ class ArgImageFile(ImageFile.ImageFile):
 
     def _open(self):
 
+        if Image.warnings:
+            Image.warnings.warn(
+                "The ArgImagePlugin driver is obsolete, and will be removed "
+                "from a future release of PIL.  If you rely on this module, "
+                "please contact the PIL authors.",
+                RuntimeWarning
+                )
+
         if self.fp.read(8) != MAGIC:
             raise SyntaxError, "not an ARG file"
 
