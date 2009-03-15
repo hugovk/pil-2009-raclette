@@ -414,50 +414,44 @@ getlist(PyObject* arg, int* length, const char* wrong_length, int type)
 static inline PyObject*
 getpixel(Imaging im, int x, int y)
 {
-    UINT8 *p;
+    ImagingAccess access;
+
+    union {
+      UINT8 b[4];
+      INT32 i;
+      FLOAT32 f;
+    } pixel;
 
     if (x < 0 || x >= im->xsize || y < 0 || y >= im->ysize) {
 	PyErr_SetString(PyExc_IndexError, outside_image);
 	return NULL;
     }
 
-    /* single layer */
-    if (im->image8 != NULL) {
-        p = (UINT8*) &im->image8[y][x];
-        switch (im->type) {
-        case IMAGING_TYPE_UINT8:
-            return PyInt_FromLong(p[0]);
-        case IMAGING_TYPE_SPECIAL:
-            /* FIXME: are 16-bit images signed or unsigned??? */
-            if (strcmp(im->mode, "I;16") == 0) {
-                p = (UINT8*) &im->image8[y][x+x];
-                return PyInt_FromLong(L16(p, 0));
-            }
-            if (strcmp(im->mode, "I;16B") == 0) {
-                p = (UINT8*) &im->image8[y][x+x];
-                return PyInt_FromLong(B16(p, 0));
-            }
-        }
-    }
+    access = ImagingAccessNew(im);
+    if (!access)
+      return NULL;
 
-    /* multilayer */
-    if (im->image32 != NULL) {
-        p = (UINT8*) &im->image32[y][x];
-        switch (im->type) {
-        case IMAGING_TYPE_UINT8:
-            /* unsigned integer */
-            if (im->bands == 2)
-                return Py_BuildValue("ii", p[0], p[3]);
-            if (im->bands == 3)
-                return Py_BuildValue("iii", p[0], p[1], p[2]);
-            return Py_BuildValue("iiii", p[0], p[1], p[2], p[3]);
-        case IMAGING_TYPE_INT32:
-            /* signed integer */
-            return PyInt_FromLong(*(INT32*) p);
-        case IMAGING_TYPE_FLOAT32:
-            /* floating point */
-            return PyFloat_FromDouble(*(FLOAT32*) p);
-        }
+    access->get_pixel(im, x, y, &pixel);
+
+    /* ImagingAccessDelete(im, access); */
+
+    switch (im->type) {
+    case IMAGING_TYPE_UINT8:
+      switch (im->bands) {
+      case 1:
+        return PyInt_FromLong(pixel.b[0]);
+      case 2:
+        return Py_BuildValue("ii", pixel.b[0], pixel.b[1]);
+      case 3:
+        return Py_BuildValue("iii", pixel.b[0], pixel.b[1], pixel.b[2]);
+      case 4:
+        return Py_BuildValue("iiii", pixel.b[0], pixel.b[1], pixel.b[2], pixel.b[3]);
+      }
+      break;
+    case IMAGING_TYPE_INT32:
+      return PyInt_FromLong(pixel.i);
+    case IMAGING_TYPE_FLOAT32:
+      return PyFloat_FromDouble(pixel.f);
     }
         
     /* unknown type */
@@ -3208,6 +3202,8 @@ init_imaging(void)
     ImagingDraw_Type.ob_type = &PyType_Type;
 #endif
     PixelAccess_Type.ob_type = &PyType_Type;
+
+    ImagingAccessInit();
 
     m = Py_InitModule("_imaging", functions);
     d = PyModule_GetDict(m);

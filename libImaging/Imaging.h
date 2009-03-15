@@ -57,6 +57,7 @@ extern "C" {
 /* Handles */
 
 typedef struct ImagingMemoryInstance* Imaging;
+
 typedef struct ImagingAccessInstance* ImagingAccess;
 typedef struct ImagingHistogramInstance* ImagingHistogram;
 typedef struct ImagingOutlineInstance* ImagingOutline;
@@ -64,7 +65,6 @@ typedef struct ImagingPaletteInstance* ImagingPalette;
 
 /* handle magics (used with PyCObject). */
 #define IMAGING_MAGIC "PIL Imaging"
-#define IMAGING_ACCESS_MAGIC "PIL ImagingAccess"
 
 /* pixel types */
 #define IMAGING_TYPE_UINT8 0
@@ -117,16 +117,10 @@ struct ImagingMemoryInstance {
 #define IMAGING_PIXEL_INT32(im,x,y) ((im)->image32[(y)][(x)])
 #define IMAGING_PIXEL_FLOAT32(im,x,y) (((FLOAT32*)(im)->image32[y])[x])
 
-#define IMAGING_ACCESS_HEAD\
-    int (*getline)(ImagingAccess access, char *buffer, int y);\
-    void (*destroy)(ImagingAccess access)
-
 struct ImagingAccessInstance {
-    IMAGING_ACCESS_HEAD;
-
-    /* Data members */
-    Imaging im;
-
+  const char* mode;
+  void (*get_pixel)(Imaging im, int x, int y, void* pixel);
+  void (*put_pixel)(Imaging im, int x, int y, const void* pixel);
 };
 
 
@@ -181,8 +175,11 @@ extern void ImagingCopyInfo(Imaging destination, Imaging source);
 
 extern void ImagingHistogramDelete(ImagingHistogram histogram);
 
+extern void ImagingAccessInit(void);
 extern ImagingAccess ImagingAccessNew(Imaging im);
-extern void          ImagingAccessDelete(ImagingAccess access);
+extern void _ImagingAccessDelete(Imaging im, ImagingAccess access);
+#define ImagingAccessDelete(im, access)\
+  ((access)->dynamic ? _ImagingAccessDelete((im), (access)), 0 : 0))
 
 extern ImagingPalette ImagingPaletteNew(const char *mode);
 extern ImagingPalette ImagingPaletteNewBrowser(void);
