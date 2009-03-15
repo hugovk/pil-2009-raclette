@@ -1382,10 +1382,12 @@ _putpixel(ImagingObject* self, PyObject* args)
     if (!getink(color, im, ink))
         return NULL;
 
-    if (im->image8)
-	im->image8[y][x] = ink[0];
+    if (im->type == IMAGING_TYPE_SPECIAL)
+        ImagingPutPixel(im, x, y, ink);
+    else if (im->image8)
+        im->image8[y][x] = ink[0];
     else
-	im->image32[y][x] = *((INT32*) ink);
+        im->image32[y][x] = *((INT32*) ink);
 
     Py_INCREF(Py_None);
     return Py_None;

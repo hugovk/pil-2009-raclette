@@ -20,24 +20,69 @@
 
 #include "math.h"
 
+Imaging
+ImagingPutPixel(Imaging im, int x, int y, const void* colour)
+{
+    char* p;
+
+    /* note that this function doesn't validate x and y */
+
+    if (im->type == IMAGING_TYPE_SPECIAL)
+        if (strcmp(im->mode, "I;16") == 0) {
+            im->image[y][x+x] = ((char*) colour)[0];
+            im->image[y][x+x+1] = ((char*) colour)[1];
+            return im;
+        } else if (strcmp(im->mode, "I;16B") == 0) {
+            im->image[y][x+x] = ((char*) colour)[1];
+            im->image[y][x+x+1] = ((char*) colour)[0];
+            return im;
+        } else
+            p = &im->image[y][x*im->pixelsize];
+    else if (im->image8) {
+        im->image8[y][x] = ((UINT8*) colour)[0];
+        return im;
+    } else
+        p = &im->image32[y][x];
+
+    memcpy(p, colour, im->pixelsize);
+
+    return im;
+}
 
 Imaging
 ImagingFill(Imaging im, const void* colour)
 {
-    INT32 c;
     int x, y;
 
-    c = 0L;
-    memcpy(&c, colour, im->pixelsize);
-
-    if (im->image32 && c != 0L) {
-	for (y = 0; y < im->ysize; y++)
-	    for (x = 0; x < im->xsize; x++)
-		im->image32[y][x] = c;
-    } else {
+    switch (im->type) {
+    case IMAGING_TYPE_UINT8: {
         unsigned char cc = (unsigned char) *(UINT8*) colour;
 	for (y = 0; y < im->ysize; y++)
-           memset(im->image[y], cc, im->linesize);
+            memset(im->image[y], cc, im->linesize);
+        break;
+    }
+    case IMAGING_TYPE_INT32:
+    case IMAGING_TYPE_FLOAT32: {
+        INT32 c = 0L;
+        memcpy(&c, colour, im->pixelsize);
+        if (c == 0L)
+            goto wipe;
+        for (y = 0; y < im->ysize; y++)
+            for (x = 0; x < im->xsize; x++)
+                im->image32[y][x] = c;
+        break;
+    }
+    case IMAGING_TYPE_SPECIAL: {
+        /* use generic API */
+        for (y = 0; y < im->ysize; y++)
+            for (x = 0; x < im->xsize; x++)
+                ImagingPutPixel(im, x, y, colour);
+        break;
+    }
+    default:
+    wipe:
+        for (y = 0; y < im->ysize; y++)
+            memset(im->image[y], 0, im->linesize);
     }
 
     return im;

@@ -98,7 +98,6 @@ struct ImagingMemoryInstance {
 
     /* Virtual methods */
     void (*destroy)(Imaging im);
-
 };
 
 
@@ -281,6 +280,7 @@ extern Imaging ImagingPoint(
 extern Imaging ImagingPointTransform(
     Imaging imIn, double scale, double offset);
 extern Imaging ImagingPutBand(Imaging im, Imaging imIn, int band);
+extern Imaging ImagingPutPixel(Imaging im, int x, int y, const void* color);
 extern Imaging ImagingRankFilter(Imaging im, int size, int rank);
 extern Imaging ImagingResize(Imaging imOut, Imaging imIn, int filter);
 extern Imaging ImagingRotate(
