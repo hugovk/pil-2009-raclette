@@ -17,13 +17,18 @@
 #
 
 
-__version__ = "0.1"
+__version__ = "0.2"
 
-import Image, BmpImagePlugin
+import Image
+import BmpImagePlugin, PngImagePlugin
 
+from cStringIO import StringIO
 
 #
 # --------------------------------------------------------------------
+
+def i8(c):
+    return ord(c) or 256
 
 def i16(c):
     return ord(c[0]) + (ord(c[1])<<8)
@@ -48,35 +53,43 @@ class IcoImageFile(BmpImagePlugin.BmpImageFile):
         # check magic
         s = self.fp.read(6)
         if not _accept(s):
-            raise SyntaxError, "not an ICO file"
+            raise SyntaxError("not an ICO file")
 
-        # pick the largest icon in the file
-        m = ""
+        # locate icons
+        self.icons = []
+        index = None
         for i in range(i16(s[4:])):
             s = self.fp.read(16)
-            if not m:
-                m = s
-            elif ord(s[0]) > ord(m[0]) and ord(s[1]) > ord(m[1]):
-                m = s
-            #print "width", ord(s[0])
-            #print "height", ord(s[1])
-            #print "colors", ord(s[2])
-            #print "reserved", ord(s[3])
-            #print "planes", i16(s[4:])
-            #print "bitcount", i16(s[6:])
-            #print "bytes", i32(s[8:])
-            #print "offset", i32(s[12:])
+            size = i8(s[0]), i8(s[1])
+            bits = i16(s[6:8])
+            offset = i32(s[12:16])
+            bytes = i32(s[8:12])
+            self.icons.append((size, bits, offset, bytes))
 
-        # load as bitmap
-        self._bitmap(i32(m[12:]))
+        # pick biggest image
+        size, bits, offset, bytes = max(self.icons)
 
-        # patch up the bitmap height
-        self.size = self.size[0], self.size[1]/2
-        d, e, o, a = self.tile[0]
-        self.tile[0] = d, (0,0)+self.size, o, a
+        self.fp.seek(offset)
+        data = self.fp.read(16)
+        self.fp.seek(offset)
 
-        return
-
+        if PngImagePlugin._accept(data):
+            # FIXME: delay loading (via load hook?).  note that the
+            # PNG loader uses a custom loader API, so we cannot just
+            # copy the tile descriptor
+            # FIXME: move custom read hooks into tile descriptor?
+            im = PngImagePlugin.PngImageFile(self.fp)
+            im.load() #
+            self.im = im.im
+            self.mode = im.mode
+            self.size = im.size
+            self.tile = []
+        else:
+            self._bitmap(offset)
+            self.size = size
+            d, e, o, a = self.tile[0]
+            self.tile = [(d, (0,0)+size, o, a)]
+            # FIXME: fetch mask
 
 #
 # --------------------------------------------------------------------
