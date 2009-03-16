@@ -615,17 +615,11 @@ static struct {
     { "YCbCr", "L", ycbcr2l },
     { "YCbCr", "RGB", ImagingConvertYCbCr2RGB },
 
-#ifdef WORDS_BIGENDIAN
-    { "I", "I;16", i_i16b },
-    { "I;16", "I", i16b_i },
-    { "L", "I;16", l_i16b },
-    { "I;16", "L", i16b_l },
-#else
     { "I", "I;16", i_i16l },
     { "I;16", "I", i16l_i },
     { "L", "I;16", l_i16l },
     { "I;16", "L", i16l_l },
-#endif
+
     { "I", "I;16L", i_i16l },
     { "I;16L", "I", i16l_i },
     { "I", "I;16B", i_i16b },
