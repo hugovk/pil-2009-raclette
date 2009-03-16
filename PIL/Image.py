@@ -182,9 +182,9 @@ _MODEINFO = {
     "CMYK": ("RGB", "L", ("C", "M", "Y", "K")),
     "YCbCr": ("RGB", "L", ("Y", "Cb", "Cr")),
 
-    # Experimental modes include I;16, I;16B, RGBa, BGR;15,
-    # and BGR;24.  Use these modes only if you know exactly
-    # what you're doing...
+    # Experimental modes include I;16, I;16L, I;16B, RGBa, BGR;15, and
+    # BGR;24.  Use these modes only if you know exactly what you're
+    # doing...
 
 }
 
@@ -221,7 +221,7 @@ MODES.sort()
 
 # raw modes that may be memory mapped.  NOTE: if you change this, you
 # may have to modify the stride calculation in map.c too!
-_MAPMODES = ("L", "P", "RGBX", "RGBA", "CMYK", "I;16", "I;16B")
+_MAPMODES = ("L", "P", "RGBX", "RGBA", "CMYK", "I;16", "I;16L", "I;16B")
 
 ##
 # Gets the "base" mode for given mode.  This function returns "L" for
@@ -1898,13 +1898,13 @@ _fromarray_typemap = {
     # ((1, 1), "|b1"): ("1", "1"), # broken
     ((1, 1), "|u1"): ("L", "L"),
     ((1, 1), "|i1"): ("I", "I;8"),
-    ((1, 1), "<i2"): ("I", "I;16"),
+    ((1, 1), "<i2"): ("I", "I;16L"),
     ((1, 1), ">i2"): ("I", "I;16B"),
-    ((1, 1), "<i4"): ("I", "I;32"),
+    ((1, 1), "<i4"): ("I", "I;32L"),
     ((1, 1), ">i4"): ("I", "I;32B"),
-    ((1, 1), "<f4"): ("F", "F;32F"),
+    ((1, 1), "<f4"): ("F", "F;32LF"),
     ((1, 1), ">f4"): ("F", "F;32BF"),
-    ((1, 1), "<f8"): ("F", "F;64F"),
+    ((1, 1), "<f8"): ("F", "F;64LF"),
     ((1, 1), ">f8"): ("F", "F;64BF"),
     ((1, 1, 3), "|u1"): ("RGB", "RGB"),
     ((1, 1, 4), "|u1"): ("RGBA", "RGBA"),
