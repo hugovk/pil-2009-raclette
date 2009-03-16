@@ -13,8 +13,8 @@
 #include "Imaging.h"
 
 /* use Tests/make_hash.py to calculate these values */
-#define ACCESS_TABLE_SIZE 17
-#define ACCESS_TABLE_HASH 3910
+#define ACCESS_TABLE_SIZE 21
+#define ACCESS_TABLE_HASH 30197
 
 static struct ImagingAccessInstance access_table[ACCESS_TABLE_SIZE];
   
@@ -93,17 +93,25 @@ get_pixel_8(Imaging im, int x, int y, void* color)
 static void
 get_pixel_16L(Imaging im, int x, int y, void* color)
 {
-    char* out = color;
-    out[0] = im->image8[y][x+x+0];
-    out[1] = im->image8[y][x+x+1];
+    UINT8* in = &im->image[y][x+x];
+    INT16* out = color;
+#ifdef WORDS_BIGENDIAN
+    out[0] = in[0] + (in[1]<<8);
+#else
+    out[0] = *(INT16*) in;
+#endif
 }
 
 static void
 get_pixel_16B(Imaging im, int x, int y, void* color)
 {
-    char* out = color;
-    out[0] = im->image8[y][x+x+1];
-    out[1] = im->image8[y][x+x+0];
+    UINT8* in = &im->image[y][x+x];
+    INT16* out = color;
+#ifdef WORDS_BIGENDIAN
+    out[0] = *(INT16*) in;
+#else
+    out[0] = in[1] + (in[0]<<8);
+#endif
 }
 
 static void
@@ -111,6 +119,30 @@ get_pixel_32(Imaging im, int x, int y, void* color)
 {
     INT32* out = color;
     out[0] = im->image32[y][x];
+}
+
+static void
+get_pixel_32L(Imaging im, int x, int y, void* color)
+{
+    UINT8* in = &im->image[y][x*4];
+    INT32* out = color;
+#ifdef WORDS_BIGENDIAN
+    out[0] = in[0] + (in[1]<<8) + (in[2]<<16) + (in[3]<<24);
+#else
+    out[0] = *(INT32*) in;
+#endif
+}
+
+static void
+get_pixel_32B(Imaging im, int x, int y, void* color)
+{
+    UINT8* in = &im->image[y][x*4];
+    INT32* out = color;
+#ifdef WORDS_BIGENDIAN
+    out[0] = *(INT32*) in;
+#else
+    out[0] = in[3] + (in[2]<<8) + (in[1]<<16) + (in[0]<<24);
+#endif
 }
 
 /* store individual pixel */
@@ -134,16 +166,40 @@ static void
 put_pixel_16L(Imaging im, int x, int y, const void* color)
 {
     const char* in = color;
-    im->image8[y][x+x+0] = in[0];
-    im->image8[y][x+x+1] = in[1];
+    char* out = &im->image8[y][x+x];
+    out[0] = in[0];
+    out[1] = in[1];
 }
 
 static void
 put_pixel_16B(Imaging im, int x, int y, const void* color)
 {
     const char* in = color;
-    im->image8[y][x+x+0] = in[1];
-    im->image8[y][x+x+1] = in[0];
+    char* out = &im->image8[y][x+x];
+    out[0] = in[1];
+    out[1] = in[0];
+}
+
+static void
+put_pixel_32L(Imaging im, int x, int y, const void* color)
+{
+    const char* in = color;
+    char* out = &im->image8[y][x*4];
+    out[0] = in[0];
+    out[1] = in[1];
+    out[2] = in[2];
+    out[3] = in[3];
+}
+
+static void
+put_pixel_32B(Imaging im, int x, int y, const void* color)
+{
+    const char* in = color;
+    char* out = &im->image8[y][x*4];
+    out[0] = in[3];
+    out[1] = in[2];
+    out[2] = in[1];
+    out[3] = in[0];
 }
 
 static void
@@ -170,6 +226,8 @@ ImagingAccessInit()
     ADD("I;16", line_16, get_pixel_16L, put_pixel_16L);
     ADD("I;16L", line_16, get_pixel_16L, put_pixel_16L);
     ADD("I;16B", line_16, get_pixel_16B, put_pixel_16B);
+    ADD("I;32L", line_32, get_pixel_32L, put_pixel_32L);
+    ADD("I;32B", line_32, get_pixel_32B, put_pixel_32B);
     ADD("F", line_32, get_pixel_32, put_pixel_32);
     ADD("P", line_8, get_pixel_8, put_pixel_8);
     ADD("PA", line_32, get_pixel, put_pixel);

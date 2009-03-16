@@ -5,11 +5,10 @@ import random
 modes = [
     "1",
     "L", "LA",
-    "I", "I;16", "I;16L", "I;16B", # "I;32L", "I;32B",
+    "I", "I;16", "I;16L", "I;16B", "I;32L", "I;32B",
     "F",
     "P", "PA",
     "RGB", "RGBA", "RGBa", "RGBX",
-    # "BGR;15", "BGR;16", "BGR;24", "BGR;32",
     "CMYK",
     "YCbCr",
     ]
