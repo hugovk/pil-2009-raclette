@@ -172,7 +172,7 @@ ImagingAccessNew(Imaging im)
 {
     ImagingAccess access = &access_table[hash(im->mode)];
     if (im->mode[0] != access->mode[0] || strcmp(im->mode, access->mode) != 0)
-        return ImagingError_ValueError("cannot access this mode");
+        return NULL;
     return access;
 }
 

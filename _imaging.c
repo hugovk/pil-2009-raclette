@@ -189,8 +189,6 @@ PyImagingNew(Imaging imOut)
 
     imagep->image = imOut;
     imagep->access = ImagingAccessNew(imOut);
-    if (!imagep->access)
-        PyErr_Clear(); /* assume experimental mode */
 
     return (PyObject*) imagep;
 }
@@ -917,6 +915,11 @@ _getpixel(ImagingObject* self, PyObject* args)
     if (_getxy(xy, &x, &y))
         return NULL;
 
+    if (self->access == NULL) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
     return getpixel(self->image, self->access, x, y);
 }
 
@@ -1379,7 +1382,8 @@ _putpixel(ImagingObject* self, PyObject* args)
     if (!getink(color, im, ink))
         return NULL;
 
-    self->access->put_pixel(im, x, y, ink);
+    if (self->access)
+        self->access->put_pixel(im, x, y, ink);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1501,8 +1505,6 @@ im_setmode(ImagingObject* self, PyObject* args)
     if (self->access)
         ImagingAccessDelete(im, self->access);
     self->access = ImagingAccessNew(im);
-    if (!self->access)
-        PyErr_Clear(); /* assume experimental mode */
 
     Py_INCREF(Py_None);
     return Py_None;
