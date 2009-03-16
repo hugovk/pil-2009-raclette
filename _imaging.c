@@ -123,6 +123,7 @@
 typedef struct {
     PyObject_HEAD
     Imaging image;
+    ImagingAccess access;
 } ImagingObject;
 
 staticforward PyTypeObject Imaging_Type;
@@ -187,6 +188,9 @@ PyImagingNew(Imaging imOut)
 #endif
 
     imagep->image = imOut;
+    imagep->access = ImagingAccessNew(imOut);
+    if (!imagep->access)
+        PyErr_Clear(); /* assume experimental mode */
 
     return (PyObject*) imagep;
 }
@@ -199,6 +203,8 @@ _dealloc(ImagingObject* imagep)
     printf("imaging %p deleted\n", imagep);
 #endif
 
+    if (imagep->access)
+      ImagingAccessDelete(imagep->image, imagep->access);
     ImagingDelete(imagep->image);
     PyObject_Del(imagep);
 }
@@ -412,12 +418,11 @@ getlist(PyObject* arg, int* length, const char* wrong_length, int type)
 }
 
 static inline PyObject*
-getpixel(Imaging im, int x, int y)
+getpixel(Imaging im, ImagingAccess access, int x, int y)
 {
-    ImagingAccess access;
-
     union {
       UINT8 b[4];
+      INT16 h;
       INT32 i;
       FLOAT32 f;
     } pixel;
@@ -427,13 +432,7 @@ getpixel(Imaging im, int x, int y)
 	return NULL;
     }
 
-    access = ImagingAccessNew(im);
-    if (!access)
-      return NULL;
-
     access->get_pixel(im, x, y, &pixel);
-
-    /* ImagingAccessDelete(im, access); */
 
     switch (im->type) {
     case IMAGING_TYPE_UINT8:
@@ -452,8 +451,12 @@ getpixel(Imaging im, int x, int y)
       return PyInt_FromLong(pixel.i);
     case IMAGING_TYPE_FLOAT32:
       return PyFloat_FromDouble(pixel.f);
+    case IMAGING_TYPE_SPECIAL:
+      if (strncmp(im->mode, "I;16", 4) == 0)
+        return PyInt_FromLong(pixel.h);
+      break;
     }
-        
+
     /* unknown type */
     Py_INCREF(Py_None);
     return Py_None;
@@ -914,7 +917,7 @@ _getpixel(ImagingObject* self, PyObject* args)
     if (_getxy(xy, &x, &y))
         return NULL;
 
-    return getpixel(self->image, x, y);
+    return getpixel(self->image, self->access, x, y);
 }
 
 static PyObject*
@@ -1500,6 +1503,12 @@ im_setmode(ImagingObject* self, PyObject* args)
             return NULL;
     }
 
+    if (self->access)
+        ImagingAccessDelete(im, self->access);
+    self->access = ImagingAccessNew(im);
+    if (!self->access)
+        PyErr_Clear(); /* assume experimental mode */
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1742,7 +1751,7 @@ _getcolors(ImagingObject* self, PyObject* args)
         for (i = 0; i < colors; i++) {
             ImagingColorItem* v = &items[i];
             PyObject* item = Py_BuildValue(
-                "iN", v->count, getpixel(self->image, v->x, v->y)
+                "iN", v->count, getpixel(self->image, self->access, v->x, v->y)
                 );
             PyList_SetItem(out, i, item);
         }
@@ -2641,7 +2650,7 @@ pixel_access_getitem(PixelAccessObject *self, PyObject *xy)
     if (_getxy(xy, &x, &y))
         return NULL;
 
-    return getpixel(self->image->image, x, y);
+    return getpixel(self->image->image, self->image->access, x, y);
 }
 
 static int
@@ -2953,7 +2962,7 @@ image_item(ImagingObject *self, int i)
     } else
         x = y = 0; /* leave it to getpixel to raise an exception */
 
-    return getpixel(im, x, y);
+    return getpixel(im, self->access, x, y);
 }
 
 static PySequenceMethods image_as_sequence = {

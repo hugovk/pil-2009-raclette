@@ -119,6 +119,8 @@ def lena(mode="RGB", cache={}):
             im = Image.open("Images/lena.ppm")
         elif mode == "F":
             im = lena("L").convert(mode)
+        elif mode[:4] == "I;16":
+            im = lena("I").convert(mode)
         else:
             im = lena("RGB").convert(mode)
     cache[mode] = im

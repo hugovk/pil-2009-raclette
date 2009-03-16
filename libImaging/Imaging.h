@@ -178,8 +178,9 @@ extern void ImagingHistogramDelete(ImagingHistogram histogram);
 extern void ImagingAccessInit(void);
 extern ImagingAccess ImagingAccessNew(Imaging im);
 extern void _ImagingAccessDelete(Imaging im, ImagingAccess access);
-#define ImagingAccessDelete(im, access)\
-  ((access)->dynamic ? _ImagingAccessDelete((im), (access)), 0 : 0))
+#define ImagingAccessDelete(im, access) /* nop, for now */
+/*#define ImagingAccessDelete(im, access) \
+  ((access)->dynamic ? _ImagingAccessDelete((im), (access)), 0 : 0)) */
 
 extern ImagingPalette ImagingPaletteNew(const char *mode);
 extern ImagingPalette ImagingPaletteNewBrowser(void);
