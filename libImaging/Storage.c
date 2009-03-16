@@ -104,7 +104,7 @@ ImagingNewPrologueSubtype(const char *mode, unsigned xsize, unsigned ysize,
         im->linesize = xsize * 4;
         im->type = IMAGING_TYPE_INT32;
 
-    } else if (strcmp(mode, "I;16") == 0 || strcmp(mode, "I;16B") == 0) {
+    } else if (strcmp(mode, "I;16") == 0 || strcmp(mode, "I;16L") == 0 || strcmp(mode, "I;16B") == 0) {
         /* EXPERIMENTAL */
         /* 16-bit raw integer images */
         im->bands = 1;

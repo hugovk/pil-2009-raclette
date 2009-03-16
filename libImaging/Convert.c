@@ -455,68 +455,90 @@ ycbcr2l(UINT8* out, const UINT8* in, int xsize)
 /* ------------------------- */
 
 static void
-i2i16(UINT8* out, const UINT8* in_, int xsize)
+i_i16l(UINT8* out, const UINT8* in_, int xsize)
 {
     int x, v;
     INT32* in = (INT32*) in_;
     for (x = 0; x < xsize; x++, in++) {
         v = CLIP16(*in);
-	*out++ = (UINT8) v;
+        *out++ = (UINT8) v;
         *out++ = (UINT8) (v >> 8);
     }
 }
 
 static void
-l2i16(UINT8* out, const UINT8* in, int xsize)
-{
-  int x;
-    for (x = 0; x < xsize; x++, in++) {
-	*out++ = *in;
-	*out++ = 0;
-    }
-}
-
-static void
-i2i16b(UINT8* out, const UINT8* in_, int xsize)
+i_i16b(UINT8* out, const UINT8* in_, int xsize)
 {
     int x, v;
     INT32* in = (INT32*) in_;
     for (x = 0; x < xsize; x++, in++) {
         v = CLIP16(*in);
         *out++ = (UINT8) (v >> 8);
-	*out++ = (UINT8) v;
+        *out++ = (UINT8) v;
+    }
+}
+
+
+static void
+i16l_i(UINT8* out_, const UINT8* in, int xsize)
+{
+    int x;
+    INT32* out = (INT32*) out_;
+    for (x = 0; x < xsize; x++, in += 2)
+        *out++ = in[0] + ((int) in[1] << 8);
+}
+
+
+static void
+i16b_i(UINT8* out_, const UINT8* in, int xsize)
+{
+    int x;
+    INT32* out = (INT32*) out_;
+    for (x = 0; x < xsize; x++, in += 2)
+        *out++ = in[1] + ((int) in[0] << 8);
+}
+
+static void
+l_i16l(UINT8* out, const UINT8* in, int xsize)
+{
+    int x;
+    for (x = 0; x < xsize; x++, in++) {
+        *out++ = *in;
+        *out++ = 0;
     }
 }
 
 static void
-i162i(UINT8* out_, const UINT8* in, int xsize)
+l_i16b(UINT8* out, const UINT8* in, int xsize)
 {
     int x;
-    INT32* out = (INT32*) out_;
-    for (x = 0; x < xsize; x++, in += 2)
-	*out++ = in[0] + ((int) in[1] << 8);
+    for (x = 0; x < xsize; x++, in++) {
+        *out++ = 0;
+        *out++ = *in;
+    }
 }
 
 static void
-i162l(UINT8* out, const UINT8* in, int xsize)
+i16l_l(UINT8* out, const UINT8* in, int xsize)
 {
     int x;
     for (x = 0; x < xsize; x++, in += 2)
-      if (in[1] != 0)
-	*out++ = 255;
-      else
-	*out++ = in[0];
+        if (in[1] != 0)
+            *out++ = 255;
+        else
+            *out++ = in[0];
 }
 
 static void
-i16b2i(UINT8* out_, const UINT8* in, int xsize)
+i16b_l(UINT8* out, const UINT8* in, int xsize)
 {
     int x;
-    INT32* out = (INT32*) out_;
     for (x = 0; x < xsize; x++, in += 2)
-	*out++ = ((int) in[0] << 8) + in[1];
+        if (in[0] != 0)
+            *out++ = 255;
+        else
+            *out++ = in[1];
 }
-
 
 static struct {
     const char* from;
@@ -593,13 +615,26 @@ static struct {
     { "YCbCr", "L", ycbcr2l },
     { "YCbCr", "RGB", ImagingConvertYCbCr2RGB },
 
-    { "I", "I;16", i2i16 },
-    { "I;16", "I", i162i },
-    { "I", "I;16B", i2i16b },
-    { "I;16B", "I", i16b2i },
+#ifdef WORDS_BIGENDIAN
+    { "I", "I;16", i_i16b },
+    { "I;16", "I", i16b_i },
+    { "L", "I;16", l_i16b },
+    { "I;16", "L", i16b_l },
+#else
+    { "I", "I;16", i_i16l },
+    { "I;16", "I", i16l_i },
+    { "L", "I;16", l_i16l },
+    { "I;16", "L", i16l_l },
+#endif
+    { "I", "I;16L", i_i16l },
+    { "I;16L", "I", i16l_i },
+    { "I", "I;16B", i_i16b },
+    { "I;16B", "I", i16b_i },
 
-    { "L", "I;16", l2i16 },
-    { "I;16", "L", i162l },
+    { "L", "I;16L", i_i16l },
+    { "I;16L", "L", i16l_i },
+    { "L", "I;16B", i_i16b },
+    { "I;16B", "L", i16b_i },
 
     { NULL }
 };

@@ -506,6 +506,7 @@ static struct {
     /* storage modes */
     {"I;16", 	"I;16",		16,	copy2},
     {"I;16B", 	"I;16B",	16,	copy2},
+    {"I;16L", 	"I;16L",	16,	copy2},
     {"BGR;15", 	"BGR;15",	16,	copy2},
     {"BGR;16", 	"BGR;16",	16,	copy2},
     {"BGR;24", 	"BGR;24",	24,	copy3},

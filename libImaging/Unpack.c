@@ -1002,6 +1002,7 @@ static struct {
     /* storage modes */
     {"I;16",	"I;16",		16,	copy2},
     {"I;16B",	"I;16B",	16,	copy2},
+    {"I;16L",	"I;16L",	16,	copy2},
 
     {NULL} /* sentinel */
 };

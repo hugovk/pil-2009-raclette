@@ -59,6 +59,7 @@ def test_basic():
 
     basic("I;16")
     basic("I;16B")
+    basic("I;16L")
 
     basic("I")
 
