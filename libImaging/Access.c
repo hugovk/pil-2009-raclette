@@ -13,8 +13,8 @@
 #include "Imaging.h"
 
 /* use Tests/make_hash.py to calculate these values */
-#define ACCESS_TABLE_SIZE 15
-#define ACCESS_TABLE_HASH 8096
+#define ACCESS_TABLE_SIZE 17
+#define ACCESS_TABLE_HASH 3910
 
 static struct ImagingAccessInstance access_table[ACCESS_TABLE_SIZE];
   
@@ -39,6 +39,26 @@ add_item(const char* mode)
     }
     access_table[i].mode = mode;
     return &access_table[i];
+}
+
+/* fetch pointer to pixel line */
+
+static void*
+line_8(Imaging im, int x, int y)
+{
+    return &im->image8[y][x];
+}
+
+static void*
+line_16(Imaging im, int x, int y)
+{
+    return &im->image8[y][x+x];
+}
+
+static void*
+line_32(Imaging im, int x, int y)
+{
+    return &im->image32[y][x];
 }
 
 /* fetch individual pixel */
@@ -121,27 +141,30 @@ put_pixel_32(Imaging im, int x, int y, const void* color)
 void
 ImagingAccessInit()
 {
-#define ADD(mode_, get_pixel_, put_pixel_)              \
+#define ADD(mode_, line_, get_pixel_, put_pixel_)       \
     { ImagingAccess access = add_item(mode_);           \
+        access->line = line_;                           \
         access->get_pixel = get_pixel_;                 \
         access->put_pixel = put_pixel_;                 \
     }
 
     /* populate access table */
-    ADD("1", get_pixel_8, put_pixel_8);
-    ADD("L", get_pixel_8, put_pixel_8);
-    ADD("LA", get_pixel, put_pixel);
-    ADD("I", get_pixel_32, put_pixel_32);
-    ADD("I;16", get_pixel_16L, put_pixel);
-    ADD("I;16B", get_pixel_16B, put_pixel);
-    ADD("F", get_pixel_32, put_pixel_32);
-    ADD("P", get_pixel_8, put_pixel_8);
-    ADD("PA", get_pixel, put_pixel);
-    ADD("RGB", get_pixel_32, put_pixel_32);
-    ADD("RGBA", get_pixel_32, put_pixel_32);
-    ADD("RGBX", get_pixel_32, put_pixel_32);
-    ADD("CMYK", get_pixel_32, put_pixel_32);
-    ADD("YCbCr", get_pixel_32, put_pixel_32);
+    ADD("1", line_8, get_pixel_8, put_pixel_8);
+    ADD("L", line_8, get_pixel_8, put_pixel_8);
+    ADD("LA", line_32, get_pixel, put_pixel);
+    ADD("I", line_32, get_pixel_32, put_pixel_32);
+    ADD("I;16", line_16, get_pixel_16L, put_pixel);
+    ADD("I;16L", line_16, get_pixel_16L, put_pixel);
+    ADD("I;16B", line_16, get_pixel_16B, put_pixel);
+    ADD("F", line_32, get_pixel_32, put_pixel_32);
+    ADD("P", line_8, get_pixel_8, put_pixel_8);
+    ADD("PA", line_32, get_pixel, put_pixel);
+    ADD("RGB", line_32, get_pixel_32, put_pixel_32);
+    ADD("RGBA", line_32, get_pixel_32, put_pixel_32);
+    ADD("RGBa", line_32, get_pixel_32, put_pixel_32);
+    ADD("RGBX", line_32, get_pixel_32, put_pixel_32);
+    ADD("CMYK", line_32, get_pixel_32, put_pixel_32);
+    ADD("YCbCr", line_32, get_pixel_32, put_pixel_32);
 }
 
 ImagingAccess
