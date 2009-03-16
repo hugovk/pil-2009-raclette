@@ -1379,12 +1379,7 @@ _putpixel(ImagingObject* self, PyObject* args)
     if (!getink(color, im, ink))
         return NULL;
 
-    if (im->type == IMAGING_TYPE_SPECIAL)
-        ImagingPutPixel(im, x, y, ink);
-    else if (im->image8)
-        im->image8[y][x] = ink[0];
-    else
-        im->image32[y][x] = *((INT32*) ink);
+    self->access->put_pixel(im, x, y, ink);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -2679,10 +2674,7 @@ pixel_access_setitem(PixelAccessObject *self, PyObject *xy, PyObject *color)
     if (!getink(color, im, ink))
         return -1;
 
-    if (im->image8)
-	im->image8[y][x] = ink[0];
-    else
-	im->image32[y][x] = *((INT32*) ink);
+    self->image->access->put_pixel(im, x, y, ink);
 
     return 0;
 }

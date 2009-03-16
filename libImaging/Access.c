@@ -98,7 +98,12 @@ get_pixel_32(Imaging im, int x, int y, void* color)
 static void
 put_pixel(Imaging im, int x, int y, const void* color)
 {
-    /* TBD */
+    if (im->type == IMAGING_TYPE_SPECIAL)
+        ImagingPutPixel(im, x, y, color);
+    else if (im->image8)
+        im->image8[y][x] = *((UINT8*) color);
+    else
+        im->image32[y][x] = *((INT32*) color);
 }
 
 void
