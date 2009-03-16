@@ -2,11 +2,11 @@ from tester import *
 
 import os, glob
 
-contents = set()
+contents = {}
 for file in open("CONTENTS"):
     file = file.strip()
     if file:
-        contents.add(os.path.normpath(file))
+        contents[os.path.normpath(file)] = None
 
 patterns = [
     "PIL/*.py",

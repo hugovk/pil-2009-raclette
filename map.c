@@ -336,7 +336,7 @@ PyImaging_MapBuffer(PyObject* self, PyObject* args)
     if (stride <= 0) {
         if (!strcmp(mode, "L") || !strcmp(mode, "P"))
             stride = xsize;
-        else if (!strcmp(mode, "I;16") || !strcmp(mode, "I;16B"))
+        else if (!strncmp(mode, "I;16", 4))
             stride = xsize * 2;
         else
             stride = xsize * 4;

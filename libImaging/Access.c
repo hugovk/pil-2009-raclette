@@ -93,7 +93,7 @@ get_pixel_8(Imaging im, int x, int y, void* color)
 static void
 get_pixel_16L(Imaging im, int x, int y, void* color)
 {
-    UINT8* in = &im->image[y][x+x];
+    UINT8* in = (UINT8*) &im->image[y][x+x];
     INT16* out = color;
 #ifdef WORDS_BIGENDIAN
     out[0] = in[0] + (in[1]<<8);
@@ -105,7 +105,7 @@ get_pixel_16L(Imaging im, int x, int y, void* color)
 static void
 get_pixel_16B(Imaging im, int x, int y, void* color)
 {
-    UINT8* in = &im->image[y][x+x];
+    UINT8* in = (UINT8*) &im->image[y][x+x];
     INT16* out = color;
 #ifdef WORDS_BIGENDIAN
     out[0] = *(INT16*) in;
@@ -124,7 +124,7 @@ get_pixel_32(Imaging im, int x, int y, void* color)
 static void
 get_pixel_32L(Imaging im, int x, int y, void* color)
 {
-    UINT8* in = &im->image[y][x*4];
+    UINT8* in = (UINT8*) &im->image[y][x*4];
     INT32* out = color;
 #ifdef WORDS_BIGENDIAN
     out[0] = in[0] + (in[1]<<8) + (in[2]<<16) + (in[3]<<24);
@@ -136,7 +136,7 @@ get_pixel_32L(Imaging im, int x, int y, void* color)
 static void
 get_pixel_32B(Imaging im, int x, int y, void* color)
 {
-    UINT8* in = &im->image[y][x*4];
+    UINT8* in = (UINT8*) &im->image[y][x*4];
     INT32* out = color;
 #ifdef WORDS_BIGENDIAN
     out[0] = *(INT32*) in;
@@ -166,7 +166,7 @@ static void
 put_pixel_16L(Imaging im, int x, int y, const void* color)
 {
     const char* in = color;
-    char* out = &im->image8[y][x+x];
+    UINT8* out = (UINT8*) &im->image8[y][x+x];
     out[0] = in[0];
     out[1] = in[1];
 }
@@ -175,7 +175,7 @@ static void
 put_pixel_16B(Imaging im, int x, int y, const void* color)
 {
     const char* in = color;
-    char* out = &im->image8[y][x+x];
+    UINT8* out = (UINT8*) &im->image8[y][x+x];
     out[0] = in[1];
     out[1] = in[0];
 }
@@ -184,7 +184,7 @@ static void
 put_pixel_32L(Imaging im, int x, int y, const void* color)
 {
     const char* in = color;
-    char* out = &im->image8[y][x*4];
+    UINT8* out = (UINT8*) &im->image8[y][x*4];
     out[0] = in[0];
     out[1] = in[1];
     out[2] = in[2];
@@ -195,7 +195,7 @@ static void
 put_pixel_32B(Imaging im, int x, int y, const void* color)
 {
     const char* in = color;
-    char* out = &im->image8[y][x*4];
+    UINT8* out = (UINT8*) &im->image8[y][x*4];
     out[0] = in[3];
     out[1] = in[2];
     out[2] = in[1];
