@@ -42,6 +42,15 @@ ERRORS = {
     -9: "out of memory error"
 }
 
+def raise_ioerror(error):
+    try:
+        message = Image.core.getcodecstatus(error)
+    except AttributeError:
+        message = ERRORS.get(error)
+    if not message:
+        message = "decoder error %d" % error
+    raise IOError(message + " when reading image file")
+
 #
 # --------------------------------------------------------------------
 # Helpers
@@ -203,8 +212,7 @@ class ImageFile(Image.Image):
         self.fp = None # might be shared
 
         if not self.map and e < 0:
-            error = ERRORS.get(e, "decoder error %d" % e)
-            raise IOError(error + " when reading image file")
+            raise_ioerror(e)
 
         # post processing
         if hasattr(self, "tile_post_rotate"):
@@ -372,8 +380,7 @@ class Parser:
                 if e < 0:
                     # decoding error
                     self.image = None
-                    error = ERRORS.get(e, "decoder error %d" % e)
-                    raise IOError(error + " when reading image file")
+                    raise_ioerror(e)
                 else:
                     # end of image
                     return

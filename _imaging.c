@@ -2768,15 +2768,15 @@ _getcodecstatus(PyObject* self, PyObject* args)
 
     switch (status) {
     case IMAGING_CODEC_OVERRUN:
-	msg = "buffer overrun."; break;
+	msg = "buffer overrun"; break;
     case IMAGING_CODEC_BROKEN:
-	msg = "broken data stream."; break;
+	msg = "broken data stream"; break;
     case IMAGING_CODEC_UNKNOWN:
-	msg = "unrecognized data stream contents."; break;
+	msg = "unrecognized data stream contents"; break;
     case IMAGING_CODEC_CONFIG:
-	msg = "codec configuration error."; break;
+	msg = "codec configuration error"; break;
     case IMAGING_CODEC_MEMORY:
-	msg = "out of memory."; break;
+	msg = "out of memory"; break;
     default:
 	Py_INCREF(Py_None);
 	return Py_None;
