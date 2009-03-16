@@ -44,7 +44,7 @@ add_item(const char* mode)
 /* fetch individual pixel */
 
 static void
-get_pixel(Imaging im, int x, int y, const void* color)
+get_pixel(Imaging im, int x, int y, void* color)
 {
     char* out = color;
 
@@ -64,14 +64,14 @@ get_pixel(Imaging im, int x, int y, const void* color)
 }
 
 static void
-get_pixel_8(Imaging im, int x, int y, const void* color)
+get_pixel_8(Imaging im, int x, int y, void* color)
 {
     char* out = color;
     out[0] = im->image8[y][x];
 }
 
 static void
-get_pixel_16L(Imaging im, int x, int y, const void* color)
+get_pixel_16L(Imaging im, int x, int y, void* color)
 {
     char* out = color;
     out[0] = im->image8[y][x+x+0];
@@ -79,7 +79,7 @@ get_pixel_16L(Imaging im, int x, int y, const void* color)
 }
 
 static void
-get_pixel_16B(Imaging im, int x, int y, const void* color)
+get_pixel_16B(Imaging im, int x, int y, void* color)
 {
     char* out = color;
     out[0] = im->image8[y][x+x+1];
@@ -87,7 +87,7 @@ get_pixel_16B(Imaging im, int x, int y, const void* color)
 }
 
 static void
-get_pixel_32(Imaging im, int x, int y, const void* color)
+get_pixel_32(Imaging im, int x, int y, void* color)
 {
     INT32* out = color;
     out[0] = im->image32[y][x];
