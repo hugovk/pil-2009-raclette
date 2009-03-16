@@ -13,8 +13,10 @@ def pixel(im):
 
 A = Image.new("L", (1, 1), 1)
 B = Image.new("L", (1, 1), 2)
+F = Image.new("F", (1, 1), 3)
+I = Image.new("I", (1, 1), 4)
 
-images = {"A": A, "B": B}
+images = {"A": A, "B": B, "F": F, "I": I}
 
 def test_sanity():
     assert_equal(ImageMath.eval("1"), 1)
@@ -23,6 +25,23 @@ def test_sanity():
     assert_equal(pixel(ImageMath.eval("A+B", images)), "I 3")
     assert_equal(pixel(ImageMath.eval("float(A)+B", images)), "F 3.0")
     assert_equal(pixel(ImageMath.eval("int(float(A)+B)", images)), "I 3")
+
+def test_ops():
+
+    assert_equal(pixel(ImageMath.eval("-A", images)), "I -1")
+    assert_equal(pixel(ImageMath.eval("+B", images)), "L 2")
+
+    assert_equal(pixel(ImageMath.eval("A+B", images)), "I 3")
+    assert_equal(pixel(ImageMath.eval("A-B", images)), "I -1")
+    assert_equal(pixel(ImageMath.eval("A*B", images)), "I 2")
+    assert_equal(pixel(ImageMath.eval("A/B", images)), "I 0")
+    assert_equal(pixel(ImageMath.eval("B**2", images)), "I 4")
+
+    assert_equal(pixel(ImageMath.eval("float(A)+B", images)), "F 3.0")
+    assert_equal(pixel(ImageMath.eval("float(A)-B", images)), "F -1.0")
+    assert_equal(pixel(ImageMath.eval("float(A)*B", images)), "F 2.0")
+    assert_equal(pixel(ImageMath.eval("float(A)/B", images)), "F 0.5")
+    assert_equal(pixel(ImageMath.eval("float(B)**2", images)), "F 4.0")
 
 def test_logical():
     assert_equal(pixel(ImageMath.eval("not A", images)), 0)
