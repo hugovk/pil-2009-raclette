@@ -118,9 +118,7 @@ get_pixel_32(Imaging im, int x, int y, void* color)
 static void
 put_pixel(Imaging im, int x, int y, const void* color)
 {
-    if (im->type == IMAGING_TYPE_SPECIAL)
-        ImagingPutPixel(im, x, y, color);
-    else if (im->image8)
+    if (im->image8)
         im->image8[y][x] = *((UINT8*) color);
     else
         im->image32[y][x] = *((INT32*) color);
@@ -130,6 +128,22 @@ static void
 put_pixel_8(Imaging im, int x, int y, const void* color)
 {
     im->image8[y][x] = *((UINT8*) color);
+}
+
+static void
+put_pixel_16L(Imaging im, int x, int y, const void* color)
+{
+    const char* in = color;
+    im->image8[y][x+x+0] = in[0];
+    im->image8[y][x+x+1] = in[1];
+}
+
+static void
+put_pixel_16B(Imaging im, int x, int y, const void* color)
+{
+    const char* in = color;
+    im->image8[y][x+x+0] = in[1];
+    im->image8[y][x+x+1] = in[0];
 }
 
 static void
@@ -153,9 +167,9 @@ ImagingAccessInit()
     ADD("L", line_8, get_pixel_8, put_pixel_8);
     ADD("LA", line_32, get_pixel, put_pixel);
     ADD("I", line_32, get_pixel_32, put_pixel_32);
-    ADD("I;16", line_16, get_pixel_16L, put_pixel);
-    ADD("I;16L", line_16, get_pixel_16L, put_pixel);
-    ADD("I;16B", line_16, get_pixel_16B, put_pixel);
+    ADD("I;16", line_16, get_pixel_16L, put_pixel_16L);
+    ADD("I;16L", line_16, get_pixel_16L, put_pixel_16L);
+    ADD("I;16B", line_16, get_pixel_16B, put_pixel_16B);
     ADD("F", line_32, get_pixel_32, put_pixel_32);
     ADD("P", line_8, get_pixel_8, put_pixel_8);
     ADD("PA", line_32, get_pixel, put_pixel);
