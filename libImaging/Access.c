@@ -106,30 +106,42 @@ put_pixel(Imaging im, int x, int y, const void* color)
         im->image32[y][x] = *((INT32*) color);
 }
 
+static void
+put_pixel_8(Imaging im, int x, int y, const void* color)
+{
+    im->image8[y][x] = *((UINT8*) color);
+}
+
+static void
+put_pixel_32(Imaging im, int x, int y, const void* color)
+{
+    im->image32[y][x] = *((INT32*) color);
+}
+
 void
 ImagingAccessInit()
 {
-#define ADD(mode, get, put)                     \
-    { ImagingAccess access = add_item(mode);    \
-        access->get_pixel = get;                \
-        access->put_pixel = put;                \
+#define ADD(mode_, get_pixel_, put_pixel_)              \
+    { ImagingAccess access = add_item(mode_);           \
+        access->get_pixel = get_pixel_;                 \
+        access->put_pixel = put_pixel_;                 \
     }
 
     /* populate access table */
-    ADD("1", get_pixel_8, put_pixel);
-    ADD("L", get_pixel_8, put_pixel);
+    ADD("1", get_pixel_8, put_pixel_8);
+    ADD("L", get_pixel_8, put_pixel_8);
     ADD("LA", get_pixel, put_pixel);
-    ADD("I", get_pixel_32, put_pixel);
+    ADD("I", get_pixel_32, put_pixel_32);
     ADD("I;16", get_pixel_16L, put_pixel);
     ADD("I;16B", get_pixel_16B, put_pixel);
-    ADD("F", get_pixel_32, put_pixel);
-    ADD("P", get_pixel_8, put_pixel);
+    ADD("F", get_pixel_32, put_pixel_32);
+    ADD("P", get_pixel_8, put_pixel_8);
     ADD("PA", get_pixel, put_pixel);
-    ADD("RGB", get_pixel_32, put_pixel);
-    ADD("RGBA", get_pixel_32, put_pixel);
-    ADD("RGBX", get_pixel_32, put_pixel);
-    ADD("CMYK",get_pixel_32, put_pixel);
-    ADD("YCbCr", get_pixel_32, put_pixel);
+    ADD("RGB", get_pixel_32, put_pixel_32);
+    ADD("RGBA", get_pixel_32, put_pixel_32);
+    ADD("RGBX", get_pixel_32, put_pixel_32);
+    ADD("CMYK", get_pixel_32, put_pixel_32);
+    ADD("YCbCr", get_pixel_32, put_pixel_32);
 }
 
 ImagingAccess
