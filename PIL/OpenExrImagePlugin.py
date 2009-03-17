@@ -76,9 +76,10 @@ converters = dict(
     )
 
 modes = {
-    ("BY", "RY", "Y"): "YBR",
+    ("Y",): "L",
     ("B", "G", "R"): "RGB",
     ("A", "B", "G", "R"): "RGBA",
+    ("BY", "RY", "Y"): "YBR",
     }
 
 # --------------------------------------------------------------------
@@ -128,8 +129,9 @@ class OpenExrImageFile(ImageFile.ImageFile):
         # print self.mode, self.size
         # print self.info
 
-        # if isinstance(self.info.get("preview"), Image.Image):
-        #     self.info["preview"].show()
+        if 0 and isinstance(self.info.get("preview"), Image.Image):
+            print self.info["preview"]
+            self.info["preview"].show()
 
 # --------------------------------------------------------------------
 
