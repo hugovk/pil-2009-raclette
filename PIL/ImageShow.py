@@ -106,7 +106,10 @@ if sys.platform == "win32":
 elif sys.platform == "darwin":
 
     class MacViewer(Viewer):
-        format = "JPEG" # pick better format for "P" images? (use get_format)
+        format = "JPEG"
+        # FIXME: pick better format for "P" images? (use get_format)
+        # FIXME: what if the JPEG codec isn't available?  what formats
+        #        do Preview support? (BMP?)
         def get_command(self, file, **options):
             # on darwin open returns immediately resulting in the temp
             # file removal while app is opening
