@@ -469,18 +469,17 @@ getink(PyObject* color, Imaging im, char* ink)
     /* fill ink buffer (four bytes) with something that can
        be cast to either UINT8 or INT32 */
 
-    if (im->image8) {
-        /* unsigned integer, single layer */
-        r = PyInt_AsLong(color);
-        if (r == -1 && PyErr_Occurred())
-            return NULL;
-        ink[0] = CLIP(r);
-        ink[1] = ink[2] = ink[3] = 0;
-        return ink;
-    } else {
-        switch (im->type) {
-        case IMAGING_TYPE_UINT8:
-            /* unsigned integer */
+    switch (im->type) {
+    case IMAGING_TYPE_UINT8:
+        /* unsigned integer */
+        if (im->bands == 1) {
+            /* unsigned integer, single layer */
+            r = PyInt_AsLong(color);
+            if (r == -1 && PyErr_Occurred())
+                return NULL;
+            ink[0] = CLIP(r);
+            ink[1] = ink[2] = ink[3] = 0;
+        } else {
             a = 255;
             if (PyInt_Check(color)) {
                 r = PyInt_AS_LONG(color);
@@ -503,20 +502,30 @@ getink(PyObject* color, Imaging im, char* ink)
             ink[1] = CLIP(g);
             ink[2] = CLIP(b);
             ink[3] = CLIP(a);
-            return ink;
-        case IMAGING_TYPE_INT32:
-            /* signed integer */
+        }
+        return ink;
+    case IMAGING_TYPE_INT32:
+        /* signed integer */
+        r = PyInt_AsLong(color);
+        if (r == -1 && PyErr_Occurred())
+            return NULL;
+        *(INT32*) ink = r;
+        return ink;
+    case IMAGING_TYPE_FLOAT32:
+        /* floating point */
+        f = PyFloat_AsDouble(color);
+        if (f == -1.0 && PyErr_Occurred())
+            return NULL;
+        *(FLOAT32*) ink = (FLOAT32) f;
+        return ink;
+    case IMAGING_TYPE_SPECIAL:
+        if (strncmp(im->mode, "I;16", 4) == 0) {
             r = PyInt_AsLong(color);
             if (r == -1 && PyErr_Occurred())
                 return NULL;
-            *(INT32*) ink = r;
-            return ink;
-        case IMAGING_TYPE_FLOAT32:
-            /* floating point */
-            f = PyFloat_AsDouble(color);
-            if (f == -1.0 && PyErr_Occurred())
-                return NULL;
-            *(FLOAT32*) ink = (FLOAT32) f;
+            ink[0] = (UINT8) r;
+            ink[1] = (UINT8) (r >> 8);
+            ink[2] = ink[3] = 0;
             return ink;
         }
     }

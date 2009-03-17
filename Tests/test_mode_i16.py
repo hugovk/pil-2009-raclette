@@ -55,6 +55,17 @@ def test_basic():
         imIn.putpixel((0, 0), 2)
         assert_equal(imIn.getpixel((0, 0)), 2)
 
+        if mode == "L":
+            max = 255
+        else:
+            max = 32767
+
+        imIn = Image.new(mode, (1, 1), 256)
+        assert_equal(imIn.getpixel((0, 0)), min(256, max))
+
+        imIn.putpixel((0, 0), 512)
+        assert_equal(imIn.getpixel((0, 0)), min(512, max))
+
     basic("L")
 
     basic("I;16")
