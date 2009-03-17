@@ -21,6 +21,9 @@
 #include "math.h"
 #include "float.h"
 
+#define MAX_INT32 2147483647.0
+#define MIN_INT32 -2147483648.0
+
 #define UNOP(name, op, type)\
 void name(Imaging out, Imaging im1)\
 {\
@@ -83,7 +86,20 @@ void name(Imaging out, Imaging im1, Imaging im2)\
 #define MOD_I(type, v1, v2) ((v2)!=0)?(v1)%(v2):0
 #define MOD_F(type, v1, v2) ((v2)!=0.0F)?fmod((v1),(v2)):0.0F
 
-#define POW_F(type, v1, v2) powf(v1, v2) /* EDOM handling */
+static int powi(int x, int y)
+{
+    double v = pow(x, y) + 0.5;
+    if (errno == EDOM)
+        return 0;
+    if (v < MIN_INT32)
+        return MIN_INT32;
+    else if (v > MAX_INT32)
+        return MAX_INT32;
+    return (int) v;
+}
+
+#define POW_I(type, v1, v2) powi(v1, v2)
+#define POW_F(type, v1, v2) powf(v1, v2) /* FIXME: EDOM handling */
 
 #define DIFF_I(type, v1, v2) abs((v1)-(v2))
 #define DIFF_F(type, v1, v2) fabs((v1)-(v2))
@@ -103,6 +119,7 @@ BINOP(sub_I, SUB, INT32)
 BINOP(mul_I, MUL, INT32)
 BINOP(div_I, DIV_I, INT32)
 BINOP(mod_I, MOD_I, INT32)
+BINOP(pow_I, POW_I, INT32)
 BINOP(diff_I, DIFF_I, INT32)
 
 UNOP(invert_I, INVERT, INT32)
@@ -223,6 +240,7 @@ init_imagingmath(void)
     install(d, "mod_I", mod_I);
     install(d, "min_I", min_I);
     install(d, "max_I", max_I);
+    install(d, "pow_I", pow_I);
 
     install(d, "invert_I", invert_I);
     install(d, "and_I", and_I);
