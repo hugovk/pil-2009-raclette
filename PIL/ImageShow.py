@@ -34,7 +34,7 @@ def register(viewer, order=1):
 # @param image An image object.
 # @param title Optional title.  Not all viewers can display the title.
 # @param **options Additional viewer options.
-# @return True if a suitable viewer was found, false otherwise.
+py# @return True if a suitable viewer was found, false otherwise.
 
 def show(image, title=None, **options):
     for viewer in _viewers:
@@ -52,15 +52,12 @@ class Viewer:
     def show(self, image, **options):
 
         # save temporary image to disk
-        if image.mode == "I;16":
+        if image.mode[:4] == "I;16":
             # @PIL88 @PIL101
             # "I;16" isn't an 'official' mode, but we still want to
             # provide a simple way to show 16-bit images.
             base = "L"
-        elif image.mode == "I;16B":
-            # do it the hard way
-            image = image.convert("I")
-            base = "L"
+            # FIXME: auto-contrast if max() > 255?
         else:
             base = Image.getmodebase(image.mode)
         if base != image.mode and image.mode != "1":
