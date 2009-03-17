@@ -12,5 +12,7 @@ for file in glob.glob("../pil-archive/*"):
         im.load()
     except IOError, v:
         print "-", "failed to open", file, "-", v
+    else:
+        print "+", file, im.mode, im.size, im.format
 
 print "ok"

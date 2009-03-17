@@ -8,16 +8,17 @@
 # <ftp://ftp.sgi.com/graphics/SGIIMAGESPEC>
 #
 # History:
-# 1995-09-10 fl     Created
+# 1995-09-10 fl   Created
 #
-# Copyright (c) Secret Labs AB 1997.
-# Copyright (c) Fredrik Lundh 1995.
+# Copyright (c) 2008 by Karsten Hiddemann.
+# Copyright (c) 1997 by Secret Labs AB.
+# Copyright (c) 1995 by Fredrik Lundh.
 #
 # See the README file for information on usage and redistribution.
 #
 
 
-__version__ = "0.1"
+__version__ = "0.2"
 
 
 import Image, ImageFile
@@ -55,27 +56,28 @@ class SgiImageFile(ImageFile.ImageFile):
         layout = ord(s[3]), i16(s[4:]), i16(s[10:])
 
         # determine mode from bytes/zsize
-        if layout == (1, 2, 1):
+        if layout == (1, 2, 1) or layout == (1, 1, 1):
             self.mode = "L"
         elif layout == (1, 3, 3):
             self.mode = "RGB"
+        elif layout == (1, 3, 4):
+            self.mode = "RGBA"
         else:
-            raise SyntaxError, "unsupported SGI image mode"
+            raise SyntaxError("unsupported SGI image mode")
 
         # size
         self.size = i16(s[6:]), i16(s[8:])
 
+
         # decoder info
         if compression == 0:
-            if self.mode == "RGB":
-                # RGB images are band interleaved
-                size = self.size[0]*self.size[1]
-                self.tile = [("raw", (0,0)+self.size, 512, ("R",0,-1)),
-                             ("raw", (0,0)+self.size, 512+size, ("G",0,-1)),
-                             ("raw", (0,0)+self.size, 512+2*size, ("B",0,-1))]
-            else:
-                self.tile = [("raw", (0,0)+self.size, 512, (self.mode, 0, -1))]
-        if compression == 1:
+            offset = 512
+            pagesize = self.size[0]*self.size[1]*layout[0]
+            self.tile = []
+            for layer in self.mode:
+                self.tile.append(("raw", (0,0)+self.size, offset, (layer,0,-1)))
+                offset = offset + pagesize
+        elif compression == 1:
             self.tile = [("sgi_rle", (0,0)+self.size, 512, (self.mode, 0, -1))]
 
 #
