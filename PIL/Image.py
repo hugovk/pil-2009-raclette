@@ -321,7 +321,7 @@ def init():
 
     global _initialized
     if _initialized >= 2:
-        return
+        return 0
 
     visited = {}
 
@@ -354,7 +354,7 @@ def init():
 
     if OPEN or SAVE:
         _initialized = 2
-
+        return 1
 
 # --------------------------------------------------------------------
 # Codec factories (used by tostring/fromstring and ImageFile.load)
@@ -1957,16 +1957,16 @@ def open(fp, mode="r"):
         except (SyntaxError, IndexError, TypeError):
             pass
 
-    init()
+    if init():
 
-    for i in ID:
-        try:
-            factory, accept = OPEN[i]
-            if not accept or accept(prefix):
-                fp.seek(0)
-                return factory(fp, filename)
-        except (SyntaxError, IndexError, TypeError):
-            pass
+        for i in ID:
+            try:
+                factory, accept = OPEN[i]
+                if not accept or accept(prefix):
+                    fp.seek(0)
+                    return factory(fp, filename)
+            except (SyntaxError, IndexError, TypeError):
+                pass
 
     raise IOError("cannot identify image file")
 
