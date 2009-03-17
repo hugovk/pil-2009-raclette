@@ -34,7 +34,7 @@ def register(viewer, order=1):
 # @param image An image object.
 # @param title Optional title.  Not all viewers can display the title.
 # @param **options Additional viewer options.
-py# @return True if a suitable viewer was found, false otherwise.
+# @return True if a suitable viewer was found, false otherwise.
 
 def show(image, title=None, **options):
     for viewer in _viewers:
