@@ -9,8 +9,12 @@ for file in glob.glob("../pil-archive/*"):
         continue
     try:
         im = PIL.Image.open(file)
-        im.load()
     except IOError, v:
-        print "-", "failed to open", file, "-", v
+        print "-", "failed to identify", file, "-", v
+    else:
+        try:
+            im.load()
+        except IOError, v:
+            print "-", "failed to open", file, "-", v
 
 print "ok"
