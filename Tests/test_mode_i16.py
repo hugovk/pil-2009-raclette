@@ -11,7 +11,11 @@ def verify(im1):
         for x in range(im1.size[0]):
             xy = x, y
             if pix1[xy] != pix2[xy]:
-                failure("got %r at %s, expected %r" % (pix1[xy], xy, pix[xy]))
+                failure(
+                    "got %r from mode %s at %s, expected %r" %
+                    (pix1[xy], im1.mode, xy, pix2[xy])
+                    )
+                return
     success()
 
 def test_basic():
@@ -84,3 +88,16 @@ def test_tostring():
     assert_equal(tostring("I;16"), "\x01\x00")
     assert_equal(tostring("I;16B"), "\x00\x01")
     assert_equal(tostring("I"), "\x01\x00\x00\x00")
+
+
+def test_convert():
+
+    im = lena("I")
+
+    verify(im.convert("I;16"))
+    verify(im.convert("I;16").convert("L"))
+    verify(im.convert("I;16").convert("I"))
+
+    verify(im.convert("I;16B"))
+    verify(im.convert("I;16B").convert("L"))
+    verify(im.convert("I;16B").convert("I"))

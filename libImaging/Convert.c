@@ -455,7 +455,7 @@ ycbcr2l(UINT8* out, const UINT8* in, int xsize)
 /* ------------------------- */
 
 static void
-i_i16l(UINT8* out, const UINT8* in_, int xsize)
+I_I16L(UINT8* out, const UINT8* in_, int xsize)
 {
     int x, v;
     INT32* in = (INT32*) in_;
@@ -467,7 +467,7 @@ i_i16l(UINT8* out, const UINT8* in_, int xsize)
 }
 
 static void
-i_i16b(UINT8* out, const UINT8* in_, int xsize)
+I_I16B(UINT8* out, const UINT8* in_, int xsize)
 {
     int x, v;
     INT32* in = (INT32*) in_;
@@ -480,7 +480,7 @@ i_i16b(UINT8* out, const UINT8* in_, int xsize)
 
 
 static void
-i16l_i(UINT8* out_, const UINT8* in, int xsize)
+I16L_I(UINT8* out_, const UINT8* in, int xsize)
 {
     int x;
     INT32* out = (INT32*) out_;
@@ -490,7 +490,7 @@ i16l_i(UINT8* out_, const UINT8* in, int xsize)
 
 
 static void
-i16b_i(UINT8* out_, const UINT8* in, int xsize)
+I16B_I(UINT8* out_, const UINT8* in, int xsize)
 {
     int x;
     INT32* out = (INT32*) out_;
@@ -499,7 +499,7 @@ i16b_i(UINT8* out_, const UINT8* in, int xsize)
 }
 
 static void
-l_i16l(UINT8* out, const UINT8* in, int xsize)
+L_I16L(UINT8* out, const UINT8* in, int xsize)
 {
     int x;
     for (x = 0; x < xsize; x++, in++) {
@@ -509,7 +509,7 @@ l_i16l(UINT8* out, const UINT8* in, int xsize)
 }
 
 static void
-l_i16b(UINT8* out, const UINT8* in, int xsize)
+L_I16B(UINT8* out, const UINT8* in, int xsize)
 {
     int x;
     for (x = 0; x < xsize; x++, in++) {
@@ -519,7 +519,7 @@ l_i16b(UINT8* out, const UINT8* in, int xsize)
 }
 
 static void
-i16l_l(UINT8* out, const UINT8* in, int xsize)
+I16L_L(UINT8* out, const UINT8* in, int xsize)
 {
     int x;
     for (x = 0; x < xsize; x++, in += 2)
@@ -530,7 +530,7 @@ i16l_l(UINT8* out, const UINT8* in, int xsize)
 }
 
 static void
-i16b_l(UINT8* out, const UINT8* in, int xsize)
+I16B_L(UINT8* out, const UINT8* in, int xsize)
 {
     int x;
     for (x = 0; x < xsize; x++, in += 2)
@@ -615,20 +615,20 @@ static struct {
     { "YCbCr", "L", ycbcr2l },
     { "YCbCr", "RGB", ImagingConvertYCbCr2RGB },
 
-    { "I", "I;16", i_i16l },
-    { "I;16", "I", i16l_i },
-    { "L", "I;16", l_i16l },
-    { "I;16", "L", i16l_l },
+    { "I", "I;16", I_I16L },
+    { "I;16", "I", I16L_I },
+    { "L", "I;16", L_I16L },
+    { "I;16", "L", I16L_L },
 
-    { "I", "I;16L", i_i16l },
-    { "I;16L", "I", i16l_i },
-    { "I", "I;16B", i_i16b },
-    { "I;16B", "I", i16b_i },
+    { "I", "I;16L", I_I16L },
+    { "I;16L", "I", I16L_I },
+    { "I", "I;16B", I_I16B },
+    { "I;16B", "I", I16B_I },
 
-    { "L", "I;16L", i_i16l },
-    { "I;16L", "L", i16l_i },
-    { "L", "I;16B", i_i16b },
-    { "I;16B", "L", i16b_i },
+    { "L", "I;16L", L_I16L },
+    { "I;16L", "L", I16L_L },
+    { "L", "I;16B", L_I16B },
+    { "I;16B", "L", I16B_L },
 
     { NULL }
 };
