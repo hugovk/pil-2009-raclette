@@ -49,13 +49,10 @@ def chlist(x):
         channels.append((name, type, linear, (x_sampling, y_sampling)))
     return channels
 
-class preview:
-    def __init__(self, x):
-        self.mode = "RGBA"
-        self.size = struct.unpack("<4I", x[:8])
-        self.data = x[8:]
-    def __repr__(self):
-        return "<preview %s %s at %x>" % (self.mode, self.size, id(self))
+def preview(x):
+    return Image.frombuffer(
+        "RGBA", struct.unpack("<II", x[:8]), x[8:], "raw", "RGBA", 0, 1
+        )
 
 converters = dict(
     box2f=lambda x: struct.unpack("<4f", x),
@@ -113,7 +110,8 @@ class OpenExrImageFile(ImageFile.ImageFile):
             try:
                 value = converters[type](value)
             except:
-                import traceback
+                # import traceback
+                # traceback.print_exc()
                 value = type, value
             attributes.append((key, value))
 
@@ -129,6 +127,9 @@ class OpenExrImageFile(ImageFile.ImageFile):
 
         # print self.mode, self.size
         # print self.info
+
+        # if isinstance(self.info.get("preview"), Image.Image):
+        #     self.info["preview"].show()
 
 # --------------------------------------------------------------------
 
