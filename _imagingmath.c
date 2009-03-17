@@ -21,6 +21,9 @@
 #include "math.h"
 #include "float.h"
 
+#define MAX_INT32 2147483647.0
+#define MIN_INT32 -2147483648.0
+
 #define UNOP(name, op, type)\
 void name(Imaging out, Imaging im1)\
 {\
@@ -83,7 +86,19 @@ void name(Imaging out, Imaging im1, Imaging im2)\
 #define MOD_I(type, v1, v2) ((v2)!=0)?(v1)%(v2):0
 #define MOD_F(type, v1, v2) ((v2)!=0.0F)?fmod((v1),(v2)):0.0F
 
-#define POW_I(type, v1, v2) (int) powf(v1, v2) /* FIXME: replace w. int version */
+static int powi(int x, int y)
+{
+    double v = pow(x, y) + 0.5;
+    if (errno == EDOM)
+        return 0;
+    if (v < MIN_INT32)
+        return MIN_INT32;
+    else if (v > MAX_INT32)
+        return MAX_INT32;
+    return (int) v;
+}
+
+#define POW_I(type, v1, v2) powi(v1, v2)
 #define POW_F(type, v1, v2) powf(v1, v2) /* FIXME: EDOM handling */
 
 #define DIFF_I(type, v1, v2) abs((v1)-(v2))

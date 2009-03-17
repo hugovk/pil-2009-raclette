@@ -36,12 +36,14 @@ def test_ops():
     assert_equal(pixel(ImageMath.eval("A*B", images)), "I 2")
     assert_equal(pixel(ImageMath.eval("A/B", images)), "I 0")
     assert_equal(pixel(ImageMath.eval("B**2", images)), "I 4")
+    assert_equal(pixel(ImageMath.eval("B**33", images)), "I 2147483647")
 
     assert_equal(pixel(ImageMath.eval("float(A)+B", images)), "F 3.0")
     assert_equal(pixel(ImageMath.eval("float(A)-B", images)), "F -1.0")
     assert_equal(pixel(ImageMath.eval("float(A)*B", images)), "F 2.0")
     assert_equal(pixel(ImageMath.eval("float(A)/B", images)), "F 0.5")
     assert_equal(pixel(ImageMath.eval("float(B)**2", images)), "F 4.0")
+    assert_equal(pixel(ImageMath.eval("float(B)**33", images)), "F 8589934592.0")
 
 def test_logical():
     assert_equal(pixel(ImageMath.eval("not A", images)), 0)
