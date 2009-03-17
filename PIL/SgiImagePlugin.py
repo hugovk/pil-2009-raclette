@@ -46,7 +46,7 @@ class SgiImageFile(ImageFile.ImageFile):
         # HEAD
         s = self.fp.read(512)
         if i16(s) != 474:
-            raise SyntaxError, "not an SGI image file"
+            raise SyntaxError("not an SGI image file")
 
         # relevant header entries
         compression = ord(s[2])
@@ -70,13 +70,13 @@ class SgiImageFile(ImageFile.ImageFile):
             if self.mode == "RGB":
                 # RGB images are band interleaved
                 size = self.size[0]*self.size[1]
-                self.tile = [("raw", (0,0)+self.size, 512, ("R",0,1)),
-                             ("raw", (0,0)+self.size, 512+size, ("G",0,1)),
-                             ("raw", (0,0)+self.size, 512+2*size, ("B",0,1))]
+                self.tile = [("raw", (0,0)+self.size, 512, ("R",0,-1)),
+                             ("raw", (0,0)+self.size, 512+size, ("G",0,-1)),
+                             ("raw", (0,0)+self.size, 512+2*size, ("B",0,-1))]
             else:
-                self.tile = [("raw", (0,0)+self.size, 512, (self.mode, 0, 1))]
+                self.tile = [("raw", (0,0)+self.size, 512, (self.mode, 0, -1))]
         if compression == 1:
-            self.tile = [("sgi_rle", (0,0)+self.size, 512, (self.mode, 0, 1))]
+            self.tile = [("sgi_rle", (0,0)+self.size, 512, (self.mode, 0, -1))]
 
 #
 # registry
