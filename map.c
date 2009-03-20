@@ -38,6 +38,10 @@
 #include "windows.h"
 #endif
 
+/* compatibility wrappers (defined in _imaging.c) */
+extern int PyImaging_CheckBuffer(PyObject* buffer);
+extern int PyImaging_ReadBuffer(PyObject* buffer, void** ptr);
+
 /* -------------------------------------------------------------------- */
 /* Standard mapper */
 
@@ -308,7 +312,6 @@ PyImaging_MapBuffer(PyObject* self, PyObject* args)
 {
     int y, size;
     Imaging im;
-    PyBufferProcs *buffer;
     char* ptr;
     int bytes;
 
@@ -325,10 +328,7 @@ PyImaging_MapBuffer(PyObject* self, PyObject* args)
                           &codec, &bbox, &offset, &mode, &stride, &ystep))
 	return NULL;
 
-    /* check target object */
-    buffer = target->ob_type->tp_as_buffer;
-    if (!buffer || !buffer->bf_getreadbuffer || !buffer->bf_getsegcount ||
-        buffer->bf_getsegcount(target, NULL) != 1) {
+    if (!PyImaging_CheckBuffer(target)) {
         PyErr_SetString(PyExc_TypeError, "expected string or buffer");
         return NULL;
     }
@@ -345,7 +345,7 @@ PyImaging_MapBuffer(PyObject* self, PyObject* args)
     size = ysize * stride;
 
     /* check buffer size */
-    bytes = buffer->bf_getreadbuffer(target, 0, (void**) &ptr);
+    bytes = PyImaging_ReadBuffer(target, (void**) &ptr);
     if (bytes < 0) {
         PyErr_SetString(PyExc_ValueError, "buffer has negative size");
         return NULL;

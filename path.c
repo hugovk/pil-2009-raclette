@@ -43,6 +43,10 @@
 #define ssizessizeobjargproc intintobjargproc
 #endif
 
+/* compatibility wrappers (defined in _imaging.c) */
+extern int PyImaging_CheckBuffer(PyObject* buffer);
+extern int PyImaging_ReadBuffer(PyObject* buffer, void** ptr);
+
 /* -------------------------------------------------------------------- */
 /* Class								*/
 /* -------------------------------------------------------------------- */
@@ -112,7 +116,6 @@ PyPath_Flatten(PyObject* data, double **pxy)
 {
     int i, j, n;
     double *xy;
-    PyBufferProcs *buffer;
 
     if (PyPath_Check(data)) {
 	/* This was another path object. */
@@ -125,12 +128,10 @@ PyPath_Flatten(PyObject* data, double **pxy)
 	return path->count;
     }
 	
-    buffer = data->ob_type->tp_as_buffer;
-    if (buffer && buffer->bf_getreadbuffer && buffer->bf_getsegcount &&
-        buffer->bf_getsegcount(data, NULL) == 1) {
+    if (PyImaging_CheckBuffer(data)) {
         /* Assume the buffer contains floats */
         float* ptr;
-        int n = buffer->bf_getreadbuffer(data, 0, (void**) &ptr);
+        int n = PyImaging_ReadBuffer(data, (void**) &ptr);
         n /= 2 * sizeof(float);
         xy = alloc_array(n);
         if (!xy)

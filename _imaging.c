@@ -239,6 +239,46 @@ void ImagingSectionLeave(ImagingSectionCookie* cookie)
 }
 
 /* -------------------------------------------------------------------- */
+/* BUFFER HANDLING                                                      */
+/* -------------------------------------------------------------------- */
+/* Python compatibility API */
+
+#if PY_VERSION_HEX < 0x02030000
+
+/* FIXME: check when the new API was introduced */
+int PyImaging_CheckBuffer(PyObject *buffer)
+{
+    PyBufferProcs *buffer = data->ob_type->tp_as_buffer;
+    if (buffer && buffer->bf_getreadbuffer && buffer->bf_getsegcount &&
+        buffer->bf_getsegcount(data, NULL) == 1)
+        return 1;
+    return 0;
+}
+
+int PyImaging_ReadBuffer(PyObject* buffer, void** ptr)
+{
+    PyBufferProcs *buffer = data->ob_type->tp_as_buffer;
+    return buffer->bf_getreadbuffer(data, 0, (void**) &ptr);
+}
+
+#else
+
+int PyImaging_CheckBuffer(PyObject* buffer)
+{
+    return PyObject_CheckReadBuffer(buffer);
+}
+
+int PyImaging_ReadBuffer(PyObject* buffer, void** ptr)
+{
+    /* must call check_buffer first! */
+    int n = 0;
+    PyObject_AsReadBuffer(buffer, ptr, &n);
+    return n;
+}
+
+#endif
+
+/* -------------------------------------------------------------------- */
 /* EXCEPTION REROUTING                                                  */
 /* -------------------------------------------------------------------- */
 
