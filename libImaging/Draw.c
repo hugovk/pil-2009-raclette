@@ -686,8 +686,8 @@ ImagingDrawWideLine(Imaging im, int x0, int y0, int x1, int y1,
 
     d = width / sqrt(dx*dx + dy*dy) / 2.0;
 
-    dx = (int) (d * (y1-y0) + 0.5);
-    dy = (int) (d * (x1-x0) + 0.5);
+    dx = (int) floor(d * (y1-y0) + 0.5);
+    dy = (int) floor(d * (x1-x0) + 0.5);
 
     add_edge(e+0, x0 - dx,  y0 + dy, x1 - dx,  y1 + dy);
     add_edge(e+1, x1 - dx,  y1 + dy, x1 + dx,  y1 - dy);
