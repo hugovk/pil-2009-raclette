@@ -243,9 +243,8 @@ void ImagingSectionLeave(ImagingSectionCookie* cookie)
 /* -------------------------------------------------------------------- */
 /* Python compatibility API */
 
-#if PY_VERSION_HEX < 0x02030000
+#if PY_VERSION_HEX < 0x02020000
 
-/* FIXME: check when the new API was introduced */
 int PyImaging_CheckBuffer(PyObject *buffer)
 {
     PyBufferProcs *buffer = data->ob_type->tp_as_buffer;
@@ -271,9 +270,13 @@ int PyImaging_CheckBuffer(PyObject* buffer)
 int PyImaging_ReadBuffer(PyObject* buffer, void** ptr)
 {
     /* must call check_buffer first! */
+#if PY_VERSION_HEX < 0x02050000
     int n = 0;
+#else
+    Py_ssize_t n = 0;
+#endif
     PyObject_AsReadBuffer(buffer, ptr, &n);
-    return n;
+    return (int) n;
 }
 
 #endif
