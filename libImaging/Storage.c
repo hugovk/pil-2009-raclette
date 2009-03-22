@@ -352,14 +352,23 @@ ImagingNewBlock(const char *mode, int xsize, int ysize)
 #if defined(IMAGING_SMALL_MODEL)
 #define	THRESHOLD	16384L
 #else
-#define	THRESHOLD	1048576L
+#define	THRESHOLD	(2048*2048*4L)
 #endif
 
 Imaging
 ImagingNew(const char* mode, int xsize, int ysize)
 {
-    /* FIXME: strlen(mode) is no longer accurate */
-    if ((long) xsize * ysize * strlen(mode) <= THRESHOLD)
+    int bytes;
+
+    if (strlen(mode) == 1) {
+        if (mode[0] == 'F' || mode[0] == 'I')
+            bytes = 4;
+        else
+            bytes = 1;
+    } else
+        bytes = strlen(mode); /* close enough */
+
+    if ((long) xsize * ysize * bytes <= THRESHOLD)
 	return ImagingNewBlock(mode, xsize, ysize);
     else
 	return ImagingNewArray(mode, xsize, ysize);
