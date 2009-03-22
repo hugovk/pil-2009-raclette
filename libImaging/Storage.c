@@ -359,6 +359,7 @@ Imaging
 ImagingNew(const char* mode, int xsize, int ysize)
 {
     int bytes;
+    Imaging im;
 
     if (strlen(mode) == 1) {
         if (mode[0] == 'F' || mode[0] == 'I')
@@ -368,10 +369,15 @@ ImagingNew(const char* mode, int xsize, int ysize)
     } else
         bytes = strlen(mode); /* close enough */
 
-    if ((long) xsize * ysize * bytes <= THRESHOLD)
-	return ImagingNewBlock(mode, xsize, ysize);
-    else
-	return ImagingNewArray(mode, xsize, ysize);
+    if ((long) xsize * ysize * bytes <= THRESHOLD) {
+        im = ImagingNewBlock(mode, xsize, ysize);
+        if (im)
+            return im;
+        /* assume memory error; try allocating in array mode instead */
+        ImagingError_Clear();
+    }
+
+    return ImagingNewArray(mode, xsize, ysize);
 }
 
 Imaging
