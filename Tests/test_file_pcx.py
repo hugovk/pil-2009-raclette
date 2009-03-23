@@ -2,6 +2,30 @@ from tester import *
 
 from PIL import Image
 
+def test_sanity():
+
+    file = tempfile("temp.pcx")
+
+    lena("1").save(file)
+
+    im = Image.open(file)
+    im.load()
+    assert_equal(im.mode, "1")
+    assert_equal(im.size, (128, 128))
+    assert_equal(im.format, "PCX")
+
+    lena("1").save(file)
+    im = Image.open(file)
+
+    lena("L").save(file)
+    im = Image.open(file)
+
+    lena("P").save(file)
+    im = Image.open(file)
+
+    lena("RGB").save(file)
+    im = Image.open(file)
+
 def test_pil184():
     # Check reading of files where xmin/xmax is not zero.
 

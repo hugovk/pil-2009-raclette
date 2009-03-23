@@ -53,6 +53,21 @@ def test_sanity():
     assert_equal(im.size, (128, 128))
     assert_equal(im.format, "PNG")
 
+    lena("1").save(file)
+    im = Image.open(file)
+
+    lena("L").save(file)
+    im = Image.open(file)
+
+    lena("P").save(file)
+    im = Image.open(file)
+
+    lena("RGB").save(file)
+    im = Image.open(file)
+
+    lena("I").save(file)
+    im = Image.open(file)
+
 # --------------------------------------------------------------------
 
 def test_broken():
