@@ -47,6 +47,10 @@ def test_sanity():
     # internal version number
     assert_match(Image.core.zlib_version, "\d+\.\d+\.\d$")
 
+    file = tempfile("temp.png")
+
+    lena("RGB").save(file)
+
     im = Image.open(file)
     im.load()
     assert_equal(im.mode, "RGB")
