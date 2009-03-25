@@ -44,21 +44,20 @@ def test_app():
     assert_equal(len(im.applist), 2)
 
 def test_cmyk():
-    # Test CMYK handling.  Thanks to Tim and Charlie for test data.
+    # Test CMYK handling.  Thanks to Tim and Charlie for test data,
+    # Michael for getting me to look one more time.
     file = "Tests/images/pil_sample_cmyk.jpg"
     im = Image.open(file)
-    # the source image has red pixels in the upper left corner.  with
-    # the default color profile, that gives us medium cyan/magenta and
-    # plenty of yellow.  don't ask.
+    # the source image has red pixels in the upper left corner.
     c, m, y, k = [x / 255.0 for x in im.getpixel((0, 0))]
-    assert_true(c < 0.4 and m < 0.4 and y > 0.9 and k == 0.0)
+    assert_true(c == 0.0 and m > 0.8 and y > 0.8 and k == 0.0)
     # the opposite corner is black
     c, m, y, k = [x / 255.0 for x in im.getpixel((im.size[0]-1, im.size[1]-1))]
     assert_true(k > 0.9)
     # roundtrip, and check again
     im = roundtrip(im)
     c, m, y, k = [x / 255.0 for x in im.getpixel((0, 0))]
-    assert_true(c > 0.3 and m > 0.3 and y > 0.9 and k == 0.0)
+    assert_true(c == 0.0 and m > 0.8 and y > 0.8 and k == 0.0)
     c, m, y, k = [x / 255.0 for x in im.getpixel((im.size[0]-1, im.size[1]-1))]
     assert_true(k > 0.9)
 
