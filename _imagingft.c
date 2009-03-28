@@ -119,7 +119,7 @@ getfont(PyObject* self_, PyObject* args, PyObject* kw)
         "filename", "size", "index", "encoding", NULL
     };
 
-#if defined(HAVE_UNICODE)
+#if defined(HAVE_UNICODE) && PY_VERSION_HEX >= 0x02020000
     if (!PyArg_ParseTupleAndKeywords(args, kw, "eti|is", kwlist,
                                      Py_FileSystemDefaultEncoding, &filename,
                                      &size, &index, &encoding))
@@ -476,6 +476,7 @@ init_imagingft(void)
 {
     PyObject* m;
     PyObject* d;
+    PyObject* v;
     int major, minor, patch;
 
     /* Patch object type */
@@ -489,8 +490,14 @@ init_imagingft(void)
 
     FT_Library_Version(library, &major, &minor, &patch);
 
-    PyDict_SetItemString(
-	d, "freetype2_version",
-	PyString_FromFormat("%d.%d.%d", major, minor, patch)
-    );
+#if PY_VERSION_HEX >= 0x02020000
+    v = PyString_FromFormat("%d.%d.%d", major, minor, patch);
+#else
+    {
+        char buffer[100];
+        sprintf(buffer, "%d.%d.%d", major, minor, patch);
+        v = PyString_FromString(buffer);
+    }
+#endif
+    PyDict_SetItemString(d, "freetype2_version", v);
 }

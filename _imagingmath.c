@@ -26,7 +26,7 @@
 
 #if defined(_MSC_VER) && _MSC_VER < 1500
 /* python 2.1/2.2/2.3 = VC98 = VER 1200 */
-/* python 2.3/2.4/2.5 = VS.NET 2003 = VER 1310 */
+/* python 2.4/2.5 = VS.NET 2003 = VER 1310 */
 /* python 2.6 = VS 9.0 = VER 1500 */
 #define powf(a, b) ((float) pow((double) (a), (double) (b)))
 #endif
