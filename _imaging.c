@@ -247,17 +247,17 @@ void ImagingSectionLeave(ImagingSectionCookie* cookie)
 
 int PyImaging_CheckBuffer(PyObject *buffer)
 {
-    PyBufferProcs *buffer = data->ob_type->tp_as_buffer;
-    if (buffer && buffer->bf_getreadbuffer && buffer->bf_getsegcount &&
-        buffer->bf_getsegcount(data, NULL) == 1)
+    PyBufferProcs *procs = buffer->ob_type->tp_as_buffer;
+    if (procs && procs->bf_getreadbuffer && procs->bf_getsegcount &&
+        procs->bf_getsegcount(buffer, NULL) == 1)
         return 1;
     return 0;
 }
 
 int PyImaging_ReadBuffer(PyObject* buffer, void** ptr)
 {
-    PyBufferProcs *buffer = data->ob_type->tp_as_buffer;
-    return buffer->bf_getreadbuffer(data, 0, (void**) &ptr);
+    PyBufferProcs *procs = buffer->ob_type->tp_as_buffer;
+    return procs->bf_getreadbuffer(buffer, 0, (void**) &ptr);
 }
 
 #else
