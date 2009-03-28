@@ -27,6 +27,10 @@ http://www.cazabon.com\n\
 #include "lcms.h"
 #include "Imaging.h"
 
+#if LCMS_VERSION < 117
+#define LCMSBOOL BOOL
+#endif
+
 #ifdef WIN32
 #include <wingdi.h>
 #endif
