@@ -1,7 +1,7 @@
 The Python Imaging Library
 $Id$
 
-Release 1.1.7 snapshot ($Date$)
+Release 1.1.7 alpha 2 ($Date$)
 
 ====================================================================
 The Python Imaging Library 1.1.7
@@ -28,10 +28,9 @@ to your Python environment.  This library provides extensive file
 format support, an efficient internal representation, and powerful
 image processing capabilities.
 
-This source kit has been built and tested on Windows NT/2000/XP, Mac
-OS X, and most major Unix platforms (including Alpha, Solaris, and
-Intel systems).  We believe that it should work on most modern
-platforms (people are using it on Crays, after all ;-)
+This source kit has been built and tested on Windows, Mac OS X, and
+major Unix platforms.  We believe that it should work on most modern
+platforms (people are using PIL on Crays, after all ;-)
 
 The main distribution site for this software is:
 
@@ -129,8 +128,7 @@ For a list of changes in this release, see the CHANGES document.
 
 0. If you're in a hurry, try this:
 
-        $ gunzip Imaging-1.1.7.tar.gz
-        $ tar xvf Imaging-1.1.7.tar
+        $ tar xvfz Imaging-1.1.7.tar.gz
         $ cd Imaging-1.1.7
         $ python setup.py install
 
@@ -159,6 +157,10 @@ For a list of changes in this release, see the CHANGES document.
                         http://www.freetype.org
                         http://freetype.sourceforge.net  
 
+   CMS support          littleCMS (1.1.5 or later is recommended)
+   support              
+                        http://www.littlecms.com/
+
    If you have a recent Linux version, the libraries provided with
    the operating system usually work just fine.  If some library is
    missing, installing a prebuilt version (jpeg-devel, zlib-devel,
@@ -171,7 +173,12 @@ For a list of changes in this release, see the CHANGES document.
    'apt-get' for Debian).
 
 
-2. To build under Python 1.5.2, you need to install the stand-alone
+2. NOTE: Version 1.1.7 has not been tested with Python 1.5.2.  You
+   may have to tweak things a bit to make it build and run, but most
+   code should be 1.5.2-compatible.
+
+
+   To build under Python 1.5.2, you need to install the stand-alone
    version of the distutils library:
 
        http://www.python.org/sigs/distutils-sig/download.html
@@ -204,8 +211,10 @@ For a list of changes in this release, see the CHANGES document.
         $ python setup.py build_ext -i
         $ python selftest.py
 
-   When the build finishes, a summary report is shown.  Make sure
-   that the optional components you need are included.
+   During the build process, the setup.py will display a summary
+   report that lists what external components it found.  The self-
+   test will display a similar report, with what external components
+   the tests found in the actual build files:
 
         ----------------------------------------------------------------
         PIL 1.1.7 SETUP SUMMARY
@@ -216,14 +225,14 @@ For a list of changes in this release, see the CHANGES document.
         --- FREETYPE support available
         ----------------------------------------------------------------
 
+   Make sure that the optional components you need are included.
+
    If the build script won't find a given component, you can edit the
    setup.py file and set the appropriate ROOT variable.  For details,
    see instructions in the file.
 
-   Note that the build summary shows what will be included in a full
-   build; if you change the configuration after you've built the
-   library, make sure that you rebuild *all* modules.  You can use
-   the 'clean' command to remove all build files before rebuilding:
+   If the build script finds the component, but the tests cannot
+   identify it, try rebuilding *all* modules:
 
         $ python setup.py clean
         $ python setup.py build_ext -i
@@ -262,10 +271,14 @@ runtime linking options as was used for the Python interpreter
 (usually /MD, under Visual Studio).
 
 
-Note that most Python distributions include libraries compiled for
-Microsoft Visual Studio.  To build extensions using other tool chains,
-see the "Using non-Microsoft compilers on Windows" section in the
-distutils handbook:
+Note that most Python distributions for Windows include libraries
+compiled for Microsoft Visual Studio.  You can get the free Express
+edition of Visual Studio from:
+
+    http://www.microsoft.com/Express/
+
+To build extensions using other tool chains, see the "Using
+non-Microsoft compilers on Windows" section in the distutils handbook:
 
     http://www.python.org/doc/current/inst/non-ms-compilers.html
 
