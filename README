@@ -28,9 +28,10 @@ to your Python environment.  This library provides extensive file
 format support, an efficient internal representation, and powerful
 image processing capabilities.
 
-This source kit has been built and tested on Windows, Mac OS X, and
-major Unix platforms.  We believe that it should work on most modern
-platforms (people are using PIL on Crays, after all ;-)
+This source kit has been built and tested with Python 2.1 and newer,
+on Windows, Mac OS X, and major Unix platforms.  We believe that it
+should work on most modern platforms (people are using PIL on Crays,
+after all ;-).
 
 The main distribution site for this software is:
 
