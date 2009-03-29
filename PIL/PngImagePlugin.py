@@ -366,7 +366,7 @@ class PngImageFile(ImageFile.ImageFile):
         "internal: prepare to read PNG file"
 
         if self.info.get("interlace"):
-            raise IOError("cannot read interlaced PNG files")
+            self.decoderconfig += (1,)
 
         ImageFile.ImageFile.load_prepare(self)
 

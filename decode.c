@@ -614,7 +614,8 @@ PyImaging_ZipDecoderNew(PyObject* self, PyObject* args)
 
     char* mode;
     char* rawmode;
-    if (!PyArg_ParseTuple(args, "ss", &mode, &rawmode))
+    int interlaced = 0;
+    if (!PyArg_ParseTuple(args, "ss|i", &mode, &rawmode, &interlaced))
 	return NULL;
 
     decoder = PyImaging_DecoderNew(sizeof(ZIPSTATE));
@@ -625,6 +626,8 @@ PyImaging_ZipDecoderNew(PyObject* self, PyObject* args)
 	return NULL;
 
     decoder->decode = ImagingZipDecode;
+
+    ((ZIPSTATE*)decoder->state.context)->interlaced = interlaced;
 
     return (PyObject*) decoder;
 }

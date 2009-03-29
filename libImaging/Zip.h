@@ -49,5 +49,9 @@ typedef struct {
     UINT8* output;		/* output data */
 
     int prefix;			/* size of filter prefix (0 for TIFF data) */
+    
+    int interlaced;		/* is the image interlaced? (PNG) */
+    
+    int pass;			/* current pass of the interlaced image (PNG) */
 
 } ZIPSTATE;
