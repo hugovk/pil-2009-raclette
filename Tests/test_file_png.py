@@ -99,6 +99,24 @@ def test_bad_text():
     im = load(HEAD + chunk('tEXt', 'spam\0egg\0') + TAIL)
     assert_equal(im.info,  {'spam': 'egg\x00'})
 
+def test_interlace():
+
+    file = "Tests/images/pil123p.png"
+    im = Image.open(file)
+
+    assert_image(im, "P", (162, 150))
+    assert_true(im.info.get("interlace"))
+
+    assert_no_exception(lambda: im.load())
+
+    file = "Tests/images/pil123rgba.png"
+    im = Image.open(file)
+
+    assert_image(im, "RGBA", (162, 150))
+    assert_true(im.info.get("interlace"))
+
+    assert_no_exception(lambda: im.load())
+
 def test_load_verify():
     # Check open/load/verify exception (@PIL150)
 
