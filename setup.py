@@ -14,11 +14,6 @@ try:
 except OSError:
     pass
 
-try:
-    import distutils
-except ImportError:
-    sys.path.append("\svn\kits\py152") # compatibility
-
 def libinclude(root):
     # map root to (root/lib, root/include)
     return os.path.join(root, "lib"), os.path.join(root, "include")
