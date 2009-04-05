@@ -99,4 +99,6 @@ typedef struct {
 
     JPEGDESTINATION destination;
 
+    int extra_offset;
+
 } JPEGENCODERSTATE;

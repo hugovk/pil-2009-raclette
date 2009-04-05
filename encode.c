@@ -517,13 +517,14 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
     if (get_packer(encoder, mode, rawmode) < 0)
 	return NULL;
 
-    if (extra) {
+    if (extra && extra_size > 0) {
         char* p = malloc(extra_size);
         if (!p)
             return PyErr_NoMemory();
         memcpy(p, extra, extra_size);
         extra = p;
-    }
+    } else
+        extra = NULL;
 
     encoder->encode = ImagingJpegEncode;
 
