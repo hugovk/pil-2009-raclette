@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library
- * $Id: File.c 2507 2005-09-10 14:53:47Z fredrik $
+ * $Id$
  *
  * built-in image file handling
  *

@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library
- * $Id: Palette.c 2591 2005-12-08 21:25:29Z fredrik $
+ * $Id$
  *
  * imaging palette object
  *

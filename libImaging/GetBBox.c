@@ -1,6 +1,6 @@
 /* 
  * The Python Imaging Library
- * $Id: GetBBox.c 2298 2005-02-17 21:17:29Z fredrik $
+ * $Id$
  *
  * helpers to bounding boxes, min/max values, number of colors, etc.
  *

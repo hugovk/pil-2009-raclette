@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library
- * $Id: Paste.c 2409 2005-05-15 09:41:24Z Fredrik $
+ * $Id$
  *
  * paste image on another image
  *

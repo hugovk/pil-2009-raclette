@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library
- * $Id: Antialias.c 2408 2005-05-15 09:31:27Z Fredrik $
+ * $Id$
  *
  * pilopen antialiasing support 
  *

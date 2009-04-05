@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library.
- * $Id: Draw.c 2745 2006-06-18 17:27:41Z fredrik $
+ * $Id$
  *
  * a simple drawing package for the Imaging library
  *

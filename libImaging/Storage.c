@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library
- * $Id: Storage.c 2542 2005-10-02 21:37:20Z Fredrik $
+ * $Id$
  *
  * imaging storage object
  *

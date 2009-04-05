@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library.
- * $Id: Pack.c 2763 2006-06-22 21:43:28Z fredrik $
+ * $Id$
  *
  * code to pack raw data
  *

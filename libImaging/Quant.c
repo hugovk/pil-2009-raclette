@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library
- * $Id: Quant.c 2284 2005-02-07 20:58:58Z fredrik $
+ * $Id$
  *
  * image quantizer
  *
