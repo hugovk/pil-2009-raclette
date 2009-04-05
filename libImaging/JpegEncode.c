@@ -236,6 +236,8 @@ ImagingJpegEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 	jpeg_finish_compress(&context->cinfo);
 
 	/* Clean up */
+        if (context->extra)
+            free(context->extra);
 	jpeg_destroy_compress(&context->cinfo);
 	/* if (jerr.pub.num_warnings) return BROKEN; */
 	state->errcode = IMAGING_CODEC_END;

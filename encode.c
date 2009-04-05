@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library.
- * $Id: encode.c 2751 2006-06-18 19:50:45Z fredrik $
+ * $Id$
  *
  * standard encoder interfaces for the Imaging library
  *
@@ -503,10 +503,11 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
     int optimize = 0;
     int streamtype = 0; /* 0=interchange, 1=tables only, 2=image only */
     int xdpi = 0, ydpi = 0;
-	int subsampling = -1; /* -1=default, 0=none, 1=medium, 2=high */
-    if (!PyArg_ParseTuple(args, "ss|iiiiiiii", &mode, &rawmode, &quality,
+    int subsampling = -1; /* -1=default, 0=none, 1=medium, 2=high */
+    char* extra = NULL; int extra_size;
+    if (!PyArg_ParseTuple(args, "ss|iiiiiiiis#", &mode, &rawmode, &quality,
 			  &progressive, &smooth, &optimize, &streamtype,
-                          &xdpi, &ydpi, &subsampling))
+                          &xdpi, &ydpi, &subsampling, &extra, &extra_size))
 	return NULL;
 
     encoder = PyImaging_EncoderNew(sizeof(JPEGENCODERSTATE));
@@ -515,6 +516,14 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
 
     if (get_packer(encoder, mode, rawmode) < 0)
 	return NULL;
+
+    if (extra) {
+        char* p = malloc(extra_size);
+        if (!p)
+            return PyErr_NoMemory();
+        memcpy(p, extra, extra_size);
+        extra = p;
+    }
 
     encoder->encode = ImagingJpegEncode;
 
@@ -526,6 +535,8 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
     ((JPEGENCODERSTATE*)encoder->state.context)->streamtype = streamtype;
     ((JPEGENCODERSTATE*)encoder->state.context)->xdpi = xdpi;
     ((JPEGENCODERSTATE*)encoder->state.context)->ydpi = ydpi;
+    ((JPEGENCODERSTATE*)encoder->state.context)->extra = extra;
+    ((JPEGENCODERSTATE*)encoder->state.context)->extra_size = extra_size;
 
     return (PyObject*) encoder;
 }
