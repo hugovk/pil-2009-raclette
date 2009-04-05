@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library.
- * $Id: map.c 2751 2006-06-18 19:50:45Z fredrik $
+ * $Id$
  *
  * standard memory mapping interface for the Imaging library
  *

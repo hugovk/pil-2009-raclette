@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library.
- * $Id: display.c 2751 2006-06-18 19:50:45Z fredrik $
+ * $Id$
  *
  * display support (and other windows-related stuff)
  *

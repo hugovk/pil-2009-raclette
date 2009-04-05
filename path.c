@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library.
- * $Id: path.c 2935 2006-12-03 12:20:39Z fredrik $
+ * $Id$
  *
  * 2D path utilities
  *

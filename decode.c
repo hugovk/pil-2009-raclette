@@ -1,6 +1,6 @@
 /* 
  * The Python Imaging Library.
- * $Id: decode.c 2751 2006-06-18 19:50:45Z fredrik $
+ * $Id$
  *
  * standard decoder interfaces for the Imaging library
  *

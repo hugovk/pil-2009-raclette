@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library
- * $Id: _imagingmath.c 2396 2005-05-07 09:17:22Z Fredrik $
+ * $Id$
  *
  * a simple math add-on for the Python Imaging Library
  *
