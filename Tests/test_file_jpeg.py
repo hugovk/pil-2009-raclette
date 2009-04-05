@@ -71,6 +71,25 @@ def test_dpi():
     assert_equal(test(100, 200), (100, 200))
     assert_equal(test(0), None) # square pixels
 
+def test_icc():
+    # Test ICC support
+    im1 = Image.open("Tests/images/rgb.jpg")
+    icc_profile = im1.info["icc_profile"]
+    assert_equal(len(icc_profile), 3144)
+    # In 1.1.7a2, ICC write only works if im.info contains a icc_profile
+    # key and output is written to a file
+    file = tempfile("temp.jpg")
+    im1.save(file)
+    im2 = Image.open(file)
+    assert_equal(im1.info["icc_profile"], icc_profile)
+    # Do roundtrip testing.  The last one will fail in 1.1.7a2.
+    im2 = roundtrip(im1)
+    im3 = roundtrip(im1, icc_profile=icc_profile)
+    assert_image_equal(im2, im3)
+    assert_true(im1.info.get("icc_profile"))
+    assert_false(im2.info.get("icc_profile"))
+    assert_true(im3.info.get("icc_profile")) # bug in 1.1.7a2
+
 def test_optimize():
     im1 = roundtrip(lena())
     im2 = roundtrip(lena(), optimize=1)
