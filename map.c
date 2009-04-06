@@ -1,6 +1,5 @@
 /*
  * The Python Imaging Library.
- * $Id$
  *
  * standard memory mapping interface for the Imaging library
  *

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #
 # Setup script for PIL 1.1.5 and later
-# $Id$
 #
 # Usage: python setup.py install
 #

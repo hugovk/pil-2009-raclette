@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: TiffImagePlugin.py 2803 2006-07-31 19:18:57Z fredrik $
+# $Id$
 #
 # TIFF file handling
 #

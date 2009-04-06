@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: PdfImagePlugin.py 2438 2005-05-25 21:09:48Z Fredrik $
+# $Id$
 #
 # PDF (Acrobat) file handling
 #

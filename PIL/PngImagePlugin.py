@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: PngImagePlugin.py 2203 2004-12-19 14:32:32Z fredrik $
+# $Id$
 #
 # PNG support code
 #

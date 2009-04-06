@@ -1,6 +1,5 @@
 /*
  * The Python Imaging Library.
- * $Id$
  *
  * display support (and other windows-related stuff)
  *

@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: /work/modules/pil/PIL/ImageFilter.py 486 2004-10-06T08:55:20.930352Z fredrik  $
+# $Id$
 #
 # standard mode descriptors
 #

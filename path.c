@@ -1,6 +1,5 @@
 /*
  * The Python Imaging Library.
- * $Id$
  *
  * 2D path utilities
  *

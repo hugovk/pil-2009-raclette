@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: MicImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # Microsoft Image Composer support for PIL
 #

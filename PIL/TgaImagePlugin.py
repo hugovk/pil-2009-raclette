@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: TgaImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # TGA file handling
 #

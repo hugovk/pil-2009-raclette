@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImageOps.py 2760 2006-06-19 13:31:40Z fredrik $
+# $Id$
 #
 # standard image operations
 #

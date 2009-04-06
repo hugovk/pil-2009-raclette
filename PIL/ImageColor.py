@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library
-# $Id: ImageColor.py 2813 2006-10-07 10:11:35Z fredrik $
+# $Id$
 #
 # map CSS3-style colour description strings to RGB
 #

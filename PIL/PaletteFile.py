@@ -1,6 +1,6 @@
 #
 # Python Imaging Library
-# $Id: PaletteFile.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # stuff to read simple, teragon-style palette files
 #

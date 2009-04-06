@@ -1,4 +1,3 @@
-# $Id$
 # generate manifest file
 
 import string

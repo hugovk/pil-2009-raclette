@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImagePalette.py 2339 2005-03-25 08:02:17Z fredrik $
+# $Id$
 #
 # image palette object
 #

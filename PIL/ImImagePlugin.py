@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImImagePlugin.py 2285 2005-02-07 23:52:14Z fredrik $
+# $Id$
 #
 # IFUNC IM file handling for PIL
 #

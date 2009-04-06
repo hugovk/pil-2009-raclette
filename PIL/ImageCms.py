@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImageFilter.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # optional color managment support, based on Kevin Cazabon's PyCMS
 # library.

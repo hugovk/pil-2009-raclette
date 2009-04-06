@@ -1,6 +1,5 @@
 /* 
  * The Python Imaging Library.
- * $Id$
  *
  * standard decoder interfaces for the Imaging library
  *

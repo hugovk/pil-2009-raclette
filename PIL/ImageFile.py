@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImageFile.py 2930 2006-12-02 13:50:40Z fredrik $
+# $Id$
 #
 # base class for image file handlers
 #

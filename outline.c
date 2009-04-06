@@ -2,7 +2,6 @@
  * THIS IS WORK IN PROGRESS.
  *
  * The Python Imaging Library.
- * $Id$
  *
  * "arrow" outline stuff.  the contents of this module
  * will be merged with the path module and the rest of

@@ -1,6 +1,5 @@
 /*
  * PIL FreeType Driver
- * $Id$
  *
  * a FreeType 2.X driver for PIL
  *

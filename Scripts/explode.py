@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library
-# $Id: explode.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # split an animation into a number of frame files
 #
