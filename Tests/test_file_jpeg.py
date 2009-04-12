@@ -91,9 +91,18 @@ def test_icc():
 
 def test_icc_big():
     # Make sure that the "extra" support handles large blocks
-    icc_profile = "Test"*int(ImageFile.MAXBLOCK*1.4)
-    im1 = roundtrip(lena(), icc_profile=icc_profile)
-    assert_equal(im1.info.get("icc_profile"), icc_profile)
+    def test(n):
+        icc_profile = ("Test"*int(n/4+1))[:n]
+        assert len(icc_profile) == n # sanity
+        im1 = roundtrip(lena(), icc_profile=icc_profile)
+        assert_equal(im1.info.get("icc_profile"), icc_profile or None)
+    test(0); test(1)
+    test(3); test(4); test(5)
+    test(65533-14) # full JPEG marker block
+    test(65533-14+1) # full block plus one byte
+    test(ImageFile.MAXBLOCK) # full buffer block
+    test(ImageFile.MAXBLOCK+1) # full buffer block plus one byte
+    test(ImageFile.MAXBLOCK*4+3) # large block
 
 def test_optimize():
     im1 = roundtrip(lena())
