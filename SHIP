@@ -1,0 +1,9 @@
+python make-manifest.py
+RELEASE=Imaging-`python -c "from PIL import Image; print Image.VERSION"`
+cd ..
+if [ ! -d $RELEASE ]
+then
+    ln -s pil $RELEASE
+fi
+tar cvf $RELEASE.tar `sed s/^Imaging/$RELEASE/g $RELEASE/CONTENTS`
+gzip $RELEASE.tar
