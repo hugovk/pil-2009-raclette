@@ -37,7 +37,7 @@
 
 /* compatibility wrappers (defined in _imaging.c) */
 extern int PyImaging_CheckBuffer(PyObject* buffer);
-extern int PyImaging_ReadBuffer(PyObject* buffer, void** ptr);
+extern int PyImaging_ReadBuffer(PyObject* buffer, const void** ptr);
 
 /* -------------------------------------------------------------------- */
 /* Standard mapper */
@@ -342,7 +342,7 @@ PyImaging_MapBuffer(PyObject* self, PyObject* args)
     size = ysize * stride;
 
     /* check buffer size */
-    bytes = PyImaging_ReadBuffer(target, (void**) &ptr);
+    bytes = PyImaging_ReadBuffer(target, (const void**) &ptr);
     if (bytes < 0) {
         PyErr_SetString(PyExc_ValueError, "buffer has negative size");
         return NULL;

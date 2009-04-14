@@ -253,10 +253,10 @@ int PyImaging_CheckBuffer(PyObject *buffer)
     return 0;
 }
 
-int PyImaging_ReadBuffer(PyObject* buffer, void** ptr)
+int PyImaging_ReadBuffer(PyObject* buffer, const void** ptr)
 {
     PyBufferProcs *procs = buffer->ob_type->tp_as_buffer;
-    return procs->bf_getreadbuffer(buffer, 0, (void**) &ptr);
+    return procs->bf_getreadbuffer(buffer, 0, ptr);
 }
 
 #else
@@ -266,7 +266,7 @@ int PyImaging_CheckBuffer(PyObject* buffer)
     return PyObject_CheckReadBuffer(buffer);
 }
 
-int PyImaging_ReadBuffer(PyObject* buffer, void** ptr)
+int PyImaging_ReadBuffer(PyObject* buffer, const void** ptr)
 {
     /* must call check_buffer first! */
 #if PY_VERSION_HEX < 0x02050000

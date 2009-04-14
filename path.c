@@ -44,7 +44,7 @@
 
 /* compatibility wrappers (defined in _imaging.c) */
 extern int PyImaging_CheckBuffer(PyObject* buffer);
-extern int PyImaging_ReadBuffer(PyObject* buffer, void** ptr);
+extern int PyImaging_ReadBuffer(PyObject* buffer, const void** ptr);
 
 /* -------------------------------------------------------------------- */
 /* Class								*/
@@ -130,7 +130,7 @@ PyPath_Flatten(PyObject* data, double **pxy)
     if (PyImaging_CheckBuffer(data)) {
         /* Assume the buffer contains floats */
         float* ptr;
-        int n = PyImaging_ReadBuffer(data, (void**) &ptr);
+        int n = PyImaging_ReadBuffer(data, (const void**) &ptr);
         n /= 2 * sizeof(float);
         xy = alloc_array(n);
         if (!xy)
