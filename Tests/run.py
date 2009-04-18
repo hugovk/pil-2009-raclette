@@ -21,6 +21,9 @@ if "--installed" not in sys.argv:
     python_options.append("-S")
     os.environ["PYTHONPATH"] = "."
 
+if "--coverage" in sys.argv:
+    tester_options.append("--coverage")
+
 if "--log" in sys.argv:
     tester_options.append("--log")
 

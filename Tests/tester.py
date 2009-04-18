@@ -210,9 +210,16 @@ def _setup():
                     os.remove(file)
                 except OSError:
                     pass # report?
+        if "--coverage" in sys.argv:
+            import coverage
+            coverage.stop()
     import atexit, sys
     atexit.register(report)
+    if "--coverage" in sys.argv:
+        import coverage
+        coverage.start()
     if "--log" in sys.argv:
         _logfile = open("test.log", "a")
+    
 
 _setup()
