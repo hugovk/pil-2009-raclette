@@ -8,6 +8,8 @@ def test_sanity():
     im = lena()
 
     st = ImageStat.Stat(im)
+    st = ImageStat.Stat(im.histogram())
+    st = ImageStat.Stat(im, Image.new("1", im.size, 1))
 
     assert_no_exception(lambda: st.extrema)
     assert_no_exception(lambda: st.sum)
@@ -18,6 +20,14 @@ def test_sanity():
     assert_no_exception(lambda: st.var)
     assert_no_exception(lambda: st.stddev)
     assert_exception(AttributeError, lambda: st.spam)
+
+    assert_exception(TypeError, lambda: ImageStat.Stat(1))
+
+def test_lena():
+
+    im = lena()
+
+    st = ImageStat.Stat(im)
 
     # verify a few values
     assert_equal(st.extrema[0], (61, 255))
