@@ -11,6 +11,11 @@ im = PIL.Image.new("1", (100, 100))
 assert (im.mode, im.size) == ('1', (100, 100))
 assert len(im.tostring()) == 1300
 
+# Create an image (post-1.1.X syntax)
+im = PIL.Image.Image("L", (100, 100))
+assert (im.mode, im.size) == ('L', (100, 100))
+assert len(im.tostring()) ==  10000
+
 # Create images in all remaining major modes.
 im = PIL.Image.new("L", (100, 100))
 im = PIL.Image.new("P", (100, 100))

@@ -446,16 +446,19 @@ class Image(object):
     format = None
     format_description = None
 
-    def __init__(self):
-        # FIXME: take "new" parameters / other image?
-        # FIXME: turn mode and size into delegating properties?
-        self.im = None
-        self.mode = ""
-        self.size = (0, 0)
-        self.palette = None
-        self.info = {}
-        self.category = NORMAL
-        self.readonly = 0
+    def __new__(cls, *args):
+        if args:
+            self = new(*args)
+        else:
+            self = object.__new__(cls)
+            self.im = None
+            self.mode = ""
+            self.size = (0, 0)
+            self.palette = None
+            self.info = {}
+            self.category = NORMAL
+            self.readonly = 0
+        return self
 
     def _new(self, im):
         new = Image()
