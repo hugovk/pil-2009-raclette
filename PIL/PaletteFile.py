@@ -32,6 +32,8 @@ class PaletteFile:
 
             if not s:
                 break
+            if s[0] == "#":
+                continue
             if len(s) > 100:
                 raise SyntaxError, "bad palette file"
 

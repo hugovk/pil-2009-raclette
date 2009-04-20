@@ -5,10 +5,12 @@ from PIL import Image
 def test_sanity():
 
     im = Image.new("L", (100, 100))
+    assert_equal(repr(im)[:45], "<PIL.Image.Image image mode=L size=100x100 at")
     assert_equal(im.mode, "L")
     assert_equal(im.size, (100, 100))
 
     im = Image.new("RGB", (100, 100))
+    assert_equal(repr(im)[:45], "<PIL.Image.Image image mode=RGB size=100x100 ")
     assert_equal(im.mode, "RGB")
     assert_equal(im.size, (100, 100))
 

@@ -3,8 +3,9 @@ from tester import *
 from PIL import Image
 from PIL import ImageFile
 
-# force multiple blocks in PNG driver
-ImageFile.MAXBLOCK = 8192
+# save original block sizes
+MAXBLOCK = ImageFile.MAXBLOCK
+SAFEBLOCK = ImageFile.SAFEBLOCK
 
 def test_parser():
 
@@ -30,7 +31,12 @@ def test_parser():
     assert_image_equal(*roundtrip("GIF"))
     assert_image_equal(*roundtrip("IM"))
     assert_image_equal(*roundtrip("MSP"))
-    assert_image_equal(*roundtrip("PNG"))
+    try:
+        # force multiple blocks in PNG driver
+        ImageFile.MAXBLOCK = 8192
+        assert_image_equal(*roundtrip("PNG"))
+    finally:
+        ImageFile.MAXBLOCK = MAXBLOCK
     assert_image_equal(*roundtrip("PPM"))
     assert_image_equal(*roundtrip("TIFF"))
     assert_image_equal(*roundtrip("XBM"))
@@ -40,3 +46,16 @@ def test_parser():
 
     assert_exception(IOError, lambda: roundtrip("PCX"))
     assert_exception(IOError, lambda: roundtrip("PDF"))
+
+
+def test_safeblock():
+
+    im1 = lena()
+
+    try:
+        ImageFile.SAFEBLOCK = 1
+        im2 = fromstring(tostring(im1, "PNG"))
+    finally:
+        ImageFile.SAFEBLOCK = SAFEBLOCK
+    
+    assert_image_equal(im1, im2)

@@ -4,7 +4,33 @@ from PIL import Image
 from PIL import ImageChops
 
 def test_sanity():
-    pass # FIXME
+
+    im = lena("L")
+
+    ImageChops.constant(im, 128)
+    ImageChops.duplicate(im)
+    ImageChops.invert(im)
+    ImageChops.lighter(im, im)
+    ImageChops.darker(im, im)
+    ImageChops.difference(im, im)
+    ImageChops.multiply(im, im)
+    ImageChops.screen(im, im)
+
+    ImageChops.add(im, im)
+    ImageChops.add(im, im, 2.0)
+    ImageChops.add(im, im, 2.0, 128)
+    ImageChops.subtract(im, im)
+    ImageChops.subtract(im, im, 2.0)
+    ImageChops.subtract(im, im, 2.0, 128)
+
+    ImageChops.add_modulo(im, im)
+    ImageChops.subtract_modulo(im, im)
+
+    ImageChops.blend(im, im, 0.5)
+    ImageChops.composite(im, im, im)
+
+    ImageChops.offset(im, 10)
+    ImageChops.offset(im, 10, 20)
 
 def test_logical():
 
