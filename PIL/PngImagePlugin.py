@@ -69,7 +69,7 @@ _MODES = {
 # --------------------------------------------------------------------
 # Support classes.  Suitable for PNG and related formats like MNG etc.
 
-class ChunkStream:
+class ChunkStream(object):
 
     def __init__(self, fp):
 
@@ -145,7 +145,7 @@ class ChunkStream:
 # --------------------------------------------------------------------
 # PNG chunk container (for use with save(pnginfo=))
 
-class PngInfo:
+class PngInfo(object):
 
     def __init__(self):
         self.chunks = []
@@ -440,7 +440,7 @@ def putchunk(fp, cid, *data):
     hi, lo = Image.core.crc32(data, Image.core.crc32(cid))
     fp.write(o16(hi) + o16(lo))
 
-class _idat:
+class _idat(object):
     # wrap output from the encoder in IDAT chunks
 
     def __init__(self, fp, chunk):
@@ -575,7 +575,7 @@ def _save(im, fp, filename, chunk=putchunk, check=0):
 def getchunks(im, **params):
     """Return a list of PNG chunks representing this image."""
 
-    class collector:
+    class collector(object):
         data = []
         def write(self, data):
             pass

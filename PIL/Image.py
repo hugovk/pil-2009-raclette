@@ -404,7 +404,7 @@ def _getencoder(mode, encoder_name, args, extra=()):
 # --------------------------------------------------------------------
 # Simple expression analyzer
 
-class _E:
+class _E(object):
     def __init__(self, data): self.data = data
     def __coerce__(self, other): return self, _E(other)
     def __add__(self, other): return _E((self.data, "__add__", other.data))
@@ -441,7 +441,7 @@ def _getscaleoffset(expr):
 # @see #new
 # @see #fromstring
 
-class Image:
+class Image(object):
 
     format = None
     format_description = None
@@ -993,29 +993,6 @@ class Image:
                 extrema = self.getextrema()
             return self.im.histogram(extrema)
         return self.im.histogram()
-
-    ##
-    # (Deprecated) Returns a copy of the image where the data has been
-    # offset by the given distances. Data wraps around the edges. If
-    # yoffset is omitted, it is assumed to be equal to xoffset.
-    # <p>
-    # This method is deprecated. New code should use the <b>offset</b>
-    # function in the <b>ImageChops</b> module.
-    #
-    # @param xoffset The horizontal distance.
-    # @param yoffset The vertical distance.  If omitted, both
-    #    distances are set to the same value.
-    # @return An Image object.
-
-    def offset(self, xoffset, yoffset=None):
-        "(deprecated) Offset image in horizontal and/or vertical direction"
-        if warnings:
-            warnings.warn(
-                "'offset' is deprecated; use 'ImageChops.offset' instead",
-                DeprecationWarning, stacklevel=2
-                )
-        import ImageChops
-        return ImageChops.offset(self, xoffset, yoffset)
 
     ##
     # Pastes another image into this image. The box argument is either
@@ -1715,11 +1692,11 @@ class _ImageCrop(Image):
 # --------------------------------------------------------------------
 # Abstract handlers.
 
-class ImagePointHandler:
+class ImagePointHandler(object):
     # used as a mixin by point transforms (for use with im.point)
     pass
 
-class ImageTransformHandler:
+class ImageTransformHandler(object):
     # used as a mixin by geometry transforms (for use with im.transform)
     pass
 
@@ -1810,13 +1787,6 @@ def fromstring(mode, size, data, decoder_name="raw", *args):
 # Note that this function decodes pixel data only, not entire images.
 # If you have an entire image file in a string, wrap it in a
 # <b>StringIO</b> object, and use {@link #open} to load it.
-# <p>
-# In the current version, the default parameters used for the "raw"
-# decoder differs from that used for {@link fromstring}.  This is a
-# bug, and will probably be fixed in a future release.  The current
-# release issues a warning if you do this; to disable the warning,
-# you should provide the full set of parameters.  See below for
-# details.
 #
 # @param mode The image mode.
 # @param size The image size.
@@ -1839,14 +1809,7 @@ def frombuffer(mode, size, data, decoder_name="raw", *args):
 
     if decoder_name == "raw":
         if args == ():
-            if warnings:
-                warnings.warn(
-                    "the frombuffer defaults may change in a future release; "
-                    "for portability, change the call to read:\n"
-                    "  frombuffer(mode, size, data, 'raw', mode, 0, 1)",
-                    RuntimeWarning, stacklevel=2
-                )
-            args = mode, 0, -1 # may change to (mode, 0, 1) post-1.1.6
+            args = mode, 0, 1
         if args[0] in _MAPMODES:
             im = new(mode, (1,1))
             im = im._new(
