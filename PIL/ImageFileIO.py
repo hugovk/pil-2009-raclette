@@ -37,11 +37,3 @@ class ImageFileIO(StringIO):
     def __init__(self, fp):
         data = fp.read()
         StringIO.__init__(self, data)
-
-if __name__ == "__main__":
-
-    import Image
-    fp = open("/images/clenna.im", "rb")
-    im = Image.open(ImageFileIO(fp))
-    im.load() # make sure we can read the raster data
-    print im.mode, im.size
