@@ -17,5 +17,3 @@ def test_sanity():
     assert_no_exception(lambda: im.point(lambda x: x*1+1))
     assert_exception(TypeError, lambda: im.point(lambda x: x-1))
     assert_exception(TypeError, lambda: im.point(lambda x: x/1))
-
-success()
