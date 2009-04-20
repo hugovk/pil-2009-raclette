@@ -213,6 +213,10 @@ def _setup():
         if "--coverage" in sys.argv:
             import coverage
             coverage.stop()
+            # The coverage module messes up when used from inside an
+            # atexit handler.  Do an explicit save to make sure that
+            # we actually flush the coverage cache.
+            coverage.the_coverage.save()
     import atexit, sys
     atexit.register(report)
     if "--coverage" in sys.argv:
