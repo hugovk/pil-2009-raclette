@@ -35,6 +35,7 @@
 __version__ = "0.6"
 
 import array, struct
+import string
 import Image, ImageFile
 
 def i16(c,o=0):
@@ -96,15 +97,10 @@ def APP(self, marker):
         # Decoders should use the marker sequence numbers to
         # reassemble the profile, rather than assuming that the APP2
         # markers appear in the correct sequence.
-        if not self.info.has_key("icc_profile"):
-            self.icc_profile_marker_prev = "\0"
-            self.info["icc_profile"] = ""
-        icc_profile_marker_curr = s[12]
-        if self.icc_profile_marker_prev < icc_profile_marker_curr:
-            self.info["icc_profile"] = self.info["icc_profile"] + s[14:]
-        else:
-            self.info["icc_profile"] = s[14:] + self.info["icc_profile"]
-        self.icc_profile_marker_prev = icc_profile_marker_curr
+        try:
+            self.info["icc_profile"].append(s)
+        except KeyError:
+            self.info["icc_profile"] = [s]
     elif marker == 0xFFEE and s[:5] == "Adobe":
         self.info["adobe"] = i16(s, 5)
         # extract Adobe custom properties
@@ -153,6 +149,19 @@ def SOF(self, marker):
 
     if marker in [0xFFC2, 0xFFC6, 0xFFCA, 0xFFCE]:
         self.info["progressive"] = self.info["progression"] = 1
+
+    icc_profile = self.info.get("icc_profile")
+    if icc_profile:
+        # fixup icc profile
+        icc_profile.sort() # sort by sequence number
+        if ord(icc_profile[0][13]) == len(icc_profile):
+            profile = []
+            for p in icc_profile:
+                profile.append(p[14:])
+            icc_profile = string.join(profile, "")
+        else:
+            icc_profile = None # wrong number of fragments
+        self.info["icc_profile"] = icc_profile
 
     for i in range(6, len(s), 3):
         t = s[i:i+3]
