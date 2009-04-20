@@ -97,10 +97,7 @@ def APP(self, marker):
         # Decoders should use the marker sequence numbers to
         # reassemble the profile, rather than assuming that the APP2
         # markers appear in the correct sequence.
-        try:
-            self.info["icc_profile"].append(s)
-        except KeyError:
-            self.info["icc_profile"] = [s]
+        self.icclist.append(s)
     elif marker == 0xFFEE and s[:5] == "Adobe":
         self.info["adobe"] = i16(s, 5)
         # extract Adobe custom properties
@@ -150,18 +147,18 @@ def SOF(self, marker):
     if marker in [0xFFC2, 0xFFC6, 0xFFCA, 0xFFCE]:
         self.info["progressive"] = self.info["progression"] = 1
 
-    icc_profile = self.info.get("icc_profile")
-    if icc_profile:
+    if self.icclist:
         # fixup icc profile
-        icc_profile.sort() # sort by sequence number
-        if ord(icc_profile[0][13]) == len(icc_profile):
+        self.icclist.sort() # sort by sequence number
+        if ord(self.icclist[0][13]) == len(self.icclist):
             profile = []
-            for p in icc_profile:
+            for p in self.icclist:
                 profile.append(p[14:])
             icc_profile = string.join(profile, "")
         else:
             icc_profile = None # wrong number of fragments
         self.info["icc_profile"] = icc_profile
+        self.icclist = None
 
     for i in range(6, len(s), 3):
         t = s[i:i+3]
@@ -289,6 +286,7 @@ class JpegImageFile(ImageFile.ImageFile):
         self.quantization = {}
         self.app = {} # compatibility
         self.applist = []
+        self.icclist = []
 
         while 1:
 
