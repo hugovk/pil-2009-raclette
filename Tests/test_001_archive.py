@@ -14,5 +14,10 @@ for file in glob.glob("../pil-archive/*"):
         print "-", "failed to open", file, "-", v
     else:
         print "+", file, im.mode, im.size, im.format
+        if e == ".exif":
+            try:
+                info = im._getexif()
+            except KeyError, v:
+                print "-", "failed to get exif info from", file, "-", v
 
 print "ok"

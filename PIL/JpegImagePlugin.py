@@ -384,11 +384,15 @@ class JpegImageFile(ImageFile.ImageFile):
         for key, value in info.items():
             exif[key] = fixup(value)
         # get exif extension
-        file.seek(exif[0x8769])
-        info = TiffImagePlugin.ImageFileDirectory(head)
-        info.load(file)
-        for key, value in info.items():
-            exif[key] = fixup(value)
+        try:
+            file.seek(exif[0x8769])
+        except KeyError:
+            pass
+        else:
+            info = TiffImagePlugin.ImageFileDirectory(head)
+            info.load(file)
+            for key, value in info.items():
+                exif[key] = fixup(value)
         # get gpsinfo extension
         try:
             file.seek(exif[0x8825])
