@@ -23,3 +23,17 @@ def test_sanity():
 
     assert_exception(ValueError, lambda: Image.new("X", (100, 100)))
     # assert_exception(MemoryError, lambda: Image.new("L", (1000000, 1000000)))
+
+def test_internals():
+
+    im = Image.new("L", (100, 100))
+    im.readonly = 1
+    im._copy()
+    assert_false(im.readonly)
+    
+    im.readonly = 1
+    im.paste(0, (0, 0, 100, 100))
+    assert_false(im.readonly)
+
+    file = tempfile("temp.ppm")
+    im._dump(file)
