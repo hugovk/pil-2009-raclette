@@ -100,6 +100,8 @@ class TgaImageFile(ImageFile.ImageFile):
         else:
             raise SyntaxError, "unknown TGA orientation"
 
+        self.info["orientation"] = orientation
+
         if imagetype & 8:
             self.info["compression"] = "tga_rle"
 
@@ -147,8 +149,6 @@ SAVE = {
     "RGBA": ("BGRA", 32, 0, 2),
 }
 
-ORIENTATION = -1
-
 def _save(im, fp, filename, check=0):
 
     try:
@@ -164,11 +164,12 @@ def _save(im, fp, filename, check=0):
     else:
         colormapfirst, colormaplength, colormapentry = 0, 0, 0
 
-    flags = 0
     if im.mode == "RGBA":
         flags = 8
+    else:
+        flags = 0
 
-    orientation = ORIENTATION
+    orientation = im.info.get("orientation", -1)
     if orientation > 0:
         flags = flags | 0x20
 
