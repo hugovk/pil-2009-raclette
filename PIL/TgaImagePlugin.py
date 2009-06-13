@@ -147,6 +147,8 @@ SAVE = {
     "RGBA": ("BGRA", 32, 0, 2),
 }
 
+ORIENTATION = -1
+
 def _save(im, fp, filename, check=0):
 
     try:
@@ -162,6 +164,14 @@ def _save(im, fp, filename, check=0):
     else:
         colormapfirst, colormaplength, colormapentry = 0, 0, 0
 
+    flags = 0
+    if im.mode == "RGBA":
+        flags = 8
+
+    orientation = ORIENTATION
+    if orientation > 0:
+        flags = flags | 0x20
+
     fp.write("\000" +
              chr(colormaptype) +
              chr(imagetype) +
@@ -173,12 +183,12 @@ def _save(im, fp, filename, check=0):
              o16(im.size[0]) +
              o16(im.size[1]) +
              chr(bits) +
-             chr(0x20))
+             chr(flags))
 
     if colormaptype:
         fp.write(im.im.getpalette("RGB", "BGR"))
 
-    ImageFile._save(im, fp, [("raw", (0,0)+im.size, 0, (rawmode, 0, 1))])
+    ImageFile._save(im, fp, [("raw", (0,0)+im.size, 0, (rawmode, 0, orientation))])
 
 #
 # --------------------------------------------------------------------
