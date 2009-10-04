@@ -6,24 +6,25 @@ $Id$
 ACKNOWLEDGEMENTS: PIL wouldn't be what it is without the help of,
 among others: David Ascher, Phil Austin, Douglas Bagnall, Larry Bates,
 Anthony Baxter, William Baxter, Denis Benoit, Jan Blom, Duncan Booth,
-Jeff Breidenbach, Roger Burnham, Gene Cash, Kevin Cazabon, Fred Clare,
-Greg Coats, Chris Cogdon, Greg Couch, Bill Crutchfield, Abel Deuring,
-Tim Docker, Fred Drake, Graham Dumpleton, Matthew Ellis, Eric
-Etheridge, Robin Friedrich, Pier Paolo Glave, Federico Di Gregorio,
-Markus Gritsch, Daniel Haertle, Greg Hamilton, Mark Hammond, Bernhard
-Herzog, Rob Hooft, Bob Ippolito, Jack Jansen, Bill Janssen, Edward
-Jones, Richard Jones, Håkan Karlsson, Robert Kern, David Kirtley, Bob
-Klimek, Matthias Klose, Andrew Kuchling, Magnus Källström, Victor
-Lacina, Ben Last, Hamish Lawson, Cesare Leonardi, Andrew MacIntyre,
-Jan Matejek, Naveen Michaud-Agrawal, Gordon McMillan, Skip Montanaro,
-Fredrik Nehr, Russell Nelson, Luciano Nocera, Travis Oliphant, Piet
-van Oostrum, Richard Oudkerk, Paul Pharr, Andres Polit, Eric Raymond,
-Victor Reijs, Bertil Reinhammar, Nicholas Riley, Don Rozenberg, Toby
-Sargeant, Barry Scott, Les Schaffer, Joel Shprentz, Klamer Shutte,
-Gene Skonicki, Niki Spahiev, D. Alan Stewart, Perry Stoll, Paul
-Svensson, Ulrik Svensson, Miki Tebeka, Ivan Tkatchev, Dan Torop, Adam
-Twardoch, Rune Uhlin, Dmitry Vasiliev, Sasha Voynow, Charles Waldman,
-Dan Wolfe, and Ka-Ping Yee.
+Alexey Borzenkov, Jeff Breidenbach, Roger Burnham, Zac Burns, Gene
+Cash, Kevin Cazabon, Fred Clare, Greg Coats, Chris Cogdon, Greg Couch,
+Bill Crutchfield, Abel Deuring, Tim Docker, Fred Drake, Graham
+Dumpleton, Matthew Ellis, Eric Etheridge, Daniel Fetchinson, Robin
+Friedrich, Pier Paolo Glave, Federico Di Gregorio, Markus Gritsch,
+Daniel Haertle, Greg Hamilton, Mark Hammond, Bernhard Herzog, Rob
+Hooft, Bob Ippolito, Jack Jansen, Bill Janssen, Edward Jones, Richard
+Jones, Håkan Karlsson, Robert Kern, David Kirtley, Bob Klimek,
+Matthias Klose, Andrew Kuchling, Magnus Källström, Victor Lacina, Ben
+Last, Hamish Lawson, Cesare Leonardi, Andrew MacIntyre, Jan Matejek,
+Naveen Michaud-Agrawal, Gordon McMillan, Skip Montanaro, Fredrik Nehr,
+Russell Nelson, Luciano Nocera, Travis Oliphant, Piet van Oostrum,
+Richard Oudkerk, Paul Pharr, Andres Polit, Conrado Porto Lopes Gouvêa,
+Eric Raymond, Victor Reijs, Bertil Reinhammar, Nicholas Riley, Don
+Rozenberg, Toby Sargeant, Barry Scott, Les Schaffer, Joel Shprentz,
+Klamer Shutte, Gene Skonicki, Niki Spahiev, D. Alan Stewart, Perry
+Stoll, Paul Svensson, Ulrik Svensson, Miki Tebeka, Michael van
+Tellingen, Ivan Tkatchev, Dan Torop, Adam Twardoch, Rune Uhlin, Dmitry
+Vasiliev, Sasha Voynow, Charles Waldman, Dan Wolfe, and Ka-Ping Yee.
 
 *** Changes from release 1.1.6 to 1.1.7 ***
 
@@ -32,7 +33,12 @@ was last updated, see the repository revision history:
 
   http://bitbucket.org/effbot/pil-2009-raclette/changesets/
 
++ Improved PNG compression (from Alexey Borzenkov).
+
 + Read interlaced PNG files (from Conrado Porto Lopes Gouvêa)
+
++ Added various TGA improvements from Alexey Borzenkov, including
+  support for specifying image orientation.
 
 + Bumped block threshold to 16 megabytes, made size estimation a bit
   more accurate.  This speeds up allocation of large images.
@@ -54,6 +60,9 @@ was last updated, see the repository revision history:
   instance of that tag. Below is a patch to store all tags. If there are
   multiple tag instances, they are stored in a (python) list. Single tag
   instances remain as strings.
+
++ Fixed potential crash in ImageFilter for small target images
+  (reported by Zac Burns and Daniel Fetchinson).
 
 + Use BMP instead of JPEG as temporary show format on Mac OS X.
 
@@ -132,6 +141,9 @@ was last updated, see the repository revision history:
 + Add big endian save support and multipage infrastructure to the TIFF
   writer (from Sebastian Haase).
 
++ Handle files with GPS IFD but no basic EXIF IFD (reported by Kurt
+  Schwehr).
+
 + Added zTXT support (from Andrew Kuchling via Lowell Alleman).
 
 + Fixed potential infinite loop bug in ImageFont (from Guilherme Polo).
@@ -195,6 +207,9 @@ was last updated, see the repository revision history:
 
 + Fixed grayscale rounding error in ImageColor.getcolor (from Tim
   Hatch).
+
++ Fixed calculation of mean value in ImageEnhance.Contrast (reported
+  by "roop" and Scott David Daniels).
 
 + Fixed truetype positioning when first character has a negative left
   bearing (from Ned Batchelder):
