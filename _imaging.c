@@ -109,6 +109,7 @@
 #endif
 
 #if PY_VERSION_HEX < 0x02050000
+#define Py_ssize_t int
 #define ssizeargfunc intargfunc
 #define ssizessizeargfunc intintargfunc
 #define ssizeobjargproc intobjargproc
@@ -2992,7 +2993,7 @@ _getattr(ImagingObject* self, char* name)
 
 /* basic sequence semantics */
 
-static int
+static Py_ssize_t
 image_length(ImagingObject *self)
 {
     Imaging im = self->image;
@@ -3001,7 +3002,7 @@ image_length(ImagingObject *self)
 }
 
 static PyObject *
-image_item(ImagingObject *self, int i)
+image_item(ImagingObject *self, Py_ssize_t i)
 {
     int x, y;
     Imaging im = self->image;

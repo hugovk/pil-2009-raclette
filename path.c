@@ -36,6 +36,8 @@
 #endif
 
 #if PY_VERSION_HEX < 0x02050000
+#define Py_ssize_t int
+#define lenfunc inquiry
 #define ssizeargfunc intargfunc
 #define ssizessizeargfunc intintargfunc
 #define ssizeobjargproc intobjargproc
@@ -52,7 +54,7 @@ extern int PyImaging_ReadBuffer(PyObject* buffer, const void** ptr);
 
 typedef struct {
     PyObject_HEAD
-    int count;
+    Py_ssize_t count;
     double *xy;
     int index; /* temporary use, e.g. in decimate */
 } PyPathObject;
@@ -74,7 +76,7 @@ alloc_array(int count)
 }
 
 static PyPathObject*
-path_new(int count, double* xy, int duplicate)
+path_new(Py_ssize_t count, double* xy, int duplicate)
 {
     PyPathObject *path;
 
@@ -246,7 +248,7 @@ PyObject*
 PyPath_Create(PyObject* self, PyObject* args)
 {
     PyObject* data;
-    int count;
+    Py_ssize_t count;
     double *xy;
 
     if (PyArg_ParseTuple(args, "i:Path", &count)) {
@@ -368,7 +370,7 @@ path_getitem(PyPathObject* self, int i)
 }
 
 static PyObject*
-path_getslice(PyPathObject* self, int ilow, int ihigh)
+path_getslice(PyPathObject* self, Py_ssize_t ilow, Py_ssize_t ihigh)
 {
     /* adjust arguments */
     if (ilow < 0)
@@ -385,7 +387,7 @@ path_getslice(PyPathObject* self, int ilow, int ihigh)
     return (PyObject*) path_new(ihigh - ilow, self->xy + ilow * 2, 1);
 }
 
-static int
+static Py_ssize_t
 path_len(PyPathObject* self)
 {
     return self->count;
@@ -556,7 +558,7 @@ path_getattr(PyPathObject* self, char* name)
 }
 
 static PySequenceMethods path_as_sequence = {
-	(inquiry)path_len, /*sq_length*/
+	(lenfunc)path_len, /*sq_length*/
 	(binaryfunc)0, /*sq_concat*/
 	(ssizeargfunc)0, /*sq_repeat*/
 	(ssizeargfunc)path_getitem, /*sq_item*/
