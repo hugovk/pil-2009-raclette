@@ -72,9 +72,9 @@ ImagingZipDecode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 	memset(context->previous, 0, state->bytes+1);
 
 	/* Setup decompression context */
-	context->z_stream.zalloc = (alloc_func)0;
-	context->z_stream.zfree = (free_func)0;
-	context->z_stream.opaque = (voidpf)0;
+	context->z_stream.zalloc = (alloc_func) NULL;
+	context->z_stream.zfree = (free_func) NULL;
+	context->z_stream.opaque = (voidpf) NULL;
 
 	err = inflateInit(&context->z_stream);
 	if (err < 0) {

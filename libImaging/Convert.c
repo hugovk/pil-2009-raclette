@@ -198,7 +198,7 @@ rgb2f(UINT8* out_, const UINT8* in, int xsize)
     int x;
     FLOAT32* out = (FLOAT32*) out_;
     for (x = 0; x < xsize; x++, in += 4)
-	*out++ = L(in) / 1000.0F;
+	*out++ = (float) L(in) / 1000.0F;
 }
 
 static void
@@ -683,7 +683,7 @@ p2f(UINT8* out_, const UINT8* in, int xsize, const UINT8* palette)
     int x;
     FLOAT32* out = (FLOAT32*) out_;
     for (x = 0; x < xsize; x++)
-	*out++ = L(&palette[in[x]*4]) / 1000.0F;
+	*out++ = (float) L(&palette[in[x]*4]) / 1000.0F;
 }
 
 static void
@@ -849,8 +849,7 @@ topalette(Imaging imOut, Imaging imIn, ImagingPalette inpalette, int dither)
             errors = calloc(imIn->xsize + 1, sizeof(int) * 3);
             if (!errors) {
                 ImagingDelete(imOut);
-                ImagingError_MemoryError();
-                return NULL;
+                return ImagingError_MemoryError();
             }
 
             /* Map each pixel to the nearest palette entry */
@@ -958,8 +957,7 @@ tobilevel(Imaging imOut, Imaging imIn, int dither)
     errors = calloc(imIn->xsize + 1, sizeof(int));
     if (!errors) {
         ImagingDelete(imOut);
-        ImagingError_MemoryError();
-        return NULL;
+        return ImagingError_MemoryError();
     }
 
     if (imIn->bands == 1) {
@@ -1077,6 +1075,7 @@ convert(Imaging imOut, Imaging imIn, const char *mode,
 #else
     {
       static char buf[256];
+      /* FIXME: may overflow if mode is too large */
       sprintf(buf, "conversion from %s to %s not supported", imIn->mode, mode);
       return (Imaging) ImagingError_ValueError(buf);
     }

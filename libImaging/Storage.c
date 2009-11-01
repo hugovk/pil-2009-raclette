@@ -390,8 +390,7 @@ ImagingNew2(const char* mode, Imaging imOut, Imaging imIn)
         if (strcmp(imOut->mode, mode) != 0
             || imOut->xsize != imIn->xsize
             || imOut->ysize != imIn->ysize) {
-            ImagingError_Mismatch();
-            return NULL;
+            return ImagingError_Mismatch();
         }
     } else {
         /* create new image */

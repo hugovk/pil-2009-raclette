@@ -44,7 +44,7 @@ ImagingCrop(Imaging imIn, int sx0, int sy0, int sx1, int sy1)
     ImagingCopyInfo(imOut, imIn);
 
     if (sx0 < 0 || sy0 < 0 || sx1 > imIn->xsize || sy1 > imIn->ysize)
-        ImagingFill(imOut, &zero);
+	(void) ImagingFill(imOut, &zero);
 
     dx0 = -sx0;
     dy0 = -sy0;

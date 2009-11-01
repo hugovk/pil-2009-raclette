@@ -684,7 +684,7 @@ ImagingDrawWideLine(Imaging im, int x0, int y0, int x1, int y1,
         return 0;
     }
 
-    d = width / sqrt(dx*dx + dy*dy) / 2.0;
+    d = width / sqrt((float) (dx*dx + dy*dy)) / 2.0;
 
     dx = (int) floor(d * (y1-y0) + 0.5);
     dy = (int) floor(d * (x1-x0) + 0.5);
@@ -759,7 +759,7 @@ ImagingDrawPolygon(Imaging im, int count, int* xy, const void* ink_,
         /* Build edge list */
         Edge* e = malloc(count * sizeof(Edge));
         if (!e) {
-            ImagingError_MemoryError();
+            (void) ImagingError_MemoryError();
             return -1;
         }
         for (i = n = 0; i < count-1; i++)

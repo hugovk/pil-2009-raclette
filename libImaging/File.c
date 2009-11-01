@@ -163,31 +163,25 @@ ImagingSavePPM(Imaging im, const char* outfile)
     FILE* fp;
 
     if (!im) {
-	ImagingError_ValueError(NULL);
+	(void) ImagingError_ValueError(NULL);
 	return 0;
     }
 
     fp = fopen(outfile, "wb");
     if (!fp) {
-	ImagingError_IOError();
+	(void) ImagingError_IOError();
 	return 0;
     }
 
     if (strcmp(im->mode, "1") == 0 || strcmp(im->mode, "L") == 0) {
-
 	/* Write "PGM" */
 	fprintf(fp, "P5\n%d %d\n255\n", im->xsize, im->ysize);
-
     } else if (strcmp(im->mode, "RGB") == 0) {
-
         /* Write "PPM" */
         fprintf(fp, "P6\n%d %d\n255\n", im->xsize, im->ysize);
-
     } else {
-
-        ImagingError_ModeError();
+	(void) ImagingError_ModeError();
         return 0;
-
     }
 
     ImagingSaveRaw(im, fp);

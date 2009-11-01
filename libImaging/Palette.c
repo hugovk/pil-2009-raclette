@@ -290,7 +290,7 @@ ImagingPaletteCachePrepare(ImagingPalette palette)
 
 	palette->cache = (INT16*) malloc(entries * sizeof(INT16));
 	if (!palette->cache) {
-	    ImagingError_MemoryError();
+	    (void) ImagingError_MemoryError();
 	    return -1;
 	}
 
