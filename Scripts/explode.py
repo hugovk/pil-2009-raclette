@@ -5,7 +5,7 @@
 # split an animation into a number of frame files
 #
 
-import Image
+from PIL import Image
 import os, string, sys
 
 class Interval:

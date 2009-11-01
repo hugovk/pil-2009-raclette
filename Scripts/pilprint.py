@@ -13,8 +13,8 @@
 
 VERSION = "pilprint 0.3/2003-05-05"
 
-import Image
-import PSDraw
+from PIL import Image
+from PIL import PSDraw
 
 letter = ( 1.0*72, 1.0*72, 7.5*72, 10.0*72 )
 

@@ -39,10 +39,10 @@
 # write data directly to a socket.  Or something...
 #
 
-import Image, ImageChops
+from PIL import Image, ImageChops
 import string
 
-from GifImagePlugin import getheader, getdata
+from PIL.GifImagePlugin import getheader, getdata
 
 # --------------------------------------------------------------------
 # sequence iterator

@@ -48,7 +48,8 @@ of its upper-left-hand corner and displays the cropped portion.
 # 3. Add support for composing and decomposing multiple-image files.
 #
 
-import Image, string
+from PIL import Image
+import string
 
 class PILDriver:
 

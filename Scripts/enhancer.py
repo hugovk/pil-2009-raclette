@@ -7,7 +7,7 @@
 #
 
 from Tkinter import *
-import Image, ImageTk, ImageEnhance
+from PIL import Image, ImageTk, ImageEnhance
 import sys
 
 #
