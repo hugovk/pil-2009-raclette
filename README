@@ -1,7 +1,7 @@
 The Python Imaging Library
 $Id$
 
-Release 1.1.7 (August 1, 2009)
+Release 1.1.7 (November 1, 2009)
 
 ====================================================================
 The Python Imaging Library 1.1.7
@@ -161,10 +161,16 @@ For a list of changes in this release, see the CHANGES document.
    support              
                         http://www.littlecms.com/
 
-   If you have a recent Linux version, the libraries provided with
-   the operating system usually work just fine.  If some library is
+   If you have a recent Linux version, the libraries provided with the
+   operating system usually work just fine.  If some library is
    missing, installing a prebuilt version (jpeg-devel, zlib-devel,
-   etc) is usually easier than building from source.
+   etc) is usually easier than building from source.  For example, for
+   Ubuntu 9.10 (karmic), you can install the following libraries:
+
+       sudo apt-get install libjpeg62-dev
+       sudo apt-get install zlib1g-dev
+       sudo apt-get install libfreetype6-dev
+       sudo apt-get install liblcms1-dev
 
    If you're using Mac OS X, you can use the 'fink' tool to install
    missing libraries (also see the Mac OS X section below).
@@ -194,15 +200,16 @@ For a list of changes in this release, see the CHANGES document.
    Python's build support files on your machine.  If you've down-
    loaded a prebuilt package (e.g. a Linux RPM), you probably
    need additional developer packages.  Look for packages named
-   "python-devel", "py-dev", or similar.
+   "python-dev", "python-devel", or similar.  For example, for
+   Ubuntu 9.10 (karmic), use the following command:
+
+       sudo apt-get install python-dev
 
 
 4. When you have everything you need, unpack the PIL distribution
-   (the file Imaging-1.1.7.tar.gz) in your Python extensions
-   directory (if you have one, that is.  If not, feel free to
-   unpack it in any other suitable directory).
+   (the file Imaging-1.1.7.tar.gz) in a suitable work directory:
 
-        $ cd Python-2.4/Extensions # example
+        $ cd MyExtensions # example
         $ gunzip Imaging-1.1.7.tar.gz
         $ tar xvf Imaging-1.1.7.tar
 
