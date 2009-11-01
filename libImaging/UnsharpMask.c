@@ -273,6 +273,8 @@ ImagingGaussianBlur(Imaging im, Imaging imOut, float radius)
 Imaging
 ImagingUnsharpMask(Imaging im, Imaging imOut, float radius, int percent, int threshold)
 {
+  ImagingSectionCookie cookie;
+
   Imaging result;
   int channel = 0;
   int channels = 0;
@@ -326,7 +328,7 @@ ImagingUnsharpMask(Imaging im, Imaging imOut, float radius, int percent, int thr
      the OPPOSITE correction to the amount of blur, multiplied by
      percent. */
 
-  Py_BEGIN_ALLOW_THREADS
+  ImagingSectionEnter(&cookie);
 
   for (y = 0; y < im->ysize; y++) {
     if (channels == 1) {
@@ -376,7 +378,7 @@ ImagingUnsharpMask(Imaging im, Imaging imOut, float radius, int percent, int thr
     }
   }
 
-  Py_END_ALLOW_THREADS
+  ImagingSectionLeave(&cookie);
 
   return imOut;
 }
