@@ -38,10 +38,10 @@ ImagingOpenPPM(const char* infile)
 
     /* PPM magic */
     if (fgetc(fp) != 'P')
-	goto syntax;
+	goto error;
     switch (fgetc(fp)) {
     case '4': /* FIXME: 1-bit images are not yet supported */
-	goto syntax;
+	goto error;
     case '5':
 	mode = "L";
 	break;
@@ -49,7 +49,7 @@ ImagingOpenPPM(const char* infile)
 	mode = "RGB";
 	break;
     default:
-	goto syntax;
+	goto error;
     }
 
     i = 0;
@@ -66,7 +66,7 @@ ImagingOpenPPM(const char* infile)
 		do {
 		    c = fgetc(fp);
 		    if (c == EOF)
-			goto syntax;
+			goto error;
 		} while (c != '\n');
 		c = fgetc(fp);
 	    }
@@ -84,7 +84,7 @@ ImagingOpenPPM(const char* infile)
 	}
 
 	if (c == EOF)
-	    goto syntax;
+	    goto error;
 
 	switch (i++) {
 	case 0:
@@ -109,22 +109,23 @@ ImagingOpenPPM(const char* infile)
 
 	/* PPM "L" */
 	for (y = 0; y < im->ysize; y++)
-	    fread(im->image[y], 1, im->xsize, fp);
+	    if (fread(im->image[y], im->xsize, 1, fp) != 1)
+		goto error;
 
     } else {
 
 	/* PPM "RGB" or PyPPM mode */
 	for (y = 0; y < im->ysize; y++)
 	    for (x = i = 0; x < im->xsize; x++, i += im->pixelsize)
-		fread(im->image[y]+i, 1, im->bands, fp);
-
+		if (fread(im->image[y]+i, im->bands, 1, fp) != 1)
+		    goto error;
     }
 
     fclose(fp);
 
     return im;
 
-syntax:
+error:
     fclose(fp);
     return ImagingError_IOError();
 }
