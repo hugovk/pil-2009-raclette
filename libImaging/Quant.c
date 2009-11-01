@@ -673,6 +673,7 @@ free_box_tree(BoxNode *n)
    free(n);
 }
 
+#ifdef TEST_SPLIT_INTEGRITY
 static int
 checkContained(BoxNode *n,Pixel *pp)
 {
@@ -696,6 +697,7 @@ checkContained(BoxNode *n,Pixel *pp)
    }
    return 0;
 }
+#endif
 
 static int
 annotate_hash_table(BoxNode *n,HashTable h,unsigned long *box)
