@@ -45,7 +45,7 @@ def roundtrip(im, **options):
 def test_sanity():
 
     # internal version number
-    assert_match(Image.core.zlib_version, "\d+\.\d+\.\d$")
+    assert_match(Image.core.zlib_version, "\d+\.\d+\.\d+(.\d+)$")
 
     file = tempfile("temp.png")
 
