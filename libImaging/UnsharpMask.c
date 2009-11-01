@@ -96,7 +96,7 @@ gblur(Imaging im, Imaging imOut, float floatRadius, int channels, int padding)
        properly. */
 
     remainder = floatRadius - ((int) floatRadius);
-    floatRadius = (int) (floatRadius + 0.999999);
+    floatRadius = ceil(floatRadius);
 
     /* Next, double the radius and offset by 2.0... that way "0" returns
        the original image instead of a black one.  We multiply it by 2.0
@@ -139,7 +139,8 @@ gblur(Imaging im, Imaging imOut, float floatRadius, int channels, int padding)
        memset the buffer to 0 so we can use it directly with += */
 
     /* don't bother about alpha/padding */
-    buffer = calloc(im->xsize * im->ysize * channels, sizeof(float));
+    buffer = calloc((size_t) (im->xsize * im->ysize * channels),
+		    sizeof(float));
     if (buffer == NULL)
 	return ImagingError_MemoryError();
 
@@ -216,7 +217,7 @@ gblur(Imaging im, Imaging imOut, float floatRadius, int channels, int padding)
 	       newPixel, so it gets put in imOut */
 	    if (strcmp(im->mode, "RGBX") == 0
 		|| strcmp(im->mode, "RGBA") == 0) {
-		newPixel[3] = ((UINT8 *) & line[x + offset])[3];
+	      newPixel[3] = (float) ((UINT8 *) & line[x + offset])[3];
 	    }
 
 	    /* pack the channels into an INT32 so we can put them back in
@@ -271,10 +272,8 @@ Imaging ImagingGaussianBlur(Imaging im, Imaging imOut, float radius)
     } else if (strcmp(im->mode, "L") == 0) {
 	channels = 1;
 	padding = 0;
-    } else {
-	ImagingError_ModeError();
-	return NULL;
-    }
+    } else
+	return ImagingError_ModeError();
 
     return gblur(im, imOut, radius, channels, padding);
 }
@@ -317,10 +316,8 @@ ImagingUnsharpMask(Imaging im, Imaging imOut, float radius, int percent,
     } else if (strcmp(im->mode, "L") == 0) {
 	channels = 1;
 	padding = 0;
-    } else {
-	ImagingError_ModeError();
-	return NULL;
-    }
+    } else
+	return ImagingError_ModeError();
 
     /* first, do a gaussian blur on the image, putting results in imOut
        temporarily */
@@ -363,9 +360,8 @@ ImagingUnsharpMask(Imaging im, Imaging imOut, float radius, int percent,
 
 	    else {
 		for (channel = 0; channel < channels; channel++) {
-		    diff =
-			(float) ((((UINT8 *) & lineIn[x])[channel]) -
-				 (((UINT8 *) & lineOut[x])[channel]));
+		    diff = (int) ((((UINT8 *) & lineIn[x])[channel]) -
+				  (((UINT8 *) & lineOut[x])[channel]));
 		    if (abs(diff) > threshold) {
 			/* add the diff*percent to the original pixel
 			   this may not work for little-endian systems, fix it! */
