@@ -56,6 +56,8 @@ clip(double in)
 static Imaging 
 gblur(Imaging im, Imaging imOut, float floatRadius, int channels, int padding)
 {
+  ImagingSectionCookie cookie;
+
   float *maskData = NULL;
   int y = 0;
   int x = 0;
@@ -140,8 +142,7 @@ gblur(Imaging im, Imaging imOut, float floatRadius, int channels, int padding)
     return ImagingError_MemoryError();
 
   /* be nice to other threads while you go off to lala land */
-  /* FIXME: use cookie mechanism instead */
-  Py_BEGIN_ALLOW_THREADS
+  ImagingSectionEnter(&cookie);
 
   /* memset(buffer, 0, sizeof(buffer)); */
 
@@ -230,7 +231,7 @@ gblur(Imaging im, Imaging imOut, float floatRadius, int channels, int padding)
   free(buffer);
 
   /* get the GIL back so Python knows who you are */
-  Py_END_ALLOW_THREADS
+  ImagingSectionLeave(&cookie);
 
   return imOut;
 }
