@@ -145,6 +145,8 @@ gblur(Imaging im, Imaging imOut, float floatRadius, int channels, int padding)
 
   /* memset(buffer, 0, sizeof(buffer)); */
 
+  newPixel[0] = newPixel[1] = newPixel[2] = newPixel[3] = 0;
+
   /* perform a blur on each line, and place in the temporary storage buffer */
   for (y = 0; y < im->ysize; y++) {
     if (channels == 1 && im->image8 != NULL) {
