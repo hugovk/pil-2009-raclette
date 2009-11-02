@@ -24,7 +24,7 @@
 # See the README file for information on usage and redistribution.
 #
 
-VERSION = "1.1.7"
+VERSION = "1.1.7c1"
 
 try:
     import warnings
