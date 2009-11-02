@@ -383,10 +383,8 @@ getlist(PyObject* arg, int* length, const char* wrong_length, int type)
     }
 
     list = malloc(n * (type & 0xff));
-    if (!list) {
-        PyErr_NoMemory();
-	return NULL;
-    }
+    if (!list)
+        return PyErr_NoMemory();
 
     switch (type) {
     case TYPE_UINT8:
@@ -613,7 +611,7 @@ _fill(PyObject* self, PyObject* args)
     } else
         buffer[0] = buffer[1] = buffer[2] = buffer[3] = 0;
 
-    ImagingFill(im, buffer);
+    (void) ImagingFill(im, buffer);
 
     return PyImagingNew(im);
 }
@@ -1251,14 +1249,14 @@ _putdata(ImagingObject* self, PyObject* args)
                 if (PyList_Check(data)) {
                     for (i = x = y = 0; i < n; i++) {
                         PyObject *op = PyList_GET_ITEM(data, i);
-                        image->image8[y][x] = CLIP(PyInt_AsLong(op));
+                        image->image8[y][x] = (UINT8) CLIP(PyInt_AsLong(op));
                         if (++x >= (int) image->xsize)
                             x = 0, y++;
                     }
                 } else {
                     for (i = x = y = 0; i < n; i++) {
                         PyObject *op = PySequence_GetItem(data, i);
-                        image->image8[y][x] = CLIP(PyInt_AsLong(op));
+                        image->image8[y][x] = (UINT8) CLIP(PyInt_AsLong(op));
                         Py_XDECREF(op);
                         if (++x >= (int) image->xsize)
                             x = 0, y++;
@@ -1473,7 +1471,7 @@ _resize(ImagingObject* self, PyObject* args)
 
     imOut = ImagingNew(imIn->mode, xsize, ysize);
     if (imOut)
-        ImagingResize(imOut, imIn, filter);
+	(void) ImagingResize(imOut, imIn, filter);
     
     return PyImagingNew(imOut);
 }
@@ -1498,28 +1496,28 @@ _rotate(ImagingObject* self, PyObject* args)
     if (filter && imIn->type != IMAGING_TYPE_SPECIAL) {
         /* Rotate with resampling filter */
         imOut = ImagingNew(imIn->mode, imIn->xsize, imIn->ysize);
-        ImagingRotate(imOut, imIn, theta, filter);
+	(void) ImagingRotate(imOut, imIn, theta, filter);
     } else if (theta == 90.0 || theta == 270.0) {
         /* Use fast version */
         imOut = ImagingNew(imIn->mode, imIn->ysize, imIn->xsize);
         if (imOut) {
             if (theta == 90.0)
-                ImagingRotate90(imOut, imIn);
+                (void) ImagingRotate90(imOut, imIn);
             else
-                ImagingRotate270(imOut, imIn);
+                (void) ImagingRotate270(imOut, imIn);
         }
     } else {
         imOut = ImagingNew(imIn->mode, imIn->xsize, imIn->ysize);
         if (imOut) {
             if (theta == 0.0)
                 /* No rotation: simply copy the input image */
-                ImagingCopy2(imOut, imIn);
+                (void) ImagingCopy2(imOut, imIn);
             else if (theta == 180.0)
                 /* Use fast version */
-                ImagingRotate180(imOut, imIn);
+                (void) ImagingRotate180(imOut, imIn);
             else
                 /* Use ordinary version */
-                ImagingRotate(imOut, imIn, theta, 0);
+                (void) ImagingRotate(imOut, imIn, theta, 0);
         }
     }
 
@@ -1552,7 +1550,7 @@ im_setmode(ImagingObject* self, PyObject* args)
         strcpy(im->mode, mode);
         im->bands = modelen;
         if (!strcmp(mode, "RGBA"))
-            ImagingFillBand(im, 3, 255);
+            (void) ImagingFillBand(im, 3, 255);
     } else {
         /* trying doing an in-place conversion */
         if (!ImagingConvertInPlace(im, mode))
@@ -1676,7 +1674,7 @@ _transform2(ImagingObject* self, PyObject* args)
             );
         break;
     default:
-        ImagingError_ValueError("bad transform method");
+        (void) ImagingError_ValueError("bad transform method");
     }
 
     free(a);
@@ -1718,19 +1716,19 @@ _transpose(ImagingObject* self, PyObject* args)
     if (imOut)
         switch (op) {
         case 0:
-            ImagingFlipLeftRight(imOut, imIn);
+            (void) ImagingFlipLeftRight(imOut, imIn);
             break;
         case 1:
-            ImagingFlipTopBottom(imOut, imIn);
+            (void) ImagingFlipTopBottom(imOut, imIn);
             break;
         case 2:
-            ImagingRotate90(imOut, imIn);
+            (void) ImagingRotate90(imOut, imIn);
             break;
         case 3:
-            ImagingRotate180(imOut, imIn);
+            (void) ImagingRotate180(imOut, imIn);
             break;
         case 4:
-            ImagingRotate270(imOut, imIn);
+            (void) ImagingRotate270(imOut, imIn);
             break;
         }
 
@@ -1857,8 +1855,7 @@ _getprojection(ImagingObject* self, PyObject* args)
     if (xprofile == NULL || yprofile == NULL) {
 	free(xprofile);
 	free(yprofile);
-	PyErr_NoMemory();
-	return NULL;
+	return PyErr_NoMemory();
     }
 
     ImagingGetProjection(self->image, (unsigned char *)xprofile, (unsigned char *)yprofile);
@@ -2176,7 +2173,7 @@ _font_getmask(ImagingFontObject* self, PyObject* args)
         return NULL;
 
     b = 0;
-    ImagingFill(im, &b);
+    (void) ImagingFill(im, &b);
 
     b = self->baseline;
     for (x = 0; *text; text++) {
@@ -2715,7 +2712,7 @@ pixel_access_setitem(PixelAccessObject *self, PyObject *xy, PyObject *color)
     int x, y;
 
     if (self->readonly) {
-        ImagingError_ValueError(readonly);
+        (void) ImagingError_ValueError(readonly);
         return -1;
     }
 
@@ -3017,13 +3014,13 @@ image_item(ImagingObject *self, Py_ssize_t i)
 }
 
 static PySequenceMethods image_as_sequence = {
-    (inquiry)image_length, /*sq_length*/
-    (binaryfunc)0, /*sq_concat*/
-    (ssizeargfunc)0, /*sq_repeat*/
-    (ssizeargfunc)image_item, /*sq_item*/
-    (ssizessizeargfunc)0, /*sq_slice*/
-    (ssizeobjargproc)0, /*sq_ass_item*/
-    (ssizessizeobjargproc)0, /*sq_ass_slice*/
+    (inquiry) image_length, /*sq_length*/
+    (binaryfunc) NULL, /*sq_concat*/
+    (ssizeargfunc) NULL, /*sq_repeat*/
+    (ssizeargfunc) image_item, /*sq_item*/
+    (ssizessizeargfunc) NULL, /*sq_slice*/
+    (ssizeobjargproc) NULL, /*sq_ass_item*/
+    (ssizessizeobjargproc) NULL, /*sq_ass_slice*/
 };
 
 
@@ -3077,9 +3074,9 @@ statichere PyTypeObject ImagingDraw_Type = {
 #endif
 
 static PyMappingMethods pixel_access_as_mapping = {
-    (inquiry)0, /*mp_length*/
-    (binaryfunc)pixel_access_getitem, /*mp_subscript*/
-    (objobjargproc)pixel_access_setitem, /*mp_ass_subscript*/
+    (inquiry) NULL, /*mp_length*/
+    (binaryfunc) pixel_access_getitem, /*mp_subscript*/
+    (objobjargproc) pixel_access_setitem, /*mp_ass_subscript*/
 };
 
 /* type description */

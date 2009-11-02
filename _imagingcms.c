@@ -143,7 +143,7 @@ cms_profile_fromstring(PyObject* self, PyObject* args)
 static void
 cms_profile_dealloc(CmsProfileObject* self)
 {
-    cmsCloseProfile(self->profile);
+    (void) cmsCloseProfile(self->profile);
     PyObject_Del(self);
 }
 
