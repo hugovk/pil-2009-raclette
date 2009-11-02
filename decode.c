@@ -79,7 +79,8 @@ PyImaging_DecoderNew(int contextsize)
 	context = (void*) calloc(1, contextsize);
 	if (!context) {
 	    Py_DECREF(decoder);
-	    return PyErr_NoMemory();
+	    (void) PyErr_NoMemory();
+	    return NULL;
 	}
     } else
 	context = 0;
