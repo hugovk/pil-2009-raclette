@@ -34,6 +34,10 @@ was last updated, see the repository revision history:
 
   http://bitbucket.org/effbot/pil-2009-raclette/changesets/
 
++ Set GIF loop info property to the number of iterations if a NETSCAPE
+  loop extension is present, instead of always setting it to 1 (from
+  Valentino Volonghi).
+
 + Improved PNG compression (from Alexey Borzenkov).
 
 + Read interlaced PNG files (from Conrado Porto Lopes Gouvêa)
