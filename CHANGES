@@ -3,20 +3,20 @@
 The Python Imaging Library
 $Id$
 
-ACKNOWLEDGEMENTS: PIL wouldn't be what it is without the help of,
-among others: David Ascher, Phil Austin, Douglas Bagnall, Larry Bates,
-Anthony Baxter, William Baxter, Denis Benoit, Jan Blom, Duncan Booth,
-Alexey Borzenkov, Jeff Breidenbach, Roger Burnham, Zac Burns, Gene
-Cash, Kevin Cazabon, Fred Clare, Greg Coats, Chris Cogdon, Greg Couch,
-Bill Crutchfield, Abel Deuring, Tim Docker, Fred Drake, Graham
-Dumpleton, Matthew Ellis, Eric Etheridge, Daniel Fetchinson, Robin
-Friedrich, Pier Paolo Glave, Federico Di Gregorio, Markus Gritsch,
-Daniel Haertle, Greg Hamilton, Mark Hammond, Bernhard Herzog, Rob
-Hooft, Bob Ippolito, Jack Jansen, Bill Janssen, Edward Jones, Richard
-Jones, Håkan Karlsson, Robert Kern, David Kirtley, Bob Klimek,
-Matthias Klose, Andrew Kuchling, Magnus Källström, Victor Lacina, Ben
-Last, Hamish Lawson, Cesare Leonardi, Andrew MacIntyre, Jan Matejek,
-Naveen Michaud-Agrawal, Gordon McMillan, Skip Montanaro, Fredrik Nehr,
+ACKNOWLEDGEMENTS: PIL wouldn't be what it is without the help of:
+David Ascher, Phil Austin, Douglas Bagnall, Larry Bates, Anthony
+Baxter, William Baxter, Denis Benoit, Jan Blom, Duncan Booth, Alexey
+Borzenkov, Jeff Breidenbach, Roger Burnham, Zac Burns, Gene Cash,
+Kevin Cazabon, Fred Clare, Greg Coats, Chris Cogdon, Greg Couch, Bill
+Crutchfield, Abel Deuring, Tim Docker, Fred Drake, Graham Dumpleton,
+Matthew Ellis, Eric Etheridge, Daniel Fetchinson, Robin Friedrich,
+Pier Paolo Glave, Federico Di Gregorio, Markus Gritsch, Daniel
+Haertle, Greg Hamilton, Mark Hammond, Bernhard Herzog, Rob Hooft, Bob
+Ippolito, Jack Jansen, Bill Janssen, Edward Jones, Richard Jones,
+Håkan Karlsson, Robert Kern, David Kirtley, Bob Klimek, Matthias
+Klose, Andrew Kuchling, Magnus Källström, Victor Lacina, Ben Last,
+Hamish Lawson, Cesare Leonardi, Andrew MacIntyre, Jan Matejek, Naveen
+Michaud-Agrawal, Gordon McMillan, Skip Montanaro, Fredrik Nehr,
 Russell Nelson, Luciano Nocera, Travis Oliphant, Piet van Oostrum,
 Richard Oudkerk, Paul Pharr, Andres Polit, Conrado Porto Lopes Gouvêa,
 Eric Raymond, Victor Reijs, Bertil Reinhammar, Nicholas Riley, Don
@@ -24,8 +24,9 @@ Rozenberg, Toby Sargeant, Barry Scott, Les Schaffer, Joel Shprentz,
 Klamer Shutte, Gene Skonicki, Niki Spahiev, D. Alan Stewart, Perry
 Stoll, Paul Svensson, Ulrik Svensson, Miki Tebeka, Michael van
 Tellingen, Ivan Tkatchev, Dan Torop, Adam Twardoch, Rune Uhlin, Dmitry
-Vasiliev, Sasha Voynow, Charles Waldman, Collin Winter, Dan Wolfe, and
-Ka-Ping Yee.
+Vasiliev, Sasha Voynow, Charles Waldman, Collin Winter, Dan Wolfe,
+Ka-Ping Yee, and many others (if your name should be on this list, let
+me know.)
 
 *** Changes from release 1.1.6 to 1.1.7 ***
 
@@ -34,9 +35,13 @@ was last updated, see the repository revision history:
 
   http://bitbucket.org/effbot/pil-2009-raclette/changesets/
 
+(1.1.7 final)
+
 + Set GIF loop info property to the number of iterations if a NETSCAPE
   loop extension is present, instead of always setting it to 1 (from
   Valentino Volonghi).
+
+(1.1.7c1 released)
 
 + Improved PNG compression (from Alexey Borzenkov).
 
