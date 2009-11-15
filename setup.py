@@ -49,6 +49,7 @@ NAME = "PIL"
 DESCRIPTION = "Python Imaging Library"
 AUTHOR = "Secret Labs AB (PythonWare)", "info@pythonware.com"
 HOMEPAGE = "http://www.pythonware.com/products/pil"
+DOWNLOAD_URL = "http://effbot.org/downloads/%s-%s.tar.gz" # name, version
 
 # --------------------------------------------------------------------
 # Core library
@@ -471,7 +472,7 @@ if __name__ == "__main__":
             ],
         cmdclass = {"build_ext": pil_build_ext},
         description=DESCRIPTION,
-        download_url="http://effbot.org/downloads",
+        download_url=DOWNLOAD_URL % (NAME, VERSION),
         ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
         extra_path = "PIL",
         license="Python (MIT style)",
