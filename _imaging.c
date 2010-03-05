@@ -3273,9 +3273,17 @@ init_imaging(void)
 #endif
 
 #ifdef HAVE_LIBZ
+#include "zlib.h"
+  /* zip encoding strategies */
+  PyModule_AddIntConstant(m, "DEFAULT_STRATEGY", Z_DEFAULT_STRATEGY);
+  PyModule_AddIntConstant(m, "FILTERED", Z_FILTERED);
+  PyModule_AddIntConstant(m, "HUFFMAN_ONLY", Z_HUFFMAN_ONLY);
+  PyModule_AddIntConstant(m, "RLE", Z_RLE);
+  PyModule_AddIntConstant(m, "FIXED", Z_FIXED);
   {
     extern const char* ImagingZipVersion(void);
     PyDict_SetItemString(d, "zlib_version", PyString_FromString(ImagingZipVersion()));
   }
 #endif
+
 }

@@ -497,7 +497,10 @@ def _save(im, fp, filename, chunk=putchunk, check=0):
     else:
         dictionary = ""
 
-    im.encoderconfig = (im.encoderinfo.has_key("optimize"), dictionary)
+    im.encoderconfig = (im.encoderinfo.has_key("optimize"),
+        im.encoderinfo.get("compress_level", -1),
+        im.encoderinfo.get("compress_type", -1),
+        dictionary)
 
     # get the corresponding PNG mode
     try:

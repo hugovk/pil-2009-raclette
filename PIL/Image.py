@@ -154,6 +154,14 @@ NORMAL = 0
 SEQUENCE = 1
 CONTAINER = 2
 
+if hasattr(core, 'DEFAULT_STRATEGY'):
+    DEFAULT_STRATEGY = core.DEFAULT_STRATEGY
+    FILTERED = core.FILTERED
+    HUFFMAN_ONLY = core.HUFFMAN_ONLY
+    RLE = core.RLE
+    FIXED = core.FIXED
+    
+
 # --------------------------------------------------------------------
 # Registries
 
