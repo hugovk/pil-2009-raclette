@@ -386,12 +386,26 @@ ImagingUnpackRGB(UINT8* out, const UINT8* in, int pixels)
 }
 
 void
+unpackRGB16(UINT8* out, const UINT8* in, int pixels)
+{
+    int i;
+    /* 16-bit RGB triplets, little-endian order */
+    for (i = 0; i < pixels; i++) {
+	out[R] = in[1]; /* grab high byte */
+	out[G] = in[3];
+	out[B] = in[5];
+	out[A] = 255;
+	out += 4; in += 6;
+    }
+}
+
+void
 unpackRGB16B(UINT8* out, const UINT8* in, int pixels)
 {
     int i;
     /* 16-bit RGB triplets, big-endian order */
     for (i = 0; i < pixels; i++) {
-	out[R] = in[0];
+	out[R] = in[0]; /* grab high byte */
 	out[G] = in[2];
 	out[B] = in[4];
 	out[A] = 255;
@@ -842,14 +856,14 @@ static struct {
     ImagingShuffler unpack;
 } unpackers[] = {
 
-    /* raw mode syntax is "<mode>;<bits><flags>" where "bits" defaults
-       depending on mode (1 for "1", 8 for "P" and "L", etc), and
-       "flags" should be given in alphabetical order.  if both bits
+    /* raw mode syntax is "<mode>;<bits><flags>" where "bits" is bits per
+       component, defaulting depending on mode (1 for "1", 8 for "P" and "L",
+       etc), and "flags" should be given in alphabetical order.  if both bits
        and flags have their default values, the ; should be left out */
 
-    /* flags: "I" inverted data; "R" reversed bit order; "B" big
-       endian byte order (default is little endian); "L" line
-       interleave, "S" signed, "F" floating point */
+    /* flags: "I" inverted data; "R" reversed bit order; "B" big endian byte
+       order (default is little endian); "L" line interleave, "S" signed, "F"
+       floating point */
 
     /* bilevel */
     {"1",	"1",		1,	unpack1},
@@ -887,6 +901,7 @@ static struct {
     {"RGB",	"RGB",		24,	ImagingUnpackRGB},
     {"RGB",	"RGB;L",	24,	unpackRGBL},
     {"RGB",	"RGB;R",	24,	unpackRGBR},
+    {"RGB",	"RGB;16",	48,	unpackRGB16},
     {"RGB",	"RGB;16B",	48,	unpackRGB16B},
     {"RGB",	"BGR",		24,	ImagingUnpackBGR},
     {"RGB",	"BGR;15",	16,	ImagingUnpackBGR15},

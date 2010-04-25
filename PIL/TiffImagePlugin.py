@@ -15,12 +15,6 @@
 #
 # History:
 # 1995-09-01 fl   Created
-# 1996-05-04 fl   Handle JPEGTABLES tag
-# 1996-05-18 fl   Fixed COLORMAP support
-# 1997-01-05 fl   Fixed PREDICTOR support
-# 1997-08-27 fl   Added support for rational tags (from Perry Stoll)
-# 1998-01-10 fl   Fixed seek/tell (from Jan Blom)
-# 1998-07-15 fl   Use private names for internal variables
 # 1999-06-13 fl   Rewritten for PIL 1.0 (1.0)
 # 2000-10-11 fl   Additional fixes for Python 2.0 (1.1)
 # 2001-04-17 fl   Fixed rewind support (seek to frame 0) (1.2)
@@ -32,14 +26,17 @@
 # 2004-02-24 fl   Added DPI support; fixed rational write support
 # 2005-02-07 fl   Added workaround for broken Corel Draw 10 files
 # 2006-01-09 fl   Added support for float/double tags (from Russell Nelson)
+# 2009-03-06 fl   Added ICC support (from Florian Hoech)
+# 2009-03-08 fl   Added big endian save, etc (from Sebastian Haase)
+# 2010-04-25 fl   Added limited support for 16-bit RGB (1.3.6)
 #
-# Copyright (c) 1997-2006 by Secret Labs AB.  All rights reserved.
+# Copyright (c) 1997-2010 by Secret Labs AB.  All rights reserved.
 # Copyright (c) 1995-1997 by Fredrik Lundh
 #
 # See the README file for information on usage and redistribution.
 #
 
-__version__ = "1.3.5"
+__version__ = "1.3.6"
 
 import Image, ImageFile
 import ImagePalette
@@ -130,6 +127,7 @@ COMPRESSION_INFO = {
 OPEN_INFO = {
     # (ByteOrder, PhotoInterpretation, SampleFormat, FillOrder, BitsPerSample,
     #  ExtraSamples) => mode, rawmode
+    # FIXME: refactor to avoid repeating byteorder independent modes
     (II, 0, 1, 1, (1,), ()): ("1", "1;I"),
     (II, 0, 1, 2, (1,), ()): ("1", "1;IR"),
     (II, 0, 1, 1, (8,), ()): ("L", "L;I"),
@@ -149,6 +147,7 @@ OPEN_INFO = {
     (II, 2, 1, 1, (8,8,8,8), (1,)): ("RGBA", "RGBa"),
     (II, 2, 1, 1, (8,8,8,8), (2,)): ("RGBA", "RGBA"),
     (II, 2, 1, 1, (8,8,8,8), (999,)): ("RGBA", "RGBA"), # corel draw 10
+    (II, 2, 1, 1, (16, 16, 16), ())]: ("RGB", "RGB;16"),
     (II, 3, 1, 1, (1,), ()): ("P", "P;1"),
     (II, 3, 1, 2, (1,), ()): ("P", "P;1R"),
     (II, 3, 1, 1, (2,), ()): ("P", "P;2"),
@@ -181,6 +180,7 @@ OPEN_INFO = {
     (MM, 2, 1, 1, (8,8,8,8), (1,)): ("RGBA", "RGBa"),
     (MM, 2, 1, 1, (8,8,8,8), (2,)): ("RGBA", "RGBA"),
     (MM, 2, 1, 1, (8,8,8,8), (999,)): ("RGBA", "RGBA"), # corel draw 10
+    (MM, 2, 1, 1, (16, 16, 16), ())]: ("RGB", "RGB;16B"),
     (MM, 3, 1, 1, (1,), ()): ("P", "P;1"),
     (MM, 3, 1, 2, (1,), ()): ("P", "P;1R"),
     (MM, 3, 1, 1, (2,), ()): ("P", "P;2"),
