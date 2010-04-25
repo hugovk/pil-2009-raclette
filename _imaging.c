@@ -108,6 +108,10 @@
 #define PyObject_Del PyMem_DEL
 #endif
 
+#if PY_VERSION_HEX < 0x02030000
+#define PyLong_AsUnsignedLongMask PyLong_AsUnsignedLong
+#endif
+
 #if PY_VERSION_HEX < 0x02050000
 #define Py_ssize_t int
 #define ssizeargfunc intargfunc
@@ -527,9 +531,12 @@ getink(PyObject* color, Imaging im, char* ink)
             ink[1] = ink[2] = ink[3] = 0;
         } else {
             a = 255;
-            if (PyInt_Check(color)) {
-                r = PyInt_AS_LONG(color);
-                /* compatibility: ABGR */
+            if (PyInt_Check(color) || PyLong_Check(color)) {
+                if (PyInt_Check(color))
+                    r = PyInt_AS_LONG(color);
+                else
+                    r = (int) PyLong_AsUnsignedLongMask(color);
+                /* compatibility: treat integer as packed ABGR */
                 a = (UINT8) (r >> 24);
                 b = (UINT8) (r >> 16);
                 g = (UINT8) (r >> 8);
