@@ -147,7 +147,7 @@ OPEN_INFO = {
     (II, 2, 1, 1, (8,8,8,8), (1,)): ("RGBA", "RGBa"),
     (II, 2, 1, 1, (8,8,8,8), (2,)): ("RGBA", "RGBA"),
     (II, 2, 1, 1, (8,8,8,8), (999,)): ("RGBA", "RGBA"), # corel draw 10
-    (II, 2, 1, 1, (16, 16, 16), ())]: ("RGB", "RGB;16"),
+    (II, 2, 1, 1, (16, 16, 16), ()): ("RGB", "RGB;16"),
     (II, 3, 1, 1, (1,), ()): ("P", "P;1"),
     (II, 3, 1, 2, (1,), ()): ("P", "P;1R"),
     (II, 3, 1, 1, (2,), ()): ("P", "P;2"),
@@ -180,7 +180,7 @@ OPEN_INFO = {
     (MM, 2, 1, 1, (8,8,8,8), (1,)): ("RGBA", "RGBa"),
     (MM, 2, 1, 1, (8,8,8,8), (2,)): ("RGBA", "RGBA"),
     (MM, 2, 1, 1, (8,8,8,8), (999,)): ("RGBA", "RGBA"), # corel draw 10
-    (MM, 2, 1, 1, (16, 16, 16), ())]: ("RGB", "RGB;16B"),
+    (MM, 2, 1, 1, (16, 16, 16), ()): ("RGB", "RGB;16B"),
     (MM, 3, 1, 1, (1,), ()): ("P", "P;1"),
     (MM, 3, 1, 2, (1,), ()): ("P", "P;1R"),
     (MM, 3, 1, 1, (2,), ()): ("P", "P;2"),
@@ -784,8 +784,7 @@ def _save(im, fp, filename):
     if im.encoderinfo.has_key("description"):
         ifd[IMAGEDESCRIPTION] = im.encoderinfo["description"]
     if im.encoderinfo.has_key("resolution"):
-        ifd[X_RESOLUTION] = ifd[Y_RESOLUTION] \
-                                = _cvt_res(im.encoderinfo["resolution"])
+        ifd[X_RESOLUTION] = ifd[Y_RESOLUTION] = _cvt_res(im.encoderinfo["resolution"])
     if im.encoderinfo.has_key("x resolution"):
         ifd[X_RESOLUTION] = _cvt_res(im.encoderinfo["x resolution"])
     if im.encoderinfo.has_key("y resolution"):
@@ -840,7 +839,6 @@ def _save(im, fp, filename):
     ImageFile._save(im, fp, [
         ("raw", (0,0)+im.size, offset, (rawmode, stride, 1))
         ])
-
 
     # -- helper for multi-page save --
     if im.encoderinfo.has_key("_debug_multipage"):
