@@ -6,8 +6,9 @@
 #
 # History:
 # 2008-04-06 fl   Created
+# 2010-04-25 fl   Don't mess up if multiple viewers are available.
 #
-# Copyright (c) Secret Labs AB 2008.
+# Copyright (c) Secret Labs AB 2008-2010.
 #
 # See the README file for information on usage and redistribution.
 #
@@ -63,7 +64,7 @@ class Viewer:
         if base != image.mode and image.mode != "1":
             image = image.convert(base)
 
-        self.show_image(image, **options)
+        return self.show_image(image, **options)
 
     # hook methods
 
