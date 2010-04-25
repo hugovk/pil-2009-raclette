@@ -224,6 +224,6 @@ def _setup():
         coverage.start()
     if "--log" in sys.argv:
         _logfile = open("test.log", "a")
-    
+
 
 _setup()
