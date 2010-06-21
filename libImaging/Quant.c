@@ -26,6 +26,7 @@
 #include <time.h>
 
 #include "Quant.h"
+#include "QuantOctree.h"
 
 #include "QuantDefines.h"
 #include "QuantHash.h"
@@ -1557,6 +1558,17 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
     case 1:
         /* maximum coverage */
         result = quantize2(
+            p,
+            im->xsize*im->ysize,
+            colors,
+            &palette,
+            &paletteLength,
+            &newData,
+            kmeans
+            );
+        break;
+    case 2:
+        result = quantize_octree(
             p,
             im->xsize*im->ysize,
             colors,
