@@ -23,6 +23,7 @@
 This file implements a variation of the octree color quantization algorithm.
 */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,6 +39,7 @@ typedef struct _ColorNode{
 typedef struct _ColorCube{
    int level;
    int rBits, gBits, bBits;
+   int rWidth, gWidth, bWidth;
    int size;
    ColorNode nodes;
 } *ColorCube;
@@ -45,7 +47,9 @@ typedef struct _ColorCube{
 static ColorCube
 new_color_cube(int level) {
    int width;
+   int r, g, b;
    ColorCube cube;
+   ColorNode n;
    
    cube = malloc(sizeof(struct _ColorCube));
    if (!cube) return NULL;
@@ -56,7 +60,11 @@ new_color_cube(int level) {
    cube->gBits = level;
    cube->bBits = level;
    
-   cube->size = 1<<cube->rBits * 1<<cube->gBits * 1<<cube->bBits;
+   cube->rWidth = 1<<cube->rBits;
+   cube->gWidth = 1<<cube->gBits;
+   cube->bWidth = 1<<cube->bBits;
+   
+   cube->size = cube->rWidth * cube->gWidth * cube->bWidth;
    cube->nodes = calloc(cube->size, sizeof(struct _ColorNode));
    
    if (!cube->nodes) {
@@ -75,14 +83,22 @@ free_color_cube(ColorCube cube) {
 }
 
 static int
-color_node_offset(const ColorCube cube, const Pixel *p) {
+color_node_offset_pos(const ColorCube cube, int r, int g, int b) {
    int offset;
-   
-   offset = p->c.r>>(8-cube->rBits);
-   offset = offset<<cube->rBits | p->c.g>>(8-cube->gBits);
-   offset = offset<<cube->gBits | p->c.b>>(8-cube->bBits);
+   offset = r;
+   offset = offset<<cube->rBits | g;
+   offset = offset<<cube->gBits | b;
    return offset;
 }
+
+static int
+color_node_offset(const ColorCube cube, const Pixel *p) {
+   int r = p->c.r>>(8-cube->rBits);
+   int g = p->c.g>>(8-cube->gBits);
+   int b = p->c.b>>(8-cube->bBits);
+   return color_node_offset_pos(cube, r, g, b);
+}
+
 
 static ColorNode
 color_node_from_cube(const ColorCube cube, const Pixel *p) {
@@ -135,6 +151,35 @@ create_color_cube_palette(const ColorCube cube) {
          (int (*)(void const *, void const *))&compare_node_count);
    
    return nodes;
+}
+
+void add_node_values(ColorNode src, ColorNode dst) {
+   dst->count += src->count;
+   dst->r += src->r;
+   dst->g += src->g;
+   dst->b += src->b;
+}
+
+static ColorCube create_coarse_color_cube(const ColorCube cube, int level) {
+   int r, g, b;
+   int reduce;
+   reduce = cube->level - level;
+   ColorCube result = new_color_cube(level);
+   if (!result) return NULL;
+
+   for (r=0; r<cube->rWidth; r++) {
+      for (g=0; g<cube->gWidth; g++) {
+         for (b=0; b<cube->bWidth; b++) {
+            int src_pos = color_node_offset_pos(cube, r, g, b);
+            int dst_pos = color_node_offset_pos(result, r>>reduce, g>>reduce, b>>reduce);
+            add_node_values(
+               &cube->nodes[src_pos],
+               &result->nodes[dst_pos]
+            );
+         }
+      }
+   }
+   return result;
 }
 
 static void
@@ -210,6 +255,7 @@ int quantize_octree(Pixel *pixelData,
           int kmeans)
 {
    ColorCube cube;
+   ColorCube coarse_cube;
    ColorCube lookupCube;
    ColorNode paletteNodes;
    unsigned long *qp;
@@ -221,6 +267,9 @@ int quantize_octree(Pixel *pixelData,
    for (i=0; i<nPixels; i++) {
       add_color_to_color_cube(cube, &pixelData[i]);
    }
+   
+   // coarse_cube = create_coarse_color_cube(cube, 3);
+   // cube = coarse_cube;
    
    paletteNodes = create_color_cube_palette(cube);
    if (!paletteNodes) goto error_1;
