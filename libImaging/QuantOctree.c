@@ -19,9 +19,9 @@
 // THE SOFTWARE.
 
 
-/*
-This file implements a variation of the octree color quantization algorithm.
-*/
+//
+// This file implements a variation of the octree color quantization algorithm.
+//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,16 +40,14 @@ typedef struct _ColorCube{
    int level;
    int rBits, gBits, bBits;
    int rWidth, gWidth, bWidth;
+   int rOffset, gOffset, bOffset;
    int size;
    ColorNode nodes;
 } *ColorCube;
 
 static ColorCube
 new_color_cube(int level) {
-   int width;
-   int r, g, b;
    ColorCube cube;
-   ColorNode n;
    
    cube = malloc(sizeof(struct _ColorCube));
    if (!cube) return NULL;
@@ -63,6 +61,10 @@ new_color_cube(int level) {
    cube->rWidth = 1<<cube->rBits;
    cube->gWidth = 1<<cube->gBits;
    cube->bWidth = 1<<cube->bBits;
+   
+   cube->rOffset = cube->rBits + cube->gBits;
+   cube->gOffset = cube->gBits;
+   cube->bOffset = 0;
    
    cube->size = cube->rWidth * cube->gWidth * cube->bWidth;
    cube->nodes = calloc(cube->size, sizeof(struct _ColorNode));
@@ -84,11 +86,7 @@ free_color_cube(ColorCube cube) {
 
 static int
 color_node_offset_pos(const ColorCube cube, int r, int g, int b) {
-   int offset;
-   offset = r;
-   offset = offset<<cube->rBits | g;
-   offset = offset<<cube->gBits | b;
-   return offset;
+   return r<<cube->rOffset | g<<cube->gOffset | b<<cube->bOffset;
 }
 
 static int
@@ -163,15 +161,18 @@ void add_node_values(ColorNode src, ColorNode dst) {
 static ColorCube create_coarse_color_cube(const ColorCube cube, int level) {
    int r, g, b;
    int reduce;
+   int src_pos, dst_pos;
+   ColorCube result;
+   
    reduce = cube->level - level;
-   ColorCube result = new_color_cube(level);
+   result = new_color_cube(level);
    if (!result) return NULL;
 
    for (r=0; r<cube->rWidth; r++) {
       for (g=0; g<cube->gWidth; g++) {
          for (b=0; b<cube->bWidth; b++) {
-            int src_pos = color_node_offset_pos(cube, r, g, b);
-            int dst_pos = color_node_offset_pos(result, r>>reduce, g>>reduce, b>>reduce);
+            src_pos = color_node_offset_pos(cube, r, g, b);
+            dst_pos = color_node_offset_pos(result, r>>reduce, g>>reduce, b>>reduce);
             add_node_values(
                &cube->nodes[src_pos],
                &result->nodes[dst_pos]
@@ -255,7 +256,7 @@ int quantize_octree(Pixel *pixelData,
           int kmeans)
 {
    ColorCube cube;
-   ColorCube coarse_cube;
+   // ColorCube coarse_cube;
    ColorCube lookupCube;
    ColorNode paletteNodes;
    unsigned long *qp;
