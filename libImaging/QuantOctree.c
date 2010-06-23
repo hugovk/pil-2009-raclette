@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Oliver Tonnhofer <olt@bogosoft.com>, Omniscale
+/* Copyright (c) 2010 Oliver Tonnhofer <olt@bogosoft.com>, Omniscale
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,11 +17,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+*/
 
-
-//
+/*
 // This file implements a variation of the octree color quantization algorithm.
-//
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +53,7 @@ new_color_cube(int level) {
    if (!cube) return NULL;
    
    cube->level = level;
-   // uniform cube only at this time
+   /* uniform cube only at this time */
    cube->rBits = level;
    cube->gBits = level;
    cube->bBits = level;
@@ -158,21 +158,36 @@ void add_node_values(ColorNode src, ColorNode dst) {
    dst->b += src->b;
 }
 
-static ColorCube create_coarse_color_cube(const ColorCube cube, int level) {
+static ColorCube copy_color_cube(const ColorCube cube, int level) {
    int r, g, b;
-   int reduce;
    int src_pos, dst_pos;
+   int src_reduce, dst_reduce;
+   int width;
    ColorCube result;
    
-   reduce = cube->level - level;
    result = new_color_cube(level);
    if (!result) return NULL;
-
-   for (r=0; r<cube->rWidth; r++) {
-      for (g=0; g<cube->gWidth; g++) {
-         for (b=0; b<cube->bWidth; b++) {
-            src_pos = color_node_offset_pos(cube, r, g, b);
-            dst_pos = color_node_offset_pos(result, r>>reduce, g>>reduce, b>>reduce);
+   
+   if (cube->level > level) {
+      dst_reduce = cube->level - level;
+      src_reduce = 0;
+      width = cube->rWidth;
+   } else {
+      dst_reduce = 0;
+      src_reduce = level - cube->level;
+      width = result->rWidth;
+   }
+   for (r=0; r<width; r++) {
+      for (g=0; g<width; g++) {
+         for (b=0; b<width; b++) {
+            src_pos = color_node_offset_pos(cube,
+                                            r>>src_reduce,
+                                            g>>src_reduce,
+                                            b>>src_reduce);
+            dst_pos = color_node_offset_pos(result,
+                                            r>>dst_reduce,
+                                            g>>dst_reduce,
+                                            b>>dst_reduce);
             add_node_values(
                &cube->nodes[src_pos],
                &result->nodes[dst_pos]
@@ -181,6 +196,21 @@ static ColorCube create_coarse_color_cube(const ColorCube cube, int level) {
       }
    }
    return result;
+}
+
+void subtract_color_nodes(ColorCube cube, ColorNode nodes, long nNodes) {
+   ColorNode minuend, subtrahend;
+   long i;
+   Pixel p;
+   for (i=0; i<nNodes; i++) {
+      subtrahend = &nodes[i];
+      avg_color_from_color_node(subtrahend, &p);
+      minuend = color_node_from_cube(cube, &p);
+      minuend->count -= subtrahend->count;
+      minuend->r -= subtrahend->r;
+      minuend->g -= subtrahend->g;
+      minuend->b -= subtrahend->b;
+   }
 }
 
 static void
@@ -220,6 +250,25 @@ create_lookup_color_cube(
    return lookupCube;
 }
 
+
+void add_lookup_nodes(ColorCube cube, ColorNode palette, long nColors, long offset) {
+   int i;
+   Pixel p;
+   for (i=offset; i<offset+nColors; i++) {
+      avg_color_from_color_node(&palette[i], &p);
+      set_lookup_value(cube, &p, i);
+   }
+}
+
+ColorNode combined_palette_nodes(ColorNode nodesA, int nNodesA, ColorNode nodesB, int nNodesB) {
+   ColorNode result;
+   result = malloc(sizeof(struct _ColorNode)*(nNodesA+nNodesB));
+   memcpy(result, nodesA, sizeof(struct _ColorNode) * nNodesA);
+   memcpy(&result[nNodesA], nodesB, sizeof(struct _ColorNode) * nNodesB);
+   return result;
+}
+
+
 static Pixel *
 create_palette_array(const ColorNode palette, unsigned int paletteLength) {
    Pixel *paletteArray;
@@ -247,6 +296,7 @@ map_image_pixels(const Pixel *pixelData,
    }
 }
 
+
 int quantize_octree(Pixel *pixelData,
           unsigned long nPixels,
           unsigned long nQuantPixels,
@@ -255,53 +305,100 @@ int quantize_octree(Pixel *pixelData,
           unsigned long **quantizedPixels,
           int kmeans)
 {
-   ColorCube cube;
-   // ColorCube coarse_cube;
-   ColorCube lookupCube;
+   ColorCube fineCube;
+   ColorCube coarseCube;
+   ColorCube lookupCube, coarseLookupCube;
+   ColorNode paletteNodesCoarse;
+   ColorNode paletteNodesFine;
    ColorNode paletteNodes;
    unsigned long *qp;
    long i;
+   long nCoarseColors, nFineColors;
    
-   cube = new_color_cube(4);
-   if (!cube) goto error_0;
+   /*
+   Create two color cubes, one fine grained with 16x16x16=4096
+   colors nodes and a coarse with 4*4*4=64 color nodes.
+   The coarse one guarantes that there are color nodes available for
+   the whole color range. The most used color nodes from the fine color
+   cube will be used.
+   */
+   
+   fineCube = new_color_cube(4);
+   if (!fineCube) goto error_0;
    
    for (i=0; i<nPixels; i++) {
-      add_color_to_color_cube(cube, &pixelData[i]);
+      add_color_to_color_cube(fineCube, &pixelData[i]);
    }
    
-   // coarse_cube = create_coarse_color_cube(cube, 3);
-   // cube = coarse_cube;
+   coarseCube = copy_color_cube(fineCube, 2);
+   if (!coarseCube) goto error_1;
+   nCoarseColors = count_used_color_nodes(coarseCube);
    
-   paletteNodes = create_color_cube_palette(cube);
-   if (!paletteNodes) goto error_1;
+   /* TODO nCoarseColors > nQuantPixels */
    
-   lookupCube = create_lookup_color_cube(cube, paletteNodes, nQuantPixels);
-   if (!lookupCube) goto error_2;
+   nFineColors = nQuantPixels - nCoarseColors;
+   paletteNodesFine = create_color_cube_palette(fineCube);
+   if (!paletteNodesFine) goto error_2;
+   subtract_color_nodes(coarseCube, paletteNodesFine, nFineColors);
    
+   if (nCoarseColors > count_used_color_nodes(coarseCube)) {
+      nCoarseColors = count_used_color_nodes(coarseCube);
+      nFineColors = nQuantPixels - nCoarseColors;
+      subtract_color_nodes(coarseCube, paletteNodesFine, nFineColors);
+   }
+   
+   paletteNodesCoarse = create_color_cube_palette(coarseCube);
+   if (!paletteNodesCoarse) goto error_3;
+   
+   paletteNodes = combined_palette_nodes(paletteNodesCoarse, nCoarseColors,
+                                         paletteNodesFine, nFineColors);
+   
+   free(paletteNodesFine);
+   paletteNodesFine = NULL;
+   free(paletteNodesCoarse);
+   paletteNodesCoarse = NULL;
+   
+   coarseLookupCube = new_color_cube(2);
+   if (!coarseLookupCube) goto error_4;
+   add_lookup_nodes(coarseLookupCube, paletteNodes, nCoarseColors, 0);
+   
+   lookupCube = copy_color_cube(coarseLookupCube, 4);
+   if (!lookupCube) goto error_5;
+   
+   add_lookup_nodes(lookupCube, paletteNodes, nFineColors, nCoarseColors);
+      
    qp = malloc(sizeof(Pixel)*nPixels);
-   if (!qp) goto error_3;
+   if (!qp) goto error_6;
 
    map_image_pixels(pixelData, nPixels, lookupCube, qp);
    
    *palette = create_palette_array(paletteNodes, nQuantPixels);
-   if (!(*palette)) goto error_4;
+   if (!(*palette)) goto error_7;
    
    *quantizedPixels = qp;
    *paletteLength = nQuantPixels;
    
-   free_color_cube(cube);
+   free_color_cube(coarseCube);
+   free_color_cube(fineCube);
    free_color_cube(lookupCube);
+   free_color_cube(coarseLookupCube);
    free(paletteNodes);
    return 1;
 
-error_4:
+error_7:
    free(qp);
-error_3:
+error_6:
    free_color_cube(lookupCube);
+error_5:
+   free_color_cube(coarseLookupCube);
+error_4:
+   free(paletteNodesCoarse);
+error_3:
+   free(paletteNodesFine);
 error_2:
-   free(paletteNodes);
+   free_color_cube(coarseCube);
 error_1:
-   free_color_cube(cube);
+   free_color_cube(fineCube);
 error_0:
    return 0;
 }
