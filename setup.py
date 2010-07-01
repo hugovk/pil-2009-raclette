@@ -65,7 +65,7 @@ LIBIMAGING = [
     "Geometry", "GetBBox", "GifDecode", "GifEncode", "HexDecode",
     "Histo", "JpegDecode", "JpegEncode", "LzwDecode", "Matrix",
     "ModeFilter", "MspDecode", "Negative", "Offset", "Pack",
-    "PackDecode", "Palette", "Paste", "Quant", "QuantHash",
+    "PackDecode", "Palette", "Paste", "Quant", "QuantOctree", "QuantHash",
     "QuantHeap", "PcdDecode", "PcxDecode", "PcxEncode", "Point",
     "RankFilter", "RawDecode", "RawEncode", "Storage", "SunRleDecode",
     "TgaRleDecode", "Unpack", "UnpackYCC", "UnsharpMask", "XbmDecode",

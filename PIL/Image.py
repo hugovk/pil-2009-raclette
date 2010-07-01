@@ -149,6 +149,10 @@ FLOYDSTEINBERG = 3 # default
 WEB = 0
 ADAPTIVE = 1
 
+MEDIANCUT = 0
+MAXCOVERAGE = 1
+FASTOCTREE = 2
+
 # categories
 NORMAL = 0
 SEQUENCE = 1
@@ -718,6 +722,7 @@ class Image:
         # methods:
         #    0 = median cut
         #    1 = maximum coverage
+        #    2 = fast octree
 
         # NOTE: this functionality will be moved to the extended
         # quantizer interface in a later version of PIL.
