@@ -30,6 +30,7 @@
 #include "Quant.h"
 
 typedef struct _ColorBucket{
+   /* contains palette index when used for look up cube */
    unsigned long count;
    unsigned long r;
    unsigned long g;
@@ -162,6 +163,7 @@ void add_bucket_values(ColorBucket src, ColorBucket dst) {
    dst->b += src->b;
 }
 
+/* expand or shrink a given cube to level */
 static ColorCube copy_color_cube(const ColorCube cube, unsigned int level) {
    unsigned int r, g, b;
    long src_pos, dst_pos;
@@ -315,45 +317,60 @@ int quantize_octree(Pixel *pixelData,
    ColorBucket paletteBuckets = NULL;
    unsigned long *qp = NULL;
    long i;
-   long nCoarseColors, nFineColors;
+   long nCoarseColors, nFineColors, nAlreadySubtracted;
    
    /*
    Create two color cubes, one fine grained with 16x16x16=4096
    colors buckets and a coarse with 4*4*4=64 color buckets.
    The coarse one guarantes that there are color buckets available for
-   the whole color range. The most used color buckets from the fine color
-   cube will be used.
+   the whole color range (assuming nQuantPixels > 64).
+   
+   For a quantization to 256 colors all 64 coarse colors will be used
+   plus the 192 most used color buckets from the fine color cube.
+   The average of all colors within one bucket is used as the actual
+   color for that bucket.
    */
    
+   /* create fine cube */
    fineCube = new_color_cube(4);
    if (!fineCube) goto error;
-   
    for (i=0; i<nPixels; i++) {
       add_color_to_color_cube(fineCube, &pixelData[i]);
    }
    
+   /* create coarse cube */
    coarseCube = copy_color_cube(fineCube, 2);
    if (!coarseCube) goto error;
    nCoarseColors = count_used_color_buckets(coarseCube);
    
-   if (nCoarseColors > nQuantPixels) {
+   /* limit to nQuantPixels */
+   if (nCoarseColors > nQuantPixels)
       nCoarseColors = nQuantPixels;
-   }
    
+   /* how many space do we have in our palette for fine colors? */
    nFineColors = nQuantPixels - nCoarseColors;
+   
+   /* create fine color palette */
    paletteBucketsFine = create_sorted_color_palette(fineCube);
    if (!paletteBucketsFine) goto error;
+   
+   /* remove the used fine colors from the coarse cube */
    subtract_color_buckets(coarseCube, paletteBucketsFine, nFineColors);
    
-   if (nCoarseColors > count_used_color_buckets(coarseCube)) {
+   /* did the substraction cleared one or more coarse bucket? */
+   while (nCoarseColors > count_used_color_buckets(coarseCube)) {
+      printf("%d %d\n", nCoarseColors, count_used_color_buckets(coarseCube));
+      /* then we can use the free buckets for fine colors */
+      nAlreadySubtracted = nFineColors;
       nCoarseColors = count_used_color_buckets(coarseCube);
       nFineColors = nQuantPixels - nCoarseColors;
-      subtract_color_buckets(coarseCube, paletteBucketsFine, nFineColors);
+      subtract_color_buckets(coarseCube, &paletteBucketsFine[nAlreadySubtracted],
+                             nFineColors-nAlreadySubtracted);
    }
    
+   /* create our palette buckets with fine and coarse combined */
    paletteBucketsCoarse = create_sorted_color_palette(coarseCube);
    if (!paletteBucketsCoarse) goto error;
-   
    paletteBuckets = combined_palette(paletteBucketsCoarse, nCoarseColors,
                                      paletteBucketsFine, nFineColors);
    
@@ -362,20 +379,25 @@ int quantize_octree(Pixel *pixelData,
    free(paletteBucketsCoarse);
    paletteBucketsCoarse = NULL;
    
+   /* add all coarse colors to our coarse lookup cube. */
    coarseLookupCube = new_color_cube(2);
    if (!coarseLookupCube) goto error;
    add_lookup_buckets(coarseLookupCube, paletteBuckets, nCoarseColors, 0);
    
+   /* expand coarse cube (64) to larger fine cube (4k). the value of each
+      coarse bucket is then present in the according 64 fine buckets. */
    lookupCube = copy_color_cube(coarseLookupCube, 4);
    if (!lookupCube) goto error;
    
+   /* add fine colors to the lookup cube */
    add_lookup_buckets(lookupCube, paletteBuckets, nFineColors, nCoarseColors);
-      
+   
+   /* create result pixles and map palatte indices */
    qp = malloc(sizeof(Pixel)*nPixels);
    if (!qp) goto error;
-
    map_image_pixels(pixelData, nPixels, lookupCube, qp);
    
+   /* convert palette buckets to RGB pixel palette */
    *palette = create_palette_array(paletteBuckets, nQuantPixels);
    if (!(*palette)) goto error;
    
