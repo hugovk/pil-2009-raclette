@@ -359,7 +359,6 @@ int quantize_octree(Pixel *pixelData,
    
    /* did the substraction cleared one or more coarse bucket? */
    while (nCoarseColors > count_used_color_buckets(coarseCube)) {
-      printf("%d %d\n", nCoarseColors, count_used_color_buckets(coarseCube));
       /* then we can use the free buckets for fine colors */
       nAlreadySubtracted = nFineColors;
       nCoarseColors = count_used_color_buckets(coarseCube);
