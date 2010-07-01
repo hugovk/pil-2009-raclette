@@ -336,7 +336,9 @@ int quantize_octree(Pixel *pixelData,
    if (!coarseCube) goto error_1;
    nCoarseColors = count_used_color_buckets(coarseCube);
    
-   /* TODO nCoarseColors > nQuantPixels */
+   if (nCoarseColors > nQuantPixels) {
+      nCoarseColors = nQuantPixels;
+   }
    
    nFineColors = nQuantPixels - nCoarseColors;
    paletteBucketsFine = create_sorted_color_palette(fineCube);
