@@ -313,7 +313,7 @@ int quantize_octree(Pixel *pixelData,
    ColorBucket paletteBucketsCoarse = NULL;
    ColorBucket paletteBucketsFine = NULL;
    ColorBucket paletteBuckets = NULL;
-   unsigned long *qp;
+   unsigned long *qp = NULL;
    long i;
    long nCoarseColors, nFineColors;
    
@@ -326,14 +326,14 @@ int quantize_octree(Pixel *pixelData,
    */
    
    fineCube = new_color_cube(4);
-   if (!fineCube) goto error_0;
+   if (!fineCube) goto error;
    
    for (i=0; i<nPixels; i++) {
       add_color_to_color_cube(fineCube, &pixelData[i]);
    }
    
    coarseCube = copy_color_cube(fineCube, 2);
-   if (!coarseCube) goto error_1;
+   if (!coarseCube) goto error;
    nCoarseColors = count_used_color_buckets(coarseCube);
    
    if (nCoarseColors > nQuantPixels) {
@@ -342,7 +342,7 @@ int quantize_octree(Pixel *pixelData,
    
    nFineColors = nQuantPixels - nCoarseColors;
    paletteBucketsFine = create_sorted_color_palette(fineCube);
-   if (!paletteBucketsFine) goto error_2;
+   if (!paletteBucketsFine) goto error;
    subtract_color_buckets(coarseCube, paletteBucketsFine, nFineColors);
    
    if (nCoarseColors > count_used_color_buckets(coarseCube)) {
@@ -352,7 +352,7 @@ int quantize_octree(Pixel *pixelData,
    }
    
    paletteBucketsCoarse = create_sorted_color_palette(coarseCube);
-   if (!paletteBucketsCoarse) goto error_3;
+   if (!paletteBucketsCoarse) goto error;
    
    paletteBuckets = combined_palette(paletteBucketsCoarse, nCoarseColors,
                                      paletteBucketsFine, nFineColors);
@@ -363,21 +363,21 @@ int quantize_octree(Pixel *pixelData,
    paletteBucketsCoarse = NULL;
    
    coarseLookupCube = new_color_cube(2);
-   if (!coarseLookupCube) goto error_4;
+   if (!coarseLookupCube) goto error;
    add_lookup_buckets(coarseLookupCube, paletteBuckets, nCoarseColors, 0);
    
    lookupCube = copy_color_cube(coarseLookupCube, 4);
-   if (!lookupCube) goto error_5;
+   if (!lookupCube) goto error;
    
    add_lookup_buckets(lookupCube, paletteBuckets, nFineColors, nCoarseColors);
       
    qp = malloc(sizeof(Pixel)*nPixels);
-   if (!qp) goto error_6;
+   if (!qp) goto error;
 
    map_image_pixels(pixelData, nPixels, lookupCube, qp);
    
    *palette = create_palette_array(paletteBuckets, nQuantPixels);
-   if (!(*palette)) goto error_7;
+   if (!(*palette)) goto error;
    
    *quantizedPixels = qp;
    *paletteLength = nQuantPixels;
@@ -389,20 +389,15 @@ int quantize_octree(Pixel *pixelData,
    free(paletteBuckets);
    return 1;
 
-error_7:
+error:
+   /* everything is initialized to NULL
+      so we are safe to call free */
    free(qp);
-error_6:
    free_color_cube(lookupCube);
-error_5:
    free_color_cube(coarseLookupCube);
-error_4:
    free(paletteBucketsCoarse);
-error_3:
    free(paletteBucketsFine);
-error_2:
    free_color_cube(coarseCube);
-error_1:
    free_color_cube(fineCube);
-error_0:
    return 0;
 }
