@@ -17,6 +17,7 @@ Imaging/libImaging/ImDib.h
 Imaging/libImaging/ImPlatform.h
 
 Imaging/libImaging/Quant.h
+Imaging/libImaging/QuantOctree.h
 Imaging/libImaging/QuantHash.h
 Imaging/libImaging/QuantHeap.h
 Imaging/libImaging/QuantDefines.h
@@ -51,6 +52,7 @@ Imaging/libImaging/Palette.c
 Imaging/libImaging/Paste.c
 Imaging/libImaging/Point.c
 Imaging/libImaging/Quant.c
+Imaging/libImaging/QuantOctree.c
 Imaging/libImaging/QuantHash.c
 Imaging/libImaging/QuantHeap.c
 Imaging/libImaging/RankFilter.c
