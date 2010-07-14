@@ -525,8 +525,12 @@ def _save(im, fp, filename, chunk=putchunk, check=0):
 
     if im.encoderinfo.has_key("transparency"):
         if im.mode == "P":
-            transparency = max(0, min(255, im.encoderinfo["transparency"]))
-            chunk(fp, "tRNS", chr(255) * transparency + chr(0))
+            if im.encoderinfo["transparency"] == "full":
+                alpha = im.im.getpalette("RGBA", "A")
+                chunk(fp, "tRNS", alpha)
+            else:
+                transparency = max(0, min(255, im.encoderinfo["transparency"]))
+                chunk(fp, "tRNS", chr(255) * transparency + chr(0))
         elif im.mode == "L":
             transparency = max(0, min(65535, im.encoderinfo["transparency"]))
             chunk(fp, "tRNS", o16(transparency))
