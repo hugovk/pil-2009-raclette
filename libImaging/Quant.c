@@ -1486,6 +1486,7 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
     int result;
     unsigned long* newData;
     Imaging imOut;
+    int withAlpha = 0;
 
     if (!im)
 	return ImagingError_ModeError();
@@ -1495,8 +1496,12 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
         return (Imaging) ImagingError_ValueError("bad number of colors");
 
     if (strcmp(im->mode, "L") != 0 && strcmp(im->mode, "P") != 0 &&
-        strcmp(im->mode, "RGB"))
+        strcmp(im->mode, "RGB") != 0 && strcmp(im->mode, "RGBA") !=0)
         return ImagingError_ModeError();
+
+    /* only octree supports RGBA */
+    if (!strcmp(im->mode, "RGBA") && mode != 2)
+       return ImagingError_ModeError();
 
     p = malloc(sizeof(Pixel) * im->xsize * im->ysize);
     if (!p)
@@ -1530,7 +1535,7 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
                 p[i].c.b = pp[v*4+2];
             }
 
-    } else if (!strcmp(im->mode, "RGB")) {
+    } else if (!strcmp(im->mode, "RGB") || !strcmp(im->mode, "RGBA")) {
         /* true colour */
 
         for (i = y = 0; y < im->ysize; y++)
@@ -1568,6 +1573,9 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
             );
         break;
     case 2:
+        if (!strcmp(im->mode, "RGBA")) {
+            withAlpha = 1; 
+        }
         result = quantize_octree(
             p,
             im->xsize*im->ysize,
@@ -1575,7 +1583,7 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
             &palette,
             &paletteLength,
             &newData,
-            kmeans
+            withAlpha
             );
         break;
     default:
@@ -1586,7 +1594,6 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
     free(p);
 
     if (result) {
-
         imOut = ImagingNew("P", im->xsize, im->ysize);
 
         for (i = y = 0; y < im->ysize; y++)
@@ -1601,7 +1608,11 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
             *pp++ = palette[i].c.r;
             *pp++ = palette[i].c.g;
             *pp++ = palette[i].c.b;
-            *pp++ = 255;
+            if (withAlpha) {
+               *pp++ = palette[i].c.a;
+            } else {
+               *pp++ = 255;
+            }
         }
         for (; i < 256; i++) {
             *pp++ = 0;
