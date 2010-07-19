@@ -1,0 +1,10 @@
+syntax: glob
+*~
+*.bat
+*.pyc
+*.obj
+PIL/*.pyd
+build/*
+dist/*
+
+
