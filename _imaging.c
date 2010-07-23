@@ -1417,6 +1417,34 @@ _putpalettealpha(ImagingObject* self, PyObject* args)
 }
 
 static PyObject* 
+_putpalettealphas(ImagingObject* self, PyObject* args)
+{
+    int i;
+    UINT8 *values;
+    int length;
+    if (!PyArg_ParseTuple(args, "s#", &values, &length))
+	return NULL;
+
+    if (!self->image->palette) {
+	PyErr_SetString(PyExc_ValueError, no_palette);
+	return NULL;
+    }
+
+    if (length  > 256) {
+	PyErr_SetString(PyExc_ValueError, outside_palette);
+	return NULL;
+    }
+
+    strcpy(self->image->palette->mode, "RGBA");
+    for (i=0; i<length; i++) {
+	self->image->palette->palette[i*4+3] = (UINT8) values[i];
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject* 
 _putpixel(ImagingObject* self, PyObject* args)
 {
     Imaging im;
@@ -2921,6 +2949,7 @@ static struct PyMethodDef methods[] = {
     {"getpalette", (PyCFunction)_getpalette, 1},
     {"putpalette", (PyCFunction)_putpalette, 1},
     {"putpalettealpha", (PyCFunction)_putpalettealpha, 1},
+    {"putpalettealphas", (PyCFunction)_putpalettealphas, 1},
 
 #ifdef WITH_IMAGECHOPS
     /* Channel operations (ImageChops) */
