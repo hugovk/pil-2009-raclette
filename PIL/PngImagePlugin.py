@@ -71,6 +71,8 @@ _MODES = {
 
 TRANSPARENCY_FULL = 'full'
 
+_simple_palette = re.compile('^\xff+\x00+$')
+
 # --------------------------------------------------------------------
 # Support classes.  Suitable for PNG and related formats like MNG etc.
 
@@ -241,16 +243,15 @@ class PngStream(ChunkStream):
         return s
 
     def chunk_tRNS(self, pos, length):
-
         # transparency
         s = ImageFile._safe_read(self.fp, length)
         if self.im_mode == "P":
-            if (s.count(chr(255)) + s.count(chr(0))) < len(s):
-                self.im_info["transparency"] = s
-            else:
+            if _simple_palette.match(s):
                 i = string.find(s, chr(0))
                 if i >= 0:
                     self.im_info["transparency"] = i
+            else:
+                self.im_info["transparency"] = s
         elif self.im_mode == "L":
             self.im_info["transparency"] = i16(s)
         elif self.im_mode == "RGB":
