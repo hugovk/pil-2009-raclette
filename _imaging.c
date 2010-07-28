@@ -910,6 +910,17 @@ _getpalette(ImagingObject* self, PyObject* args)
     return palette;
 }
 
+static PyObject* 
+_getpalettemode(ImagingObject* self, PyObject* args)
+{
+    if (!self->image->palette) {
+	PyErr_SetString(PyExc_ValueError, no_palette);
+	return NULL;
+    }
+
+    return PyString_FromString(self->image->palette->mode);
+}
+
 static inline int
 _getxy(PyObject* xy, int* x, int *y)
 {
@@ -2947,6 +2958,7 @@ static struct PyMethodDef methods[] = {
     {"setmode", (PyCFunction)im_setmode, 1},
     
     {"getpalette", (PyCFunction)_getpalette, 1},
+    {"getpalettemode", (PyCFunction)_getpalettemode, 1},
     {"putpalette", (PyCFunction)_putpalette, 1},
     {"putpalettealpha", (PyCFunction)_putpalettealpha, 1},
     {"putpalettealphas", (PyCFunction)_putpalettealphas, 1},

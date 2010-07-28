@@ -1621,6 +1621,10 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
             *pp++ = 255;
         }
 
+        if (withAlpha) {
+            strcpy(imOut->palette->mode, "RGBA");
+        }
+
         free(palette);
 
         return imOut;
