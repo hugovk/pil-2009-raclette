@@ -459,7 +459,8 @@ if __name__ == "__main__":
     except:
         pass
 
-    setup(
+    # Basic metadata
+    configuration = dict(
         author=AUTHOR[0], author_email=AUTHOR[1],
         classifiers=[
             "Development Status :: 6 - Mature",
@@ -470,18 +471,28 @@ if __name__ == "__main__":
             "Topic :: Multimedia :: Graphics :: Graphics Conversion",
             "Topic :: Multimedia :: Graphics :: Viewers",
             ],
-        cmdclass = {"build_ext": pil_build_ext},
         description=DESCRIPTION,
         download_url=DOWNLOAD_URL % (NAME, VERSION),
-        ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
-        extra_path = "PIL",
         license="Python (MIT style)",
         long_description=DESCRIPTION,
         name=NAME,
-        package_dir={"": "PIL"},
-        packages=[""],
         platforms="Python 1.5.2 and later.",
         scripts = glob.glob("Scripts/pil*.py"),
         url=HOMEPAGE,
         version=VERSION,
         )
+
+    # Standard configuration for PIL package
+    configuration.update(dict(
+        extra_path = "PIL",
+        package_dir={"": "PIL"},
+        packages=[""],
+        ))
+
+    # Extensions
+    configuration.update(dict(
+        cmdclass = {"build_ext": pil_build_ext},
+        ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
+        ))
+
+    apply(setup, (), configuration)  # old school :-)
