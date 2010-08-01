@@ -24,7 +24,9 @@
 # See the README file for information on usage and redistribution.
 #
 
-VERSION = "1.1.7"
+__version__ = "1.1.7+"
+
+VERSION = __version__  # pre-1.1.8 compatibility
 
 try:
     import warnings

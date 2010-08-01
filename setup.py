@@ -109,7 +109,7 @@ def find_library_file(self, library):
 
 def find_version(filename):
     for line in open(filename).readlines():
-        m = re.search("VERSION\s*=\s*\"([^\"]+)\"", line)
+        m = re.search("__version__\s*=\s*\"([^\"]+)\"", line)
         if m:
             return m.group(1)
     return None
