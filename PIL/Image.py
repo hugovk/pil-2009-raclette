@@ -1867,8 +1867,8 @@ def frombuffer(mode, size, data, decoder_name="raw", *args):
 # If obj is not contiguous, then the tostring method is called
 # and {@link frombuffer} is used.
 #
-# @param obj Object with array interface
-# @param mode Mode to use (will be determined from type if None)
+# @param obj Object with array interface.
+# @param mode Mode to use (will be determined from type if None).
 # @return An image memory.
 
 def fromarray(obj, mode=None):
@@ -1884,7 +1884,6 @@ def fromarray(obj, mode=None):
             typekey = (1, 1) + shape[2:], arr['typestr']
             mode, rawmode = _fromarray_typemap[typekey]
         except KeyError:
-            # print typekey
             raise TypeError("Cannot handle this data type")
     else:
         rawmode = mode
@@ -1901,7 +1900,15 @@ def fromarray(obj, mode=None):
     if strides is not None:
         obj = obj.tostring()
 
-    return frombuffer(mode, size, obj, "raw", rawmode, 0, 1)
+    try:
+        return frombuffer(mode, size, obj, "raw", rawmode, 0, 1)
+    except ValueError, v:
+        if str(v) == "unknown raw mode":
+            # raise TypeError if the array type is in the typemap but is not
+            # supported by the raw codec
+            raise TypeError("Cannot handle this data type")
+        raise
+
 
 _fromarray_typemap = {
     # (shape, typestr) => mode, rawmode
@@ -1913,6 +1920,8 @@ _fromarray_typemap = {
     ((1, 1), ">i2"): ("I", "I;16B"),
     ((1, 1), "<i4"): ("I", "I;32"),
     ((1, 1), ">i4"): ("I", "I;32B"),
+    ((1, 1), "<i8"): ("I", "I;64"),
+    ((1, 1), ">i8"): ("I", "I;64B"),
     ((1, 1), "<f4"): ("F", "F;32F"),
     ((1, 1), ">f4"): ("F", "F;32BF"),
     ((1, 1), "<f8"): ("F", "F;64F"),
