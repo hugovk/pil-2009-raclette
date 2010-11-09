@@ -30,14 +30,16 @@ me know.)
 
 *** Changes from release 1.1.7 to 1.1.8 ***
 
-+ Added support for reading 16-bit RGB TIFF file.
-
-*** Changes from release 1.1.6 to 1.1.7 ***
-
 This section may not be fully complete.  For changes since this file
 was last updated, see the repository revision history:
 
   http://bitbucket.org/effbot/pil-2009-raclette/changesets/
+
++ Added support for reading 16-bit RGB TIFF file.
+
++ Fixed numpy conversion for YCbCr images (from David Coles).
+
+*** Changes from release 1.1.6 to 1.1.7 ***
 
 (1.1.7 final)
 

@@ -58,3 +58,29 @@ def test_numpy_to_image():
 
     assert_image(to_image(numpy.uint8, 3), "RGB", (10, 10))
     assert_image(to_image(numpy.uint8, 4), "RGBA", (10, 10))
+
+def test_numpy_from_image():
+
+    def from_image(mode):
+        i = Image.new(mode, (5, 20))
+        i.putdata(range(100))
+        return numpy.asarray(i)
+
+    def assert_array(a, dtype, bands=None):
+        # FIXME: verify content as well
+        shape = (20, 5)
+        if bands:
+            shape += (bands,)
+        assert_equal(a.dtype, dtype)
+        assert_equal(a.shape, shape)
+
+    assert_array(from_image("L"), numpy.uint8)
+    assert_array(from_image("I"), numpy.int32)
+    assert_array(from_image("F"), numpy.float32)
+    assert_array(from_image("RGB"), numpy.uint8, 3)
+    assert_array(from_image("RGBA"), numpy.uint8, 4)
+    assert_array(from_image("RGBX"), numpy.uint8, 4)
+    assert_array(from_image("CMYK"), numpy.uint8, 4)
+    assert_array(from_image("YCbCr"), numpy.uint8, 3)
+
+
