@@ -1487,6 +1487,7 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
     unsigned long* newData;
     Imaging imOut;
     int withAlpha = 0;
+    ImagingSectionCookie cookie;
 
     if (!im)
 	return ImagingError_ModeError();
@@ -1547,6 +1548,8 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
         return (Imaging) ImagingError_ValueError("internal error");
     }
 
+    ImagingSectionEnter(&cookie);
+
     switch (mode) {
     case 0:
         /* median cut */
@@ -1592,9 +1595,11 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
     }
 
     free(p);
+    ImagingSectionLeave(&cookie);
 
     if (result) {
         imOut = ImagingNew("P", im->xsize, im->ysize);
+        ImagingSectionEnter(&cookie);
 
         for (i = y = 0; y < im->ysize; y++)
             for (x=0; x < im->xsize; x++)
@@ -1626,6 +1631,7 @@ ImagingQuantize(Imaging im, int colors, int mode, int kmeans)
         }
 
         free(palette);
+        ImagingSectionLeave(&cookie);
 
         return imOut;
 

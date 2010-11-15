@@ -312,7 +312,7 @@ map_image_pixels(const Pixel *pixelData,
    }
 }
 
-const int CUBE_LEVELS[8]       = {3, 4, 3, 0, 2, 2, 2, 0};
+const int CUBE_LEVELS[8]       = {4, 4, 4, 0, 2, 2, 2, 0};
 const int CUBE_LEVELS_ALPHA[8] = {3, 4, 3, 3, 2, 2, 2, 2};
 
 int quantize_octree(Pixel *pixelData,
