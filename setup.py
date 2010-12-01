@@ -43,6 +43,28 @@ LCMS_ROOT = None
 # FIXME: add mechanism to explicitly *disable* the use of a library
 
 # --------------------------------------------------------------------
+# Update library pointers from environment
+
+def paths_from_env(prefix):
+    root = os.environ.get('%s_ROOT' % prefix)
+    lib = os.environ.get('%s_LIB' % prefix)
+    inc = os.environ.get('%s_INCLUDE' % prefix)
+    if root:
+        root_lib, root_inc = libinclude(root)
+        if not lib:
+            lib = root_lib
+        if not inc:
+            inc = root_inc
+    if not lib and not inc:
+        return None
+    return (lib, inc)
+
+for prefix in ('TCL', 'JPEG', 'TIFF', 'ZLIB', 'FREETYPE', 'LCMS'):
+    setting_name = '%s_ROOT' % prefix
+    if globals()[setting_name] is None:
+        globals()[setting_name] = paths_from_env(prefix)
+
+# --------------------------------------------------------------------
 # Identification
 
 NAME = "PIL"

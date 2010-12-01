@@ -30,6 +30,8 @@ me know.)
 
 *** Changes from release 1.1.7 to 1.1.8 ***
 
++ Update library pointers from environment.
+
 + Use PIL namespace when installing with easy_install.
 
 + Added support for reading 16-bit RGB TIFF file.
