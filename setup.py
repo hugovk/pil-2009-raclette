@@ -484,15 +484,15 @@ if __name__ == "__main__":
 
     # Standard configuration for PIL package
     configuration.update(dict(
-        extra_path = "PIL",
-        package_dir={"": "PIL"},
-        packages=[""],
+        packages=["PIL"],
+        package_data={"PIL": ["../PIL.pth"]}, # To support import Image
         ))
 
     # Extensions
     configuration.update(dict(
         cmdclass = {"build_ext": pil_build_ext},
         ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
+        ext_package = "PIL",
         ))
 
     apply(setup, (), configuration)  # old school :-)
