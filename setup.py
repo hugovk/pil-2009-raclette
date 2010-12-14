@@ -13,6 +13,16 @@ try:
 except OSError:
     pass
 
+try:
+    from platform import architecture
+except ImportError:
+    # python < 2.3
+    def architecture():
+        if isinstance(2**40, long):
+            return ("32bit", '')
+        else:
+            return ("64bit", '')
+
 def libinclude(root):
     # map root to (root/lib, root/include)
     return os.path.join(root, "lib"), os.path.join(root, "include")
@@ -173,7 +183,7 @@ class pil_build_ext(build_ext):
             add_directory(include_dirs, "/usr/x11/include")
 
         elif sys.platform == "linux2":
-            if platform.processor() == "x86_64":
+            if architecture()[0] == "64bit":
                 add_directory(library_dirs, "/lib64")
                 add_directory(library_dirs, "/usr/lib64")
 
