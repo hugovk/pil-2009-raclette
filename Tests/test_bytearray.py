@@ -6,6 +6,7 @@ def test_array():
 
     array = ByteArray.ByteArray("\x00\x01\x02\x03")
 
+    assert_true(array)
     assert_equal(len(array), 4)
     assert_equal(len(array+array), 8)
 
@@ -38,3 +39,9 @@ def test_array():
 
     assert_equal(array[:1].tostring(), "\x00")
     assert_equal(array[3:].tostring(), "\x03")
+
+    assert_equal(array.unpack("b"), 0)
+    assert_equal(array.unpack("b", 3), 3)
+    assert_equal(array.unpack("bbbb"), (0, 1, 2, 3))
+    assert_exception(ValueError, lambda: array.unpack("ii"))
+

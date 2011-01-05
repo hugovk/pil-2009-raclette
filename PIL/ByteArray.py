@@ -13,6 +13,8 @@
 # See the README file for information on usage and redistribution.
 #
 
+import struct
+
 class ByteArray(object):
 
     def __init__(self, data):
@@ -51,4 +53,12 @@ class ByteArray(object):
     def tostring(self):
         return self.data
 
-    
+    def unpack(self, fmt, i=0):
+        try:
+            n = struct.calcsize(fmt)
+            v = struct.unpack(fmt, self.data[i:i+n])
+        except struct.error, v:
+            raise ValueError(v)
+        if len(v) == 1:
+            v = v[0] # singleton
+        return v
