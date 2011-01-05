@@ -32,6 +32,9 @@ class ByteArray(object):
     def __getslice__(self, i, j):
         return ByteArray(self.data[i:j])
 
+    def startswith(self, s):
+        return self.data[:len(s)] == s
+
     def tostring(self):
         return self.data
 

@@ -59,7 +59,7 @@ def APP(self, marker):
     self.app[app] = s.tostring() # compatibility
     self.applist.append((app, s.tostring()))
 
-    if marker == 0xFFE0 and s[:4].tostring() == "JFIF":
+    if marker == 0xFFE0 and s.startswith("JFIF"):
         # extract JFIF information
         self.info["jfif"] = version = s.int16b(5) # version
         self.info["jfif_version"] = divmod(version, 256)
@@ -74,13 +74,13 @@ def APP(self, marker):
                 self.info["dpi"] = jfif_density
             self.info["jfif_unit"] = jfif_unit
             self.info["jfif_density"] = jfif_density
-    elif marker == 0xFFE1 and s[:5] == "Exif\0":
+    elif marker == 0xFFE1 and s.startswith("Exif\0"):
         # extract Exif information (incomplete)
-        self.info["exif"] = s # FIXME: value will change
-    elif marker == 0xFFE2 and s[:5] == "FPXR\0":
+        self.info["exif"] = s.tostring() # FIXME: value will change
+    elif marker == 0xFFE2 and s.startswith("FPXR\0"):
         # extract FlashPix information (incomplete)
-        self.info["flashpix"] = s # FIXME: value will change
-    elif marker == 0xFFE2 and s[:12] == "ICC_PROFILE\0":
+        self.info["flashpix"] = s.tostring() # FIXME: value will change
+    elif marker == 0xFFE2 and s.startswith("ICC_PROFILE\0"):
         # Since an ICC profile can be larger than the maximum size of
         # a JPEG marker (64K), we need provisions to split it into
         # multiple markers. The format defined by the ICC specifies
@@ -92,13 +92,13 @@ def APP(self, marker):
         # Decoders should use the marker sequence numbers to
         # reassemble the profile, rather than assuming that the APP2
         # markers appear in the correct sequence.
-        self.icclist.append(s)
-    elif marker == 0xFFEE and s[:5] == "Adobe":
+        self.icclist.append(s.tostring())
+    elif marker == 0xFFEE and s.startswith("Adobe"):
         self.info["adobe"] = s.int16b(5)
         # extract Adobe custom properties
         try:
             adobe_transform = s[1]
-        except:
+        except IndexError:
             pass
         else:
             self.info["adobe_transform"] = adobe_transform

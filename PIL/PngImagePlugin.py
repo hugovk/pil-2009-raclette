@@ -316,7 +316,7 @@ class PngImageFile(ImageFile.ImageFile):
 
     def _open(self):
 
-        if self.fp.read(8).tostring() != _MAGIC:
+        if not self.fp.read(8).startswith(_MAGIC):
             raise SyntaxError("not a PNG file")
 
         #
