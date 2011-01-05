@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library
-# $Id: ImageDraw.py 2817 2006-10-07 15:34:03Z fredrik $
+# $Id$
 #
 # drawing interface operations
 #
@@ -23,9 +23,10 @@
 # 2004-09-04 fl   Added width support to line primitive
 # 2004-09-10 fl   Added font mode handling
 # 2006-06-19 fl   Added font bearing support (getmask2)
+# 2009-03-14 fl   Removed deprecated features (setink/setfill)
 #
-# Copyright (c) 1997-2006 by Secret Labs AB
-# Copyright (c) 1996-2006 by Fredrik Lundh
+# Copyright (c) 1997-2009 by Secret Labs AB
+# Copyright (c) 1996-2009 by Fredrik Lundh
 #
 # See the README file for information on usage and redistribution.
 #
@@ -43,7 +44,7 @@ except ImportError:
 # Application code should use the <b>Draw</b> factory, instead of
 # directly.
 
-class ImageDraw:
+class ImageDraw(object):
 
     ##
     # Create a drawing instance.
@@ -84,52 +85,6 @@ class ImageDraw:
         else:
             self.fontmode = "L" # aliasing is okay for other modes
         self.fill = 0
-        self.font = None
-
-    ##
-    # Set the default pen color.
-
-    def setink(self, ink):
-        # compatibility
-        if warnings:
-            warnings.warn(
-                "'setink' is deprecated; use keyword arguments instead",
-                DeprecationWarning, stacklevel=2
-                )
-        if Image.isStringType(ink):
-            ink = ImageColor.getcolor(ink, self.mode)
-        if self.palette and not Image.isNumberType(ink):
-            ink = self.palette.getcolor(ink)
-        self.ink = self.draw.draw_ink(ink, self.mode)
-
-    ##
-    # Set the default background color.
-
-    def setfill(self, onoff):
-        # compatibility
-        if warnings:
-            warnings.warn(
-                "'setfill' is deprecated; use keyword arguments instead",
-                DeprecationWarning, stacklevel=2
-                )
-        self.fill = onoff
-
-    ##
-    # Set the default font.
-
-    def setfont(self, font):
-        # compatibility
-        self.font = font
-
-    ##
-    # Get the current default font.
-
-    def getfont(self):
-        if not self.font:
-            # FIXME: should add a font repository
-            import ImageFont
-            self.font = ImageFont.load_default()
-        return self.font
 
     def _getink(self, ink, fill=None):
         if ink is None and fill is None:
@@ -255,7 +210,7 @@ class ImageDraw:
     def text(self, xy, text, fill=None, font=None, anchor=None):
         ink, fill = self._getink(fill)
         if font is None:
-            font = self.getfont()
+            raise ValueError("font must be explicitly specified")
         if ink is None:
             ink = fill
         if ink is not None:
@@ -274,7 +229,7 @@ class ImageDraw:
 
     def textsize(self, text, font=None):
         if font is None:
-            font = self.getfont()
+            raise ValueError("font must be explicitly specified")
         return font.getsize(text)
 
 ##

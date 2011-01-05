@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ContainerIO.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # a class to read from a container file
 #
@@ -18,7 +18,7 @@
 # A file object that provides read access to a part of an existing
 # file (for example a TAR file).
 
-class ContainerIO:
+class ContainerIO(object):
 
     ##
     # Create file object.

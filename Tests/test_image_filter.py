@@ -29,6 +29,18 @@ def test_sanity():
 
     assert_exception(TypeError, lambda: filter("hello"))
 
+def test_crash():
+
+    # crashes on small images    
+    im = Image.new("RGB", (1, 1))
+    assert_no_exception(lambda: im.filter(ImageFilter.SMOOTH))
+
+    im = Image.new("RGB", (2, 2))
+    assert_no_exception(lambda: im.filter(ImageFilter.SMOOTH))
+
+    im = Image.new("RGB", (3, 3))
+    assert_no_exception(lambda: im.filter(ImageFilter.SMOOTH))
+
 def test_modefilter():
 
     def modefilter(mode):

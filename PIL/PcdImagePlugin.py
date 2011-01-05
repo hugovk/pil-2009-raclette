@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: PcdImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # PCD file handling
 #
@@ -37,7 +37,7 @@ class PcdImageFile(ImageFile.ImageFile):
         s = self.fp.read(2048)
 
         if s[:4] != "PCD_":
-            raise SyntaxError, "not a PCD file"
+            raise SyntaxError("not a PCD file")
 
         orientation = ord(s[1538]) & 3
         if orientation == 1:

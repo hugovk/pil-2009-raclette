@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: MpegImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # MPEG file handling
 #
@@ -20,7 +20,7 @@ import Image, ImageFile
 #
 # Bitstream parser
 
-class BitStream:
+class BitStream(object):
 
     def __init__(self, fp):
         self.fp = fp
@@ -65,7 +65,7 @@ class MpegImageFile(ImageFile.ImageFile):
         s = BitStream(self.fp)
 
         if s.read(32) != 0x1B3:
-            raise SyntaxError, "not an MPEG file"
+            raise SyntaxError("not an MPEG file")
 
         self.mode = "RGB"
         self.size = s.read(12), s.read(12)

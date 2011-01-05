@@ -107,6 +107,7 @@ Imaging/PIL/ArgImagePlugin.py
 Imaging/PIL/BdfFontFile.py
 Imaging/PIL/BmpImagePlugin.py
 Imaging/PIL/BufrStubImagePlugin.py
+Imaging/PIL/ByteArray.py
 Imaging/PIL/ContainerIO.py
 Imaging/PIL/CurImagePlugin.py
 Imaging/PIL/DcxImagePlugin.py
@@ -147,6 +148,7 @@ Imaging/PIL/ImageQt.py
 Imaging/PIL/ImageSequence.py
 Imaging/PIL/ImageShow.py
 Imaging/PIL/ImageStat.py
+Imaging/PIL/ImageString.py
 Imaging/PIL/ImageTk.py
 Imaging/PIL/ImageTransform.py
 Imaging/PIL/ImageWin.py
@@ -267,6 +269,7 @@ Imaging/Scripts/pilfont.py
 Imaging/Scripts/pilprint.py
 
 Imaging/Images/lena.gif
+Imaging/Images/lena.png
 Imaging/Images/lena.ppm
 Imaging/Images/lena.jpg
 

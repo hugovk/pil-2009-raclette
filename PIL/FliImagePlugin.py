@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: FliImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # FLI/FLC file handling.
 #
@@ -19,7 +19,7 @@
 __version__ = "0.2"
 
 import Image, ImageFile, ImagePalette
-import string
+import ImageString
 
 
 def i16(c):
@@ -49,7 +49,7 @@ class FliImageFile(ImageFile.ImageFile):
         s = self.fp.read(128)
         magic = i16(s[4:6])
         if magic not in [0xAF11, 0xAF12]:
-            raise SyntaxError, "not an FLI/FLC file"
+            raise SyntaxError("not an FLI/FLC file")
 
         # image characteristics
         self.mode = "P"
@@ -82,7 +82,7 @@ class FliImageFile(ImageFile.ImageFile):
                 self._palette(palette, 0)
 
         palette = map(lambda (r,g,b): chr(r)+chr(g)+chr(b), palette)
-        self.palette = ImagePalette.raw("RGB", string.join(palette, ""))
+        self.palette = ImagePalette.raw("RGB", ImageString.join(palette, ""))
 
         # set things up to decode first frame
         self.frame = -1
@@ -111,7 +111,7 @@ class FliImageFile(ImageFile.ImageFile):
     def seek(self, frame):
 
         if frame != self.frame + 1:
-            raise ValueError, "cannot seek to frame %d" % frame
+            raise ValueError("cannot seek to frame %d" % frame)
         self.frame = frame
 
         # move to next frame

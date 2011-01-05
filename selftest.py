@@ -1,4 +1,3 @@
-# $Id$
 # minimal sanity check
 
 ROOT = "."

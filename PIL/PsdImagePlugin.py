@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library
-# $Id: PsdImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # Adobe PSD 2.5/3.0 file handling
 #
@@ -65,7 +65,7 @@ class PsdImageFile(ImageFile.ImageFile):
 
         s = read(26)
         if s[:4] != "8BPS" or i16(s[4:]) != 1:
-            raise SyntaxError, "not a PSD file"
+            raise SyntaxError("not a PSD file")
 
         psd_bits = i16(s[22:])
         psd_channels = i16(s[12:])
@@ -74,7 +74,7 @@ class PsdImageFile(ImageFile.ImageFile):
         mode, channels = MODES[(psd_mode, psd_bits)]
 
         if channels > psd_channels:
-            raise IOError, "not enough channels"
+            raise IOError("not enough channels")
 
         self.mode = mode
         self.size = i32(s[18:]), i32(s[14:])
@@ -146,7 +146,7 @@ class PsdImageFile(ImageFile.ImageFile):
             self.fp = self._fp
             return name, bbox
         except IndexError:
-            raise EOFError, "no such layer"
+            raise EOFError("no such layer")
 
     def tell(self):
         # return layer number (0=image, 1..max=layers)

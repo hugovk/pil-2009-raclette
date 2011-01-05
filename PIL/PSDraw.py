@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library
-# $Id: PSDraw.py 2813 2006-10-07 10:11:35Z fredrik $
+# $Id$
 #
 # simple postscript graphics interface
 #
@@ -16,12 +16,12 @@
 #
 
 import EpsImagePlugin
-import string
+import ImageString
 
 ##
 # Simple Postscript graphics interface.
 
-class PSDraw:
+class PSDraw(object):
 
     def __init__(self, fp=None):
         if not fp:
@@ -71,8 +71,8 @@ class PSDraw:
         self.fp.write("%d %d M %d %d 0 Vr\n" % box)
 
     def text(self, xy, text):
-        text = string.joinfields(string.splitfields(text, "("), "\\(")
-        text = string.joinfields(string.splitfields(text, ")"), "\\)")
+        text = ImageString.join(ImageString.split(text, "("), "\\(")
+        text = ImageString.join(ImageString.split(text, ")"), "\\)")
         xy = xy + (text,)
         self.fp.write("%d %d M (%s) S\n" % xy)
 

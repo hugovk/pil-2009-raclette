@@ -6,4 +6,8 @@ try:
 except ImportError, v:
     skip(v)
 
-success()
+def test_grab():
+    im = ImageGrab.grab()
+    assert_image(im, im.mode, im.size)
+
+

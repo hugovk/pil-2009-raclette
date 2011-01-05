@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: TiffTags.py 2340 2005-03-25 08:05:37Z fredrik $
+# $Id$
 #
 # TIFF tags
 #

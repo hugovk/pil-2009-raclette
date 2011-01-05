@@ -16,15 +16,17 @@
 # 2003-05-10 fl   PIL release 1.1.4
 # 2005-03-28 fl   PIL release 1.1.5
 # 2006-12-02 fl   PIL release 1.1.6
-# 2009-03-XX fl   PIL release 1.1.7
+# 2009-11-15 fl   PIL release 1.1.7
 #
-# Copyright (c) 1997-2009 by Secret Labs AB.  All rights reserved.
-# Copyright (c) 1995-2009 by Fredrik Lundh.
+# Copyright (c) 1997-2010 by Secret Labs AB.  All rights reserved.
+# Copyright (c) 1995-2010 by Fredrik Lundh.
 #
 # See the README file for information on usage and redistribution.
 #
 
-VERSION = "1.1.7a0"
+__version__ = "1.1.7+"
+
+VERSION = __version__  # pre-1.1.8 compatibility
 
 try:
     import warnings
@@ -68,8 +70,11 @@ except ImportError, v:
 
 import ImageMode
 import ImagePalette
+import ImageString
 
-import os, string, sys
+import ByteArray
+
+import os, sys
 
 # type stuff
 from types import IntType, StringType, TupleType
@@ -105,7 +110,13 @@ def isImageType(t):
 def isDirectory(f):
     return isStringType(f) and os.path.isdir(f)
 
-from operator import isNumberType, isSequenceType
+from operator import isNumberType
+
+##
+# (Internal) Checks if an object is callable.
+
+def isCallable(f):
+    return callable(f)
 
 #
 # Debug level
@@ -164,6 +175,15 @@ SAVE = {}
 EXTENSION = {}
 
 # --------------------------------------------------------------------
+# Exceptions.  Note that for backwards compatibility, all custom
+# exceptions inherit from standard exceptions.
+
+# FIXME: add more exceptions here
+
+class VerificationError(SyntaxError):
+    pass
+
+# --------------------------------------------------------------------
 # Modes supported by this version
 
 _MODEINFO = {
@@ -188,7 +208,16 @@ _MODEINFO = {
 
 }
 
-if sys.byteorder == 'little':
+try:
+    byteorder = sys.byteorder
+except AttributeError:
+    import struct
+    if struct.unpack("h", "\0\1")[0] == 1:
+        byteorder = "big"
+    else:
+        byteorder = "little"
+
+if byteorder == 'little':
     _ENDIAN = '<'
 else:
     _ENDIAN = '>'
@@ -204,7 +233,7 @@ _MODE_CONV = {
     "RGBX": ('|u1', 4),
     "RGBA": ('|u1', 4),
     "CMYK": ('|u1', 4),
-    "YCbCr": ('|u1', 4),
+    "YCbCr": ('|u1', 3),
 }
 
 def _conv_type_shape(im):
@@ -371,7 +400,7 @@ def _getdecoder(mode, decoder_name, args, extra=()):
         # get decoder
         decoder = getattr(core, decoder_name + "_decoder")
         # print decoder, (mode,) + args + extra
-        return apply(decoder, (mode,) + args + extra)
+        return decoder(mode, *(args + extra))
     except AttributeError:
         raise IOError("decoder %s not available" % decoder_name)
 
@@ -387,7 +416,7 @@ def _getencoder(mode, encoder_name, args, extra=()):
         # get encoder
         encoder = getattr(core, encoder_name + "_encoder")
         # print encoder, (mode,) + args + extra
-        return apply(encoder, (mode,) + args + extra)
+        return encoder(mode, *(args + extra))
     except AttributeError:
         raise IOError("encoder %s not available" % encoder_name)
 
@@ -396,6 +425,7 @@ def _getencoder(mode, encoder_name, args, extra=()):
 # Simple expression analyzer
 
 class _E:
+    # FIXME: update to work with new-style classes
     def __init__(self, data): self.data = data
     def __coerce__(self, other): return self, _E(other)
     def __add__(self, other): return _E((self.data, "__add__", other.data))
@@ -537,7 +567,7 @@ class Image:
         if s < 0:
             raise RuntimeError("encoder error %d in tostring" % s)
 
-        return string.join(data, "")
+        return ImageString.join(data, "")
 
     ##
     # Returns the image converted to an X11 bitmap.  This method
@@ -554,7 +584,7 @@ class Image:
         if self.mode != "1":
             raise ValueError("not a bitmap")
         data = self.tostring("xbm")
-        return string.join(["#define %s_width %d\n" % (name, self.size[0]),
+        return ImageString.join(["#define %s_width %d\n" % (name, self.size[0]),
                 "#define %s_height %d\n"% (name, self.size[1]),
                 "static char %s_bits[] = {\n" % name, data, "};"], "")
 
@@ -795,7 +825,7 @@ class Image:
 
         self.load()
 
-        if callable(filter):
+        if isCallable(filter):
             filter = filter()
         if not hasattr(filter, "filter"):
             raise TypeError("filter argument should be ImageFilter.Filter instance or class")
@@ -986,29 +1016,6 @@ class Image:
         return self.im.histogram()
 
     ##
-    # (Deprecated) Returns a copy of the image where the data has been
-    # offset by the given distances. Data wraps around the edges. If
-    # yoffset is omitted, it is assumed to be equal to xoffset.
-    # <p>
-    # This method is deprecated. New code should use the <b>offset</b>
-    # function in the <b>ImageChops</b> module.
-    #
-    # @param xoffset The horizontal distance.
-    # @param yoffset The vertical distance.  If omitted, both
-    #    distances are set to the same value.
-    # @return An Image object.
-
-    def offset(self, xoffset, yoffset=None):
-        "(deprecated) Offset image in horizontal and/or vertical direction"
-        if warnings:
-            warnings.warn(
-                "'offset' is deprecated; use 'ImageChops.offset' instead",
-                DeprecationWarning, stacklevel=2
-                )
-        import ImageChops
-        return ImageChops.offset(self, xoffset, yoffset)
-
-    ##
     # Pastes another image into this image. The box argument is either
     # a 2-tuple giving the upper left corner, a 4-tuple defining the
     # left, upper, right, and lower pixel coordinate, or None (same as
@@ -1100,7 +1107,8 @@ class Image:
     #    image. A function can be used instead, it should take a single
     #    argument. The function is called once for each possible pixel
     #    value, and the resulting table is applied to all bands of the
-    #    image.
+    #    image.  For modes "I" and "F", the function must have the form
+    #    "x * scale + offset".
     # @param mode Output mode (default is same as input).  In the
     #    current version, this can only be used if the source image
     #    has mode "L" or "P", and the output has mode "1".
@@ -1114,7 +1122,7 @@ class Image:
         if isinstance(lut, ImagePointHandler):
             return lut.point(self)
 
-        if not isSequenceType(lut):
+        if isCallable(lut):
             # if it isn't a list, it should be a function
             if self.mode in ("I", "I;16", "F"):
                 # check if the function can be used with point_transform
@@ -1226,7 +1234,7 @@ class Image:
             palette = ImagePalette.raw(data.rawmode, data.palette)
         else:
             if not isStringType(data):
-                data = string.join(map(chr, data), "")
+                data = ImageString.join(map(chr, data), "")
             palette = ImagePalette.raw(rawmode, data)
         self.mode = "P"
         self.palette = palette
@@ -1401,7 +1409,8 @@ class Image:
 
         preinit()
 
-        ext = string.lower(os.path.splitext(filename)[1])
+        ext = os.path.splitext(filename)[1]
+        ext = ext.lower()
 
         if not format:
             try:
@@ -1414,10 +1423,10 @@ class Image:
                     raise KeyError(ext) # unknown extension
 
         try:
-            save_handler = SAVE[string.upper(format)]
+            save_handler = SAVE[format.upper()]
         except KeyError:
             init()
-            save_handler = SAVE[string.upper(format)] # unknown format
+            save_handler = SAVE[format.upper()] # unknown format
 
         if isStringType(fp):
             import __builtin__
@@ -1485,11 +1494,11 @@ class Image:
     def split(self):
         "Split image into bands"
 
+        self.load()
         if self.im.bands == 1:
             ims = [self.copy()]
         else:
             ims = []
-            self.load()
             for i in range(self.im.bands):
                 ims.append(self._new(self.im.getband(i)))
         return tuple(ims)
@@ -1706,11 +1715,11 @@ class _ImageCrop(Image):
 # --------------------------------------------------------------------
 # Abstract handlers.
 
-class ImagePointHandler:
+class ImagePointHandler(object):
     # used as a mixin by point transforms (for use with im.point)
     pass
 
-class ImageTransformHandler:
+class ImageTransformHandler(object):
     # used as a mixin by geometry transforms (for use with im.transform)
     pass
 
@@ -1856,8 +1865,8 @@ def frombuffer(mode, size, data, decoder_name="raw", *args):
 # If obj is not contiguous, then the tostring method is called
 # and {@link frombuffer} is used.
 #
-# @param obj Object with array interface
-# @param mode Mode to use (will be determined from type if None)
+# @param obj Object with array interface.
+# @param mode Mode to use (will be determined from type if None).
 # @return An image memory.
 
 def fromarray(obj, mode=None):
@@ -1873,7 +1882,6 @@ def fromarray(obj, mode=None):
             typekey = (1, 1) + shape[2:], arr['typestr']
             mode, rawmode = _fromarray_typemap[typekey]
         except KeyError:
-            # print typekey
             raise TypeError("Cannot handle this data type")
     else:
         rawmode = mode
@@ -1890,7 +1898,15 @@ def fromarray(obj, mode=None):
     if strides is not None:
         obj = obj.tostring()
 
-    return frombuffer(mode, size, obj, "raw", rawmode, 0, 1)
+    try:
+        return frombuffer(mode, size, obj, "raw", rawmode, 0, 1)
+    except ValueError, v:
+        if str(v) == "unknown raw mode":
+            # raise TypeError if the array type is in the typemap but is not
+            # supported by the raw codec
+            raise TypeError("Cannot handle this data type")
+        raise
+
 
 _fromarray_typemap = {
     # (shape, typestr) => mode, rawmode
@@ -1898,13 +1914,15 @@ _fromarray_typemap = {
     # ((1, 1), "|b1"): ("1", "1"), # broken
     ((1, 1), "|u1"): ("L", "L"),
     ((1, 1), "|i1"): ("I", "I;8"),
-    ((1, 1), "<i2"): ("I", "I;16L"),
+    ((1, 1), "<i2"): ("I", "I;16"),
     ((1, 1), ">i2"): ("I", "I;16B"),
-    ((1, 1), "<i4"): ("I", "I;32L"),
+    ((1, 1), "<i4"): ("I", "I;32"),
     ((1, 1), ">i4"): ("I", "I;32B"),
-    ((1, 1), "<f4"): ("F", "F;32LF"),
+    ((1, 1), "<i8"): ("I", "I;64"),
+    ((1, 1), ">i8"): ("I", "I;64B"),
+    ((1, 1), "<f4"): ("F", "F;32F"),
     ((1, 1), ">f4"): ("F", "F;32BF"),
-    ((1, 1), "<f8"): ("F", "F;64LF"),
+    ((1, 1), "<f8"): ("F", "F;64F"),
     ((1, 1), ">f8"): ("F", "F;64BF"),
     ((1, 1, 3), "|u1"): ("RGB", "RGB"),
     ((1, 1, 4), "|u1"): ("RGBA", "RGBA"),
@@ -2071,7 +2089,7 @@ def merge(mode, bands):
 #    reject images having another format.
 
 def register_open(id, factory, accept=None):
-    id = string.upper(id)
+    id = id.upper()
     ID.append(id)
     OPEN[id] = factory, accept
 
@@ -2083,7 +2101,7 @@ def register_open(id, factory, accept=None):
 # @param mimetype The image MIME type for this format.
 
 def register_mime(id, mimetype):
-    MIME[string.upper(id)] = mimetype
+    MIME[id.upper()] = mimetype
 
 ##
 # Registers an image save function.  This function should not be
@@ -2093,7 +2111,7 @@ def register_mime(id, mimetype):
 # @param driver A function to save images in this format.
 
 def register_save(id, driver):
-    SAVE[string.upper(id)] = driver
+    SAVE[id.upper()] = driver
 
 ##
 # Registers an image extension.  This function should not be
@@ -2103,7 +2121,7 @@ def register_save(id, driver):
 # @param extension An extension used for this format.
 
 def register_extension(id, extension):
-    EXTENSION[string.lower(extension)] = string.upper(id)
+    EXTENSION[extension.lower()] = id.upper()
 
 
 # --------------------------------------------------------------------

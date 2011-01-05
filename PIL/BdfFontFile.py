@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library
-# $Id: BdfFontFile.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # bitmap distribution font (bdf) file parser
 #
@@ -20,7 +20,7 @@
 import Image
 import FontFile
 
-import string
+import ImageString
 
 # --------------------------------------------------------------------
 # parse X Bitmap Distribution Format (BDF)
@@ -50,7 +50,7 @@ def bdf_char(f):
             return None
         if s[:9] == "STARTCHAR":
             break
-    id = string.strip(s[9:])
+    id = s[9:].strip()
 
     # load symbol properties
     props = {}
@@ -58,7 +58,7 @@ def bdf_char(f):
         s = f.readline()
         if not s or s[:6] == "BITMAP":
             break
-        i = string.find(s, " ")
+        i = ImageString.find(s, " ")
         props[s[:i]] = s[i+1:-1]
 
     # load bitmap
@@ -68,10 +68,10 @@ def bdf_char(f):
         if not s or s[:7] == "ENDCHAR":
             break
         bitmap.append(s[:-1])
-    bitmap = string.join(bitmap, "")
+    bitmap = ImageString.join(bitmap, "")
 
-    [x, y, l, d] = map(int, string.split(props["BBX"]))
-    [dx, dy] = map(int, string.split(props["DWIDTH"]))
+    [x, y, l, d] = map(int, ImageString.split(props["BBX"]))
+    [dx, dy] = map(int, ImageString.split(props["DWIDTH"]))
 
     bbox = (dx, dy), (l, -d-y, x+l, -d), (0, 0, x, y)
 
@@ -94,7 +94,7 @@ class BdfFontFile(FontFile.FontFile):
 
         s = fp.readline()
         if s[:13] != "STARTFONT 2.1":
-            raise SyntaxError, "not a valid BDF file"
+            raise SyntaxError("not a valid BDF file")
 
         props = {}
         comments = []
@@ -103,21 +103,21 @@ class BdfFontFile(FontFile.FontFile):
             s = fp.readline()
             if not s or s[:13] == "ENDPROPERTIES":
                 break
-            i = string.find(s, " ")
+            i = ImageString.find(s, " ")
             props[s[:i]] = s[i+1:-1]
             if s[:i] in ["COMMENT", "COPYRIGHT"]:
-                if string.find(s, "LogicalFontDescription") < 0:
+                if ImageString.find(s, "LogicalFontDescription") < 0:
                     comments.append(s[i+1:-1])
 
-        font = string.split(props["FONT"], "-")
+        font = ImageString.split(props["FONT"], "-")
 
-        font[4] = bdf_slant[string.upper(font[4])]
-        font[11] = bdf_spacing[string.upper(font[11])]
+        font[4] = bdf_slant[font[4].upper()]
+        font[11] = bdf_spacing[font[11].upper()]
 
         ascent = int(props["FONT_ASCENT"])
         descent = int(props["FONT_DESCENT"])
 
-        fontname = string.join(font[1:], ";")
+        fontname = ImageString.join(font[1:], ";")
 
         # print "#", fontname
         # for i in comments:

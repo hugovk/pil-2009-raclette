@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 #
 # Setup script for PIL 1.1.5 and later
-# $Id$
 #
 # Usage: python setup.py install
 #
 
-import glob, os, re, struct, string, sys
+import glob, os, re, struct, sys
 
 # make it possible to run the setup script from another directory
 try:
@@ -50,6 +49,7 @@ NAME = "PIL"
 DESCRIPTION = "Python Imaging Library"
 AUTHOR = "Secret Labs AB (PythonWare)", "info@pythonware.com"
 HOMEPAGE = "http://www.pythonware.com/products/pil"
+DOWNLOAD_URL = "http://effbot.org/downloads/%s-%s.tar.gz" # name, version
 
 # --------------------------------------------------------------------
 # Core library
@@ -109,7 +109,7 @@ def find_library_file(self, library):
 
 def find_version(filename):
     for line in open(filename).readlines():
-        m = re.search("VERSION\s*=\s*\"([^\"]+)\"", line)
+        m = re.search("__version__\s*=\s*\"([^\"]+)\"", line)
         if m:
             return m.group(1)
     return None
@@ -383,10 +383,10 @@ class pil_build_ext(build_ext):
         print "PIL", VERSION, "SETUP SUMMARY"
         print "-" * 68
         print "version      ", VERSION
-        v = string.split(sys.version, "[")
-        print "platform     ", sys.platform, string.strip(v[0])
+        v = sys.version.split("[")
+        print "platform     ", sys.platform, v[0].strip()
         for v in v[1:]:
-            print "             ", string.strip("[" + v)
+            print "             ", "[" + v.strip()
         print "-" * 68
 
         options = [
@@ -459,7 +459,8 @@ if __name__ == "__main__":
     except:
         pass
 
-    setup(
+    # Basic metadata
+    configuration = dict(
         author=AUTHOR[0], author_email=AUTHOR[1],
         classifiers=[
             "Development Status :: 6 - Mature",
@@ -470,18 +471,28 @@ if __name__ == "__main__":
             "Topic :: Multimedia :: Graphics :: Graphics Conversion",
             "Topic :: Multimedia :: Graphics :: Viewers",
             ],
-        cmdclass = {"build_ext": pil_build_ext},
         description=DESCRIPTION,
-        download_url="http://effbot.org/downloads",
-        ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
-        extra_path = "PIL",
+        download_url=DOWNLOAD_URL % (NAME, VERSION),
         license="Python (MIT style)",
         long_description=DESCRIPTION,
         name=NAME,
-        package_dir={"": "PIL"},
-        packages=[""],
         platforms="Python 1.5.2 and later.",
         scripts = glob.glob("Scripts/pil*.py"),
         url=HOMEPAGE,
         version=VERSION,
         )
+
+    # Standard configuration for PIL package
+    configuration.update(dict(
+        extra_path = "PIL",
+        package_dir={"": "PIL"},
+        packages=[""],
+        ))
+
+    # Extensions
+    configuration.update(dict(
+        cmdclass = {"build_ext": pil_build_ext},
+        ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
+        ))
+
+    apply(setup, (), configuration)  # old school :-)

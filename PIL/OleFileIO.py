@@ -2,7 +2,7 @@
 # THIS IS WORK IN PROGRESS
 #
 # The Python Imaging Library
-# $Id: OleFileIO.py 2339 2005-03-25 08:02:17Z fredrik $
+# $Id$
 #
 # stuff to deal with OLE2 Structured Storage files.  this module is
 # used by PIL to read Image Composer and FlashPix files, but can also
@@ -36,7 +36,8 @@
 # See the README file for information on usage and redistribution.
 #
 
-import string, StringIO
+import ImageString
+import StringIO
 
 
 def i16(c, o = 0):
@@ -105,7 +106,7 @@ class _OleStream(StringIO.StringIO):
             data.append(fp.read(sectorsize))
             sect = fat[sect]
 
-        data = string.join(data, "")
+        data = ImageString.join(data, "")
 
         # print len(data), size
 
@@ -117,7 +118,7 @@ class _OleStream(StringIO.StringIO):
 # FIXME: should add a counter in here to avoid looping forever
 # if the tree is broken.
 
-class _OleDirectoryEntry:
+class _OleDirectoryEntry(object):
 
     """OLE2 Directory Entry
 
@@ -226,7 +227,7 @@ class _OleDirectoryEntry:
 # storage file.  Use the {@link listdir} and {@link openstream}
 # methods to access the contents of this file.
 
-class OleFileIO:
+class OleFileIO(object):
     """OLE container object
 
     This class encapsulates the interface to an OLE 2 structured
@@ -273,7 +274,7 @@ class OleFileIO:
         header = self.fp.read(512)
 
         if len(header) != 512 or header[:8] != MAGIC:
-            raise IOError, "not an OLE2 structured storage file"
+            raise IOError("not an OLE2 structured storage file")
 
         # file clsid (probably never used, so we don't store it)
         clsid = self._clsid(header[8:24])
@@ -385,7 +386,7 @@ class OleFileIO:
                 if kid.name == name:
                     break
             else:
-                raise IOError, "file not found"
+                raise IOError("file not found")
             node = kid
         return node.sid
 
@@ -423,7 +424,7 @@ class OleFileIO:
         slot = self._find(filename)
         name, type, sect, size, sids, clsid = self.sidlist[slot]
         if type != 2:
-            raise IOError, "this file is not a stream"
+            raise IOError("this file is not a stream")
         return self._open(sect, size)
 
     ##

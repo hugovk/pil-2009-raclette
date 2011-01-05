@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImagePalette.py 2339 2005-03-25 08:02:17Z fredrik $
+# $Id$
 #
 # image palette object
 #
@@ -22,7 +22,7 @@ import Image, ImageColor
 ##
 # Colour palette wrapper for palette mapped images.
 
-class ImagePalette:
+class ImagePalette(object):
     "Colour palette for palette mapped images"
 
     def __init__(self, mode = "RGB", palette = None):
@@ -32,7 +32,7 @@ class ImagePalette:
         self.colors = {}
         self.dirty = None
         if len(self.mode)*256 != len(self.palette):
-            raise ValueError, "wrong palette size"
+            raise ValueError("wrong palette size")
 
     def getdata(self):
         # experimental: get palette contents in format suitable
@@ -176,7 +176,7 @@ def load(filename):
             pass
 
     if not lut:
-        raise IOError, "cannot load palette"
+        raise IOError("cannot load palette")
 
     return lut # data, rawmode
 

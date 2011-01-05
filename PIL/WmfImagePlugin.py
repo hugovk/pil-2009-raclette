@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library
-# $Id: WmfImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # WMF stub codec
 #
@@ -33,7 +33,7 @@ def register_handler(handler):
 if hasattr(Image.core, "drawwmf"):
     # install default handler (windows only)
 
-    class WmfHandler:
+    class WmfHandler(object):
 
         def open(self, im):
             im.mode = "RGB"

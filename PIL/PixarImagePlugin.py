@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: PixarImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # PIXAR raster support for PIL
 #
@@ -45,7 +45,7 @@ class PixarImageFile(ImageFile.ImageFile):
         # assuming a 4-byte magic label (FIXME: add "_accept" hook)
         s = self.fp.read(4)
         if s != "\200\350\000\000":
-            raise SyntaxError, "not a PIXAR file"
+            raise SyntaxError("not a PIXAR file")
 
         # read rest of header
         s = s + self.fp.read(508)

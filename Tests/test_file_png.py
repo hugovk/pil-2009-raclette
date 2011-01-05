@@ -45,13 +45,32 @@ def roundtrip(im, **options):
 def test_sanity():
 
     # internal version number
-    assert_match(Image.core.zlib_version, "\d+\.\d+\.\d$")
+    assert_match(Image.core.zlib_version, "\d+\.\d+\.\d+(\.\d+)?$")
+
+    file = tempfile("temp.png")
+
+    lena("RGB").save(file)
 
     im = Image.open(file)
     im.load()
     assert_equal(im.mode, "RGB")
     assert_equal(im.size, (128, 128))
     assert_equal(im.format, "PNG")
+
+    lena("1").save(file)
+    im = Image.open(file)
+
+    lena("L").save(file)
+    im = Image.open(file)
+
+    lena("P").save(file)
+    im = Image.open(file)
+
+    lena("RGB").save(file)
+    im = Image.open(file)
+
+    lena("I").save(file)
+    im = Image.open(file)
 
 # --------------------------------------------------------------------
 
@@ -79,6 +98,24 @@ def test_bad_text():
 
     im = load(HEAD + chunk('tEXt', 'spam\0egg\0') + TAIL)
     assert_equal(im.info,  {'spam': 'egg\x00'})
+
+def test_interlace():
+
+    file = "Tests/images/pil123p.png"
+    im = Image.open(file)
+
+    assert_image(im, "P", (162, 150))
+    assert_true(im.info.get("interlace"))
+
+    assert_no_exception(lambda: im.load())
+
+    file = "Tests/images/pil123rgba.png"
+    im = Image.open(file)
+
+    assert_image(im, "RGBA", (162, 150))
+    assert_true(im.info.get("interlace"))
+
+    assert_no_exception(lambda: im.load())
 
 def test_load_verify():
     # Check open/load/verify exception (@PIL150)

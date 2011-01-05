@@ -1,6 +1,5 @@
 /*
  * The Python Imaging Library
- * $Id: _imagingmath.c 2396 2005-05-07 09:17:22Z Fredrik $
  *
  * a simple math add-on for the Python Imaging Library
  *
@@ -23,6 +22,13 @@
 
 #define MAX_INT32 2147483647.0
 #define MIN_INT32 -2147483648.0
+
+#if defined(_MSC_VER) && _MSC_VER < 1500
+/* python 2.1/2.2/2.3 = VC98 = VER 1200 */
+/* python 2.4/2.5 = VS.NET 2003 = VER 1310 */
+/* python 2.6 = VS 9.0 = VER 1500 */
+#define powf(a, b) ((float) pow((double) (a), (double) (b)))
+#endif
 
 #define UNOP(name, op, type)\
 void name(Imaging out, Imaging im1)\
@@ -92,9 +98,9 @@ static int powi(int x, int y)
     if (errno == EDOM)
         return 0;
     if (v < MIN_INT32)
-        return MIN_INT32;
+        v = MIN_INT32;
     else if (v > MAX_INT32)
-        return MAX_INT32;
+        v = MAX_INT32;
     return (int) v;
 }
 

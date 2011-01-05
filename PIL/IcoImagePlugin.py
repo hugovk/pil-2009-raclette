@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: IcoImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # Windows Icon support for PIL
 #
@@ -48,7 +48,7 @@ class IcoImageFile(BmpImagePlugin.BmpImageFile):
         # check magic
         s = self.fp.read(6)
         if not _accept(s):
-            raise SyntaxError, "not an ICO file"
+            raise SyntaxError("not an ICO file")
 
         # pick the largest icon in the file
         m = ""

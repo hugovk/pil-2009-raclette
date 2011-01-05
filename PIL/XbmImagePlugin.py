@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: XbmImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # XBM File handling
 #
@@ -21,8 +21,10 @@
 
 __version__ = "0.6"
 
-import re, string
+import re
+
 import Image, ImageFile
+import ImageString
 
 # XBM header
 xbm_head = re.compile(
@@ -36,7 +38,7 @@ xbm_head = re.compile(
 )
 
 def _accept(prefix):
-    return string.lstrip(prefix)[:7] == "#define"
+    return prefix.lstrip()[:7] == "#define"
 
 ##
 # Image plugin for X11 bitmaps.
@@ -69,7 +71,7 @@ class XbmImageFile(ImageFile.ImageFile):
 def _save(im, fp, filename):
 
     if im.mode != "1":
-        raise IOError, "cannot write mode %s as XBM" % im.mode
+        raise IOError("cannot write mode %s as XBM" % im.mode)
 
     fp.write("#define im_width %d\n" % im.size[0])
     fp.write("#define im_height %d\n" % im.size[1])

@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library
- * $Id: Imaging.h 2542 2005-10-02 21:37:20Z Fredrik $
+ * $Id$
  * 
  * declarations for the imaging core library
  *
@@ -213,6 +213,7 @@ extern void* ImagingError_MemoryError(void);
 extern void* ImagingError_ModeError(void); /* maps to ValueError by default */
 extern void* ImagingError_Mismatch(void); /* maps to ValueError by default */
 extern void* ImagingError_ValueError(const char* message);
+extern void ImagingError_Clear(void);
 
 /* Transform callbacks */
 /* ------------------- */

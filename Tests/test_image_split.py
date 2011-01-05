@@ -28,3 +28,15 @@ def test_split_merge():
     assert_image_equal(lena("RGBA"), split_merge("RGBA"))
     assert_image_equal(lena("CMYK"), split_merge("CMYK"))
     assert_image_equal(lena("YCbCr"), split_merge("YCbCr"))
+
+def test_split_open():
+    file = tempfile("temp.png")
+    def split_open(mode):
+        lena(mode).save(file)
+        im = Image.open(file)
+        return len(im.split())
+    assert_equal(split_open("1"), 1)
+    assert_equal(split_open("L"), 1)
+    assert_equal(split_open("P"), 1)
+    assert_equal(split_open("RGB"), 3)
+    assert_equal(split_open("RGBA"), 4)

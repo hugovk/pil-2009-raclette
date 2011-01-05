@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: /work/modules/pil/PIL/ImageFilter.py 486 2004-10-06T08:55:20.930352Z fredrik  $
+# $Id$
 #
 # standard mode descriptors
 #
@@ -19,7 +19,7 @@ _modes = {}
 ##
 # Wrapper for mode strings.
 
-class ModeDescriptor:
+class ModeDescriptor(object):
 
     def __init__(self, mode, bands, basemode, basetype):
         self.mode = mode

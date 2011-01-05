@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: PalmImagePlugin.py 2438 2005-05-25 21:09:48Z Fredrik $
+# $Id$
 #
 
 ##
@@ -158,7 +158,7 @@ def _save(im, fp, filename, check=0):
 
     else:
 
-        raise IOError, "cannot write mode %s as Palm" % im.mode
+        raise IOError("cannot write mode %s as Palm" % im.mode)
 
     if check:
         return check

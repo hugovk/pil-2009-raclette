@@ -4,5 +4,8 @@ syntax: glob
 *.pyc
 *.obj
 PIL/*.pyd
-build/*/Release/*
+PIL/*.so
+build/*
+dist/*
+
 

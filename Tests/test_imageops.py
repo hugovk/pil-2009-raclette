@@ -15,6 +15,9 @@ def test_sanity():
     ImageOps.autocontrast(lena("L"))
     ImageOps.autocontrast(lena("RGB"))
 
+    ImageOps.autocontrast(lena("L"), cutoff=10)
+    ImageOps.autocontrast(lena("L"), ignore=[0, 255])
+
     ImageOps.colorize(lena("L"), (0, 0, 0), (255, 255, 255))
     ImageOps.colorize(lena("L"), "black", "white")
 

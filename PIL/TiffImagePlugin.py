@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: TiffImagePlugin.py 2803 2006-07-31 19:18:57Z fredrik $
+# $Id$
 #
 # TIFF file handling
 #
@@ -15,12 +15,6 @@
 #
 # History:
 # 1995-09-01 fl   Created
-# 1996-05-04 fl   Handle JPEGTABLES tag
-# 1996-05-18 fl   Fixed COLORMAP support
-# 1997-01-05 fl   Fixed PREDICTOR support
-# 1997-08-27 fl   Added support for rational tags (from Perry Stoll)
-# 1998-01-10 fl   Fixed seek/tell (from Jan Blom)
-# 1998-07-15 fl   Use private names for internal variables
 # 1999-06-13 fl   Rewritten for PIL 1.0 (1.0)
 # 2000-10-11 fl   Additional fixes for Python 2.0 (1.1)
 # 2001-04-17 fl   Fixed rewind support (seek to frame 0) (1.2)
@@ -32,19 +26,23 @@
 # 2004-02-24 fl   Added DPI support; fixed rational write support
 # 2005-02-07 fl   Added workaround for broken Corel Draw 10 files
 # 2006-01-09 fl   Added support for float/double tags (from Russell Nelson)
+# 2009-03-06 fl   Added ICC support (from Florian Hoech)
+# 2009-03-08 fl   Added big endian save, etc (from Sebastian Haase)
+# 2010-04-25 fl   Added limited support for 16-bit RGB (1.3.6)
 #
-# Copyright (c) 1997-2006 by Secret Labs AB.  All rights reserved.
+# Copyright (c) 1997-2010 by Secret Labs AB.  All rights reserved.
 # Copyright (c) 1995-1997 by Fredrik Lundh
 #
 # See the README file for information on usage and redistribution.
 #
 
-__version__ = "1.3.5"
+__version__ = "1.3.6"
 
 import Image, ImageFile
 import ImagePalette
+import ImageString
 
-import array, string, sys
+import array, sys
 
 II = "II" # little-endian (intel-style)
 MM = "MM" # big-endian (motorola-style)
@@ -130,6 +128,7 @@ COMPRESSION_INFO = {
 OPEN_INFO = {
     # (ByteOrder, PhotoInterpretation, SampleFormat, FillOrder, BitsPerSample,
     #  ExtraSamples) => mode, rawmode
+    # FIXME: refactor to avoid repeating byteorder independent modes
     (II, 0, 1, 1, (1,), ()): ("1", "1;I"),
     (II, 0, 1, 2, (1,), ()): ("1", "1;IR"),
     (II, 0, 1, 1, (8,), ()): ("L", "L;I"),
@@ -149,6 +148,7 @@ OPEN_INFO = {
     (II, 2, 1, 1, (8,8,8,8), (1,)): ("RGBA", "RGBa"),
     (II, 2, 1, 1, (8,8,8,8), (2,)): ("RGBA", "RGBA"),
     (II, 2, 1, 1, (8,8,8,8), (999,)): ("RGBA", "RGBA"), # corel draw 10
+    (II, 2, 1, 1, (16, 16, 16), ()): ("RGB", "RGB;16"),
     (II, 3, 1, 1, (1,), ()): ("P", "P;1"),
     (II, 3, 1, 2, (1,), ()): ("P", "P;1R"),
     (II, 3, 1, 1, (2,), ()): ("P", "P;2"),
@@ -181,6 +181,7 @@ OPEN_INFO = {
     (MM, 2, 1, 1, (8,8,8,8), (1,)): ("RGBA", "RGBa"),
     (MM, 2, 1, 1, (8,8,8,8), (2,)): ("RGBA", "RGBA"),
     (MM, 2, 1, 1, (8,8,8,8), (999,)): ("RGBA", "RGBA"), # corel draw 10
+    (MM, 2, 1, 1, (16, 16, 16), ()): ("RGB", "RGB;16B"),
     (MM, 3, 1, 1, (1,), ()): ("P", "P;1"),
     (MM, 3, 1, 2, (1,), ()): ("P", "P;1R"),
     (MM, 3, 1, 1, (2,), ()): ("P", "P;2"),
@@ -204,7 +205,7 @@ def _accept(prefix):
 ##
 # Wrapper for TIFF IFDs.
 
-class ImageFileDirectory:
+class ImageFileDirectory(object):
 
     # represents a TIFF tag directory.  to speed things up,
     # we don't decode tags unless they're asked for.
@@ -265,7 +266,7 @@ class ImageFileDirectory:
                     # work around broken (?) matrox library
                     # (from Ted Wright, via Bob Klimek)
                     raise KeyError # use default
-                raise ValueError, "not a scalar"
+                raise ValueError("not a scalar")
             return value[0]
         except KeyError:
             if default is None:
@@ -373,13 +374,13 @@ class ImageFileDirectory:
             if size > 4:
                 here = fp.tell()
                 fp.seek(i32(ifd, 8))
-                data = ImageFile._safe_read(fp, size)
+                data = fp.saferead(size)
                 fp.seek(here)
             else:
                 data = ifd[8:8+size]
 
             if len(data) != size:
-                raise IOError, "not enough data"
+                raise IOError("not enough data")
 
             self.tagdata[tag] = typ, data
             self.tagtype[tag] = typ
@@ -422,14 +423,14 @@ class ImageFileDirectory:
 
             if typ == 1:
                 # byte data
-                data = value = string.join(map(chr, value), "")
+                data = value = ImageString.join(map(chr, value), "")
             elif typ == 7:
                 # untyped data
-                data = value = string.join(value, "")
+                data = value = ImageString.join(value, "")
             elif type(value[0]) is type(""):
                 # string data
                 typ = 2
-                data = value = string.join(value, "\0") + "\0"
+                data = value = ImageString.join(value, "\0") + "\0"
             else:
                 # integer data
                 if tag == STRIPOFFSETS:
@@ -444,9 +445,9 @@ class ImageFileDirectory:
                         if v >= 65536:
                             typ = 4
                 if typ == 3:
-                    data = string.join(map(o16, value), "")
+                    data = ImageString.join(map(o16, value), "")
                 else:
-                    data = string.join(map(o32, value), "")
+                    data = ImageString.join(map(o32, value), "")
 
             if Image.DEBUG:
                 import TiffTags
@@ -513,7 +514,7 @@ class TiffImageFile(ImageFile.ImageFile):
         ifh = self.fp.read(8)
 
         if ifh[:4] not in PREFIXES:
-            raise SyntaxError, "not a TIFF file"
+            raise SyntaxError("not a TIFF file")
 
         # image file directory (tag dictionary)
         self.tag = self.ifd = ImageFileDirectory(ifh[:2])
@@ -547,7 +548,7 @@ class TiffImageFile(ImageFile.ImageFile):
             self.__next = self.__first
         while self.__frame < frame:
             if not self.__next:
-                raise EOFError, "no more images in TIFF file"
+                raise EOFError("no more images in TIFF file")
             self.fp.seek(self.__next)
             self.tag.load(self.fp)
             self.__next = self.tag.next
@@ -589,7 +590,7 @@ class TiffImageFile(ImageFile.ImageFile):
         "Setup this image object based on current tags"
 
         if self.tag.has_key(0xBC01):
-            raise IOError, "Windows Media Photo files not yet supported"
+            raise IOError("Windows Media Photo files not yet supported")
 
         getscalar = self.tag.getscalar
 
@@ -633,7 +634,7 @@ class TiffImageFile(ImageFile.ImageFile):
         except KeyError:
             if Image.DEBUG:
                 print "- unsupported format"
-            raise SyntaxError, "unknown pixel mode"
+            raise SyntaxError("unknown pixel mode")
 
         if Image.DEBUG:
             print "- raw mode:", rawmode
@@ -705,7 +706,7 @@ class TiffImageFile(ImageFile.ImageFile):
 
         if self.mode == "P":
             palette = map(lambda a: chr(a / 256), self.tag[COLORMAP])
-            self.palette = ImagePalette.raw("RGB;L", string.join(palette, ""))
+            self.palette = ImagePalette.raw("RGB;L", ImageString.join(palette, ""))
 #
 # --------------------------------------------------------------------
 # Write TIFF files
@@ -751,7 +752,7 @@ def _save(im, fp, filename):
     try:
         rawmode, prefix, photo, format, bits, extra = SAVE_INFO[im.mode]
     except KeyError:
-        raise IOError, "cannot write mode %s as TIFF" % im.mode
+        raise IOError("cannot write mode %s as TIFF" % im.mode)
 
     ifd = ImageFileDirectory(prefix)
 
@@ -784,8 +785,7 @@ def _save(im, fp, filename):
     if im.encoderinfo.has_key("description"):
         ifd[IMAGEDESCRIPTION] = im.encoderinfo["description"]
     if im.encoderinfo.has_key("resolution"):
-        ifd[X_RESOLUTION] = ifd[Y_RESOLUTION] \
-                                = _cvt_res(im.encoderinfo["resolution"])
+        ifd[X_RESOLUTION] = ifd[Y_RESOLUTION] = _cvt_res(im.encoderinfo["resolution"])
     if im.encoderinfo.has_key("x resolution"):
         ifd[X_RESOLUTION] = _cvt_res(im.encoderinfo["x resolution"])
     if im.encoderinfo.has_key("y resolution"):
@@ -840,7 +840,6 @@ def _save(im, fp, filename):
     ImageFile._save(im, fp, [
         ("raw", (0,0)+im.size, offset, (rawmode, stride, 1))
         ])
-
 
     # -- helper for multi-page save --
     if im.encoderinfo.has_key("_debug_multipage"):

@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: XpmImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # XPM File handling
 #
@@ -18,8 +18,9 @@
 __version__ = "0.2"
 
 
-import re, string
+import re
 import Image, ImageFile, ImagePalette
+import ImageString
 
 # XPM header
 xpm_head = re.compile("\"([0-9]*) ([0-9]*) ([0-9]*) ([0-9]*)")
@@ -39,13 +40,13 @@ class XpmImageFile(ImageFile.ImageFile):
     def _open(self):
 
         if not _accept(self.fp.read(9)):
-            raise SyntaxError, "not an XPM file"
+            raise SyntaxError("not an XPM file")
 
         # skip forward to next string
         while 1:
             s = self.fp.readline()
             if not s:
-                raise SyntaxError, "broken XPM file"
+                raise SyntaxError("broken XPM file")
             m = xpm_head.match(s)
             if m:
                 break
@@ -56,7 +57,7 @@ class XpmImageFile(ImageFile.ImageFile):
         bpp = int(m.group(4))
 
         if pal > 256 or bpp != 1:
-            raise ValueError, "cannot read this XPM file"
+            raise ValueError("cannot read this XPM file")
 
         #
         # load palette description
@@ -72,7 +73,7 @@ class XpmImageFile(ImageFile.ImageFile):
                 s = s[:-1]
 
             c = ord(s[1])
-            s = string.split(s[2:-2])
+            s = ImageString.split(s[2:-2])
 
             for i in range(0, len(s), 2):
 
@@ -84,19 +85,19 @@ class XpmImageFile(ImageFile.ImageFile):
                         self.info["transparency"] = c
                     elif rgb[0] == "#":
                         # FIXME: handle colour names (see ImagePalette.py)
-                        rgb = string.atoi(rgb[1:], 16)
+                        rgb = int(rgb[1:], 16)
                         palette[c] = chr((rgb >> 16) & 255) +\
                                      chr((rgb >> 8) & 255) +\
                                      chr(rgb & 255)
                     else:
                         # unknown colour
-                        raise ValueError, "cannot read this XPM file"
+                        raise ValueError("cannot read this XPM file")
                     break
 
             else:
 
                 # missing colour key
-                raise ValueError, "cannot read this XPM file"
+                raise ValueError("cannot read this XPM file")
 
         self.mode = "P"
         self.palette = ImagePalette.raw("RGB", string.join(palette, ""))

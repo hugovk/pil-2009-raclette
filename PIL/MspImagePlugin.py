@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: MspImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # MSP file handling
 #
@@ -45,14 +45,14 @@ class MspImageFile(ImageFile.ImageFile):
         # Header
         s = self.fp.read(32)
         if s[:4] not in ["DanM", "LinS"]:
-            raise SyntaxError, "not an MSP file"
+            raise SyntaxError("not an MSP file")
 
         # Header checksum
         sum = 0
         for i in range(0, 32, 2):
             sum = sum ^ i16(s[i:i+2])
         if sum != 0:
-            raise SyntaxError, "bad MSP checksum"
+            raise SyntaxError("bad MSP checksum")
 
         self.mode = "1"
         self.size = i16(s[4:]), i16(s[6:])
@@ -71,7 +71,7 @@ def o16(i):
 def _save(im, fp, filename):
 
     if im.mode != "1":
-        raise IOError, "cannot write mode %s as MSP" % im.mode
+        raise IOError("cannot write mode %s as MSP" % im.mode)
 
     # create MSP header
     header = [0] * 16

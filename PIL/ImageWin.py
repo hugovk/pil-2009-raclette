@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImageWin.py 2662 2006-03-21 22:41:02Z fredrik $
+# $Id$
 #
 # a Windows DIB display interface
 #
@@ -23,13 +23,13 @@ import Image
 # The <b>ImageWin</b> module contains support to create and display
 # images under Windows 95/98, NT, 2000 and later.
 
-class HDC:
+class HDC(object):
     def __init__(self, dc):
         self.dc = dc
     def __int__(self):
         return self.dc
 
-class HWND:
+class HWND(object):
     def __init__(self, wnd):
         self.wnd = wnd
     def __int__(self):
@@ -47,7 +47,7 @@ class HWND:
 # To make sure that palettes work properly under Windows, you must
 # call the <b>palette</b> method upon certain events from Windows.
 
-class Dib:
+class Dib(object):
 
     ##
     # Create Windows bitmap.
@@ -171,7 +171,7 @@ class Dib:
 ##
 # Create a Window with the given title size.
 
-class Window:
+class Window(object):
 
     def __init__(self, title="PIL", width=None, height=None):
         self.hwnd = Image.core.createwindow(
@@ -179,7 +179,8 @@ class Window:
             )
 
     def __dispatcher(self, action, *args):
-        return apply(getattr(self, "ui_handle_" + action), args)
+        handler = getattr(self, "ui_handle_" + action)
+        return handler(*args)
 
     def ui_handle_clear(self, dc, x0, y0, x1, y1):
         pass

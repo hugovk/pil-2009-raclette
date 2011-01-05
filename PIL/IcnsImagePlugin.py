@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # Mac OS X icns file decoder, based on icns.py by Bob Ippolito.
 #
@@ -15,7 +15,8 @@
 #
 
 import Image, ImageFile
-import string, struct
+import ImageString
+import struct
 
 HEADERSIZE = 8
 
@@ -27,7 +28,7 @@ def read_32t(fobj, (start, length), (width, height)):
     fobj.seek(start)
     sig = fobj.read(4)
     if sig != '\x00\x00\x00\x00':
-        raise SyntaxError, 'Unknown signature, expecting 0x00000000'
+        raise SyntaxError('Unknown signature, expecting 0x00000000')
     return read_32(fobj, (start + 4, length - 4), (width, height))
 
 def read_32(fobj, (start, length), size):
@@ -68,7 +69,7 @@ def read_32(fobj, (start, length), size):
                     "Error reading channel [%r left]" % bytesleft
                     )
             band = Image.frombuffer(
-                "L", size, string.join(data, ""), "raw", "L", 0, 1
+                "L", size, ImageString.join(data, ""), "raw", "L", 0, 1
                 )
             im.im.putband(band.im, band_ix)
     return {"RGB": im}
@@ -111,7 +112,7 @@ class IcnsFile:
         self.fobj = fobj
         sig, filesize = nextheader(fobj)
         if sig != 'icns':
-            raise SyntaxError, 'not an icns file'
+            raise SyntaxError('not an icns file')
         i = HEADERSIZE
         while i < filesize:
             sig, blocksize = nextheader(fobj)
@@ -133,7 +134,7 @@ class IcnsFile:
     def bestsize(self):
         sizes = self.itersizes()
         if not sizes:
-            raise SyntaxError, "No 32bit icon resources found"
+            raise SyntaxError("No 32bit icon resources found")
         return max(sizes)
 
     def dataforsize(self, size):

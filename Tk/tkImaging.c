@@ -42,7 +42,7 @@
  * See the README file for information on usage and redistribution.
  */
 
-#define TKMAJORMINOR (TK_MAJOR_VERSION*1000 + TK_MINOR_VERSION)
+#define TK (TK_MAJOR_VERSION*10 + TK_MINOR_VERSION)
 
 /* This is needed for (at least) Tk 8.4.6 and later, to avoid warnings
    for the Tcl_CreateCommand command. */
@@ -144,7 +144,7 @@ PyImagingPhotoPut(ClientData clientdata, Tcl_Interp* interp,
 	             src_xoffset * im->pixelsize;
 #endif
 
-#if TKMAJORMINOR < 8004 /* Tk < 8.4.0 */
+#if TK < 84 /* < 8.4.0 */
     if (strcmp(im->mode, "RGBA") == 0) {
         /* Copy non-transparent pixels to photo image */
         int x, y;
@@ -161,8 +161,6 @@ PyImagingPhotoPut(ClientData clientdata, Tcl_Interp* interp,
         run.offset[1] = 1;
         run.offset[2] = 2;
 	run.offset[3] = 0; /* no alpha (or reserved, under 8.2) */
-
-	/* FIXME: handle compositing support under 8.4 and later */
 
         /* Copy opaque runs to photo image */
         for (y = 0; y < block.height; y++) {
@@ -199,13 +197,18 @@ PyImagingPhotoPut(ClientData clientdata, Tcl_Interp* interp,
         /* Copy opaque block to photo image, and leave the rest to TK */
         Tk_PhotoPutBlock(photo, &block, 0, 0, block.width, block.height);
 
-#else /* Tk >= 8.4.0 */
+#else /* Tk 8.4 and newer */
+#if TK < 85 /* Tk 8.4 */
     Tk_PhotoPutBlock(photo, &block, 0, 0, block.width, block.height,
                      TK_PHOTO_COMPOSITE_SET);
     if (strcmp(im->mode, "RGBA") == 0)
         /* Tk workaround: we need apply ToggleComplexAlphaIfNeeded */
         /* (fixed in Tk 8.5a3) */
         Tk_PhotoSetSize(photo, block.width, block.height);
+#else /* Tk 8.5 */
+    Tk_PhotoPutBlock(interp, photo, &block, 0, 0, block.width, block.height,
+                     TK_PHOTO_COMPOSITE_SET);
+#endif
 #endif
 
     return TCL_OK;
