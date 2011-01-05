@@ -17,7 +17,7 @@ import Image, ImageFile
 
 # Image.DEBUG = 2
 
-class AttributeStream:
+class AttributeStream(object):
     def __init__(self, fp):
         self.fp = fp
         self.buf = ""

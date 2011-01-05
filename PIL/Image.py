@@ -33,7 +33,7 @@ try:
 except ImportError:
     warnings = None
 
-class _imaging_not_installed:
+class _imaging_not_installed(object):
     # module placeholder
     def __getattr__(self, id):
         raise ImportError("The _imaging C module is not installed")
@@ -462,7 +462,7 @@ def _getscaleoffset(expr):
 # @see #new
 # @see #fromstring
 
-class Image:
+class Image(object):
 
     format = None
     format_description = None

@@ -30,7 +30,7 @@ import ImageString
 
 import os, sys
 
-class _imagingft_not_installed:
+class _imagingft_not_installed(object):
     # module placeholder
     def __getattr__(self, id):
         raise ImportError("The _imagingft C module is not installed")
