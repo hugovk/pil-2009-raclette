@@ -20,8 +20,9 @@
 # 2003-04-21 fl   Fall back on mmap/map_buffer if map is not available
 # 2003-10-30 fl   Added StubImageFile class
 # 2004-02-25 fl   Made incremental parser more robust
+# 2010-01-05 fl   Added binary/text file stream wrappers
 #
-# Copyright (c) 1997-2004 by Secret Labs AB
+# Copyright (c) 1997-2010 by Secret Labs AB
 # Copyright (c) 1995-2004 by Fredrik Lundh
 #
 # See the README file for information on usage and redistribution.
@@ -98,12 +99,15 @@ class TextFileWrapper(object):
             if value is not None:
                 setattr(self, attribute, value)
         copy('read')
-        copy('readline') # FIXME: remove?
         copy('seek')
         copy('tell')
         copy('fileno')
         self.fp = fp
         self.name = filename
+
+    def readline(self, size=SAFEBLOCK):
+        # always use safe mode
+        return _safe_readline(self.fp, size)
 
     def saferead(self, size):
         return _safe_read(self.fp, size)
@@ -121,6 +125,7 @@ class TextFileWrapper(object):
 class ImageFile(Image.Image):
     "Base class for image file format handlers."
 
+    # set to true if codec wants BinaryFileWrapper API
     use_binary_stream = False
 
     def __init__(self, fp=None, filename=None):
@@ -566,9 +571,9 @@ def _save(im, fp, tile):
 
 
 ##
-# Reads large blocks in a safe way.  Unlike fp.read(n), this function
-# doesn't trust the user.  If the requested size is larger than
-# SAFEBLOCK, the file is read block by block.
+# (Internal) Reads large blocks in a safe way.  Unlike fp.read(n),
+# this function doesn't trust the user.  If the requested size is
+# larger than SAFEBLOCK, the file is read block by block.
 #
 # @param fp File handle.  Must implement a <b>read</b> method.
 # @param size Number of bytes to read.
@@ -589,7 +594,7 @@ def _safe_read(fp, size):
     return ImageString.join(data, "")
 
 ##
-# Safe and slow readline implementation.
+# (Internal) Safe (and slow) readline implementation.
 # <p>
 # Note: Codecs that mix line and binary access should be rewritten to
 # use an extra buffering layer.
