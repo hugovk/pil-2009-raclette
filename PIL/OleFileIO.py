@@ -265,7 +265,7 @@ class OleFileIO(object):
     def open(self, filename):
         """Open an OLE2 file"""
 
-        if isinstance(filename, basestring):
+        if not hasattr(filename, "read"):
             self.fp = open(filename, "rb")
         else:
             self.fp = filename

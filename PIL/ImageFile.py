@@ -87,7 +87,7 @@ class ImageFile(Image.Image):
         self.decoderconfig = ()
         self.decodermaxblock = MAXBLOCK
 
-        if Image.isStringType(fp):
+        if not hasattr(fp, "read"):
             # filename
             self.fp = open(fp, "rb")
             self.filename = fp

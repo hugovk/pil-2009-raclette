@@ -1373,7 +1373,7 @@ class Image(object):
     def save(self, fp, format=None, **params):
         "Save image to file or stream"
 
-        if isStringType(fp):
+        if not hasattr(fp, "write"):
             filename = fp
         else:
             if hasattr(fp, "name") and isStringType(fp.name):
@@ -1408,7 +1408,7 @@ class Image(object):
             init()
             save_handler = SAVE[format.upper()] # unknown format
 
-        if isStringType(fp):
+        if not hasattr(fp, "write"):
             import __builtin__
             fp = __builtin__.open(fp, "wb")
             close = 1
@@ -1935,7 +1935,7 @@ def open(fp, mode="r"):
     if mode != "r":
         raise ValueError("bad mode")
 
-    if isStringType(fp):
+    if not hasattr(fp, "read"):
         import __builtin__
         filename = fp
         fp = __builtin__.open(fp, "rb")

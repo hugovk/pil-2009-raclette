@@ -78,7 +78,7 @@ class ImagePalette(object):
         # (experimental) save palette to text file
         if self.rawmode:
             raise ValueError("palette contains raw palette data")
-        if isinstance(fp, basestring):
+        if not hasattr(fp, "write"):
             fp = open(fp, "w")
         fp.write("# Palette\n")
         fp.write("# Mode: %s\n" % self.mode)
@@ -87,7 +87,7 @@ class ImagePalette(object):
             for j in range(i, len(self.palette), 256):
                 fp.write(" %d" % self.palette[j])
             fp.write("\n")
-        fp.close()
+        # fp.close()
 
 # --------------------------------------------------------------------
 # Internal

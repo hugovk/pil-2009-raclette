@@ -137,10 +137,10 @@ class ImageCmsProfile(object):
     def __init__(self, profile):
         # accepts a string (filename), a file-like object, or a low-level
         # profile object
-        if Image.isStringType(profile):
-            self._set(core.profile_open(profile), profile)
-        elif hasattr(profile, "read"):
+        if hasattr(profile, "read"):
             self._set(core.profile_fromstring(profile.read()))
+        elif Image.isStringType(profile):
+            self._set(core.profile_open(profile), profile)
         else:
             self._set(profile) # assume it's already a profile
 

@@ -25,6 +25,7 @@
 
 __version__ = "0.1"
 
+import Image
 import ImageFile
 import ImagePalette
 
@@ -73,7 +74,7 @@ def open(fp, mode = "r"):
     if mode != "r":
         raise ValueError("bad mode")
 
-    if isinstance(fp, basestring):
+    if not hasattr(fp, "read"):
         import __builtin__
         filename = fp
         fp = __builtin__.open(fp, "rb")

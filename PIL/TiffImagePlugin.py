@@ -36,7 +36,7 @@
 # See the README file for information on usage and redistribution.
 #
 
-__version__ = "1.3.6"
+__version__ = "1.4"
 
 import Image
 import ImageFile
@@ -429,7 +429,7 @@ class ImageFileDirectory(object):
             elif typ == 7:
                 # untyped data
                 data = value = "".join(value)
-            elif isinstance(value[0], basestring):
+            elif Image.isStringType(value[0]):
                 # string data
                 typ = 2
                 data = value = "\0".join(value) + "\0"
