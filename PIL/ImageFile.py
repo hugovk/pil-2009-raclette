@@ -30,10 +30,12 @@
 
 import Image
 import ImageString
-
-import ByteArray
+import ImageSupport
 
 import traceback, os
+
+# compatibility
+ByteArray = ImageSupport.ByteArray
 
 MAXBLOCK = 65536
 
@@ -63,57 +65,6 @@ def raise_ioerror(error):
 def _tilesort(t1, t2):
     # sort on offset
     return cmp(t1[2], t2[2])
-
-##
-# File wrapper for new-style binary readers.  This treats the
-# file header as a stream of byte arrays.
-
-class BinaryFileWrapper(object):
-
-    def __init__(self, fp, filename):
-        def copy(attribute):
-            value = getattr(fp, attribute, None)
-            if value is not None:
-                setattr(self, attribute, value)
-        copy('seek')
-        copy('tell')
-        copy('fileno')
-        self.fp = fp
-        self.name = filename
-
-    def read(self, size):
-        return ByteArray.ByteArray(self.fp.read(size))
-
-    def saferead(self, size):
-        return ByteArray.ByteArray(_safe_read(self.fp, size))
-
-##
-# File wrapper for old-style text stream readers.  This treats the
-# file header as a stream of (iso-8859-1) text strings.
-
-class TextFileWrapper(object):
-
-    def __init__(self, fp, filename):
-        def copy(attribute):
-            value = getattr(fp, attribute, None)
-            if value is not None:
-                setattr(self, attribute, value)
-        copy('read')
-        copy('seek')
-        copy('tell')
-        copy('fileno')
-        self.fp = fp
-        self.name = filename
-
-    def readline(self, size=SAFEBLOCK):
-        # always use safe mode
-        return _safe_readline(self.fp, size)
-
-    def saferead(self, size):
-        return _safe_read(self.fp, size)
-
-    def safereadline(self, size):
-        return _safe_readline(self.fp, size)
 
 #
 # --------------------------------------------------------------------
@@ -147,9 +98,9 @@ class ImageFile(Image.Image):
             self.filename = filename
 
         if self.use_binary_stream:
-            self.fp = BinaryFileWrapper(self.fp, filename)
+            self.fp = ImageSupport.BinaryFileWrapper(self.fp, filename, SAFEBLOCK)
         else:
-            self.fp = TextFileWrapper(self.fp, filename)
+            self.fp = ImageSupport.TextFileWrapper(self.fp, filename, SAFEBLOCK)
 
         try:
             self._open()
@@ -260,7 +211,7 @@ class ImageFile(Image.Image):
                 t = len(b)
                 while 1:
                     s = read(self.decodermaxblock)
-                    if isinstance(s, ByteArray.ByteArray):
+                    if isinstance(s, ImageSupport.ByteArray):
                         s = s.tostring()
                     if not s:
                         self.tile = []
@@ -569,49 +520,3 @@ def _save(im, fp, tile):
     try:
         fp.flush()
     except: pass
-
-
-##
-# (Internal) Reads large blocks in a safe way.  Unlike fp.read(n),
-# this function doesn't trust the user.  If the requested size is
-# larger than SAFEBLOCK, the file is read block by block.
-#
-# @param fp File handle.  Must implement a <b>read</b> method.
-# @param size Number of bytes to read.
-# @return A string containing up to <i>size</i> bytes of data.
-
-def _safe_read(fp, size):
-    if size <= 0:
-        return ""
-    if size <= SAFEBLOCK:
-        return fp.read(size)
-    data = []
-    while size > 0:
-        block = fp.read(min(size, SAFEBLOCK))
-        if not block:
-            break
-        data.append(block)
-        size = size - len(block)
-    return ImageString.join(data, "")
-
-##
-# (Internal) Safe (and slow) readline implementation.
-# <p>
-# Note: Codecs that mix line and binary access should be rewritten to
-# use an extra buffering layer.
-#
-# @param fp File handle.  Must implement a <b>read</b> method.
-# @param size Max number of bytes to read.
-# @return A string containing up to <i>size</i> bytes of data,
-#   including the newline, if found.
-
-def _safe_readline(fp, size):
-    s = ""
-    while 1:
-        c = fp.read(1)
-        if not c:
-            break
-        s = s + c
-        if c == "\n" or len(s) >= size:
-            break
-    return s

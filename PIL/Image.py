@@ -73,8 +73,6 @@ import ImageMode
 import ImagePalette
 import ImageString
 
-import ByteArray
-
 import os, sys
 
 # type stuff

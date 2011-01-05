@@ -1,10 +1,10 @@
 from tester import *
 
-from PIL import ByteArray
+from PIL import ImageSupport
 
 def test_array():
 
-    array = ByteArray.ByteArray("\x00\x01\x02\x03")
+    array = ImageSupport.ByteArray("\x00\x01\x02\x03")
 
     assert_true(array)
     assert_equal(len(array), 4)
