@@ -103,7 +103,6 @@ Imaging/_imagingmath.c
 
 Imaging/PIL.pth
 Imaging/PIL/__init__.py
-Imaging/PIL/ArgImagePlugin.py
 Imaging/PIL/BdfFontFile.py
 Imaging/PIL/BmpImagePlugin.py
 Imaging/PIL/BufrStubImagePlugin.py
