@@ -39,7 +39,6 @@ import re, zlib
 import Image
 import ImageFile
 import ImagePalette
-import ImageString
 
 
 is_cid = re.compile("\w\w\w\w").match
@@ -281,7 +280,7 @@ class PngStream(ChunkStream):
         # text
         s = self.fp.saferead(len)
         try:
-            k, v = ImageString.split(s.tostring(), "\0", 1)
+            k, v = s.tostring().split("\0", 1)
         except ValueError:
             k = s.tostring(); v = "" # fallback for broken tEXt tags
         if k:
@@ -292,7 +291,7 @@ class PngStream(ChunkStream):
 
         # compressed text
         s = self.fp.saferead(len)
-        k, v = ImageString.split(s.tostring(), "\0", 1)
+        k, v = s.tostring().split("\0", 1)
         comp_method = ord(v[0])
         if comp_method != 0:
             raise SyntaxError("Unknown compression method %s in zTXt chunk" % comp_method)
@@ -453,7 +452,7 @@ _OUTMODES = {
 def putchunk(fp, cid, *data):
     "Write a PNG chunk (including CRC field)"
 
-    data = ImageString.join(data, "")
+    data = "".join(data)
 
     fp.write(o32(len(data)) + cid)
     fp.write(data)
@@ -603,7 +602,7 @@ def getchunks(im, **params):
             self.data.append(chunk)
 
     def append(fp, cid, *data):
-        data = ImageString.join(data, "")
+        data = "".join(data)
         hi, lo = Image.core.crc32(data, Image.core.crc32(cid))
         crc = o16(hi) + o16(lo)
         fp.append((cid, data, crc))

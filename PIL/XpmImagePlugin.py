@@ -21,7 +21,6 @@ __version__ = "0.2"
 import Image
 import ImageFile
 import ImagePalette
-import ImageString
 
 import re
 
@@ -76,7 +75,7 @@ class XpmImageFile(ImageFile.ImageFile):
                 s = s[:-1]
 
             c = ord(s[1])
-            s = ImageString.split(s[2:-2])
+            s = s[2:-2].split()
 
             for i in range(0, len(s), 2):
 
@@ -103,7 +102,7 @@ class XpmImageFile(ImageFile.ImageFile):
                 raise ValueError("cannot read this XPM file")
 
         self.mode = "P"
-        self.palette = ImagePalette.raw("RGB", ImageString.join(palette, ""))
+        self.palette = ImagePalette.raw("RGB", "".join(palette))
 
         self.tile = [("raw", (0, 0)+self.size, self.fp.tell(), ("P", 0, 1))]
 
@@ -122,7 +121,7 @@ class XpmImageFile(ImageFile.ImageFile):
 
         self.fp = None
 
-        return ImageString.join(s, "")
+        return "".join(s)
 
 #
 # Registry

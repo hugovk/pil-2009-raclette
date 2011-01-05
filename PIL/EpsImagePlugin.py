@@ -22,7 +22,6 @@ __version__ = "0.5"
 
 import Image
 import ImageFile
-import ImageString
 
 import re
 
@@ -59,7 +58,7 @@ def Ghostscript(tile, size, fp):
                "-sOutputFile=%s" % file,# output file
                "- >/dev/null 2>/dev/null"]
 
-    command = ImageString.join(command, " ")
+    command = " ".join(command)
 
     # push data through ghostscript
     try:
@@ -187,7 +186,7 @@ class EpsImageFile(ImageFile.ImageFile):
                         # Note: The DSC spec says that BoundingBox
                         # fields should be integers, but some drivers
                         # put floating point values there anyway.
-                        box = map(int, map(float, ImageString.split(v)))
+                        box = map(int, map(float, v.split()))
                         self.size = box[2] - box[0], box[3] - box[1]
                         self.tile = [("eps", (0,0) + self.size, offset,
                                       (length, box))]

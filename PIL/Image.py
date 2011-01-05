@@ -71,7 +71,6 @@ except ImportError, v:
 
 import ImageMode
 import ImagePalette
-import ImageString
 
 import os, sys
 
@@ -568,7 +567,7 @@ class Image(object):
         if s < 0:
             raise RuntimeError("encoder error %d in tostring" % s)
 
-        return ImageString.join(data, "")
+        return "".join(data)
 
     ##
     # Returns the image converted to an X11 bitmap.  This method
@@ -585,9 +584,10 @@ class Image(object):
         if self.mode != "1":
             raise ValueError("not a bitmap")
         data = self.tostring("xbm")
-        return ImageString.join(["#define %s_width %d\n" % (name, self.size[0]),
+        return "".join((
+                "#define %s_width %d\n" % (name, self.size[0]),
                 "#define %s_height %d\n"% (name, self.size[1]),
-                "static char %s_bits[] = {\n" % name, data, "};"], "")
+                "static char %s_bits[] = {\n" % name, data, "};"))
 
     ##
     # Loads this image with pixel data from a string.
@@ -1235,7 +1235,7 @@ class Image(object):
             palette = ImagePalette.raw(data.rawmode, data.palette)
         else:
             if not isStringType(data):
-                data = ImageString.join(map(chr, data), "")
+                data = "".join(map(chr, data))
             palette = ImagePalette.raw(rawmode, data)
         self.mode = "P"
         self.palette = palette

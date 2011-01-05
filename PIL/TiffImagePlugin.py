@@ -41,7 +41,6 @@ __version__ = "1.3.6"
 import Image
 import ImageFile
 import ImagePalette
-import ImageString
 
 import array, sys
 
@@ -427,14 +426,14 @@ class ImageFileDirectory(object):
 
             if typ == 1:
                 # byte data
-                data = value = ImageString.join(map(chr, value), "")
+                data = value = "".join(map(chr, value))
             elif typ == 7:
                 # untyped data
-                data = value = ImageString.join(value, "")
+                data = value = "".join(value)
             elif type(value[0]) is type(""):
                 # string data
                 typ = 2
-                data = value = ImageString.join(value, "\0") + "\0"
+                data = value = "\0".join(value) + "\0"
             else:
                 # integer data
                 if tag == STRIPOFFSETS:
@@ -449,9 +448,9 @@ class ImageFileDirectory(object):
                         if v >= 65536:
                             typ = 4
                 if typ == 3:
-                    data = ImageString.join(map(o16, value), "")
+                    data = "".join(map(o16, value))
                 else:
-                    data = ImageString.join(map(o32, value), "")
+                    data = "".join(map(o32, value))
 
             if Image.DEBUG:
                 import TiffTags
@@ -710,7 +709,7 @@ class TiffImageFile(ImageFile.ImageFile):
 
         if self.mode == "P":
             palette = [chr(a / 256) for a in self.tag[COLORMAP]]
-            self.palette = ImagePalette.raw("RGB;L", ImageString.join(palette, ""))
+            self.palette = ImagePalette.raw("RGB;L", "".join(palette))
 #
 # --------------------------------------------------------------------
 # Write TIFF files

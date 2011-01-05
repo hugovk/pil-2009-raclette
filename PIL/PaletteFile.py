@@ -13,8 +13,6 @@
 # See the README file for information on usage and redistribution.
 #
 
-import ImageString
-
 ##
 # File handler for Teragon-style palette files.
 
@@ -37,7 +35,7 @@ class PaletteFile(object):
             if len(s) > 100:
                 raise SyntaxError("bad palette file")
 
-            v = map(int, ImageString.split(s))
+            v = map(int, s.split())
             try:
                 [i, r, g, b] = v
             except ValueError:
@@ -47,7 +45,7 @@ class PaletteFile(object):
             if 0 <= i <= 255:
                 self.palette[i] = chr(r) + chr(g) + chr(b)
 
-        self.palette = ImageString.join(self.palette, "")
+        self.palette = "".join(self.palette)
 
 
     def getpalette(self):

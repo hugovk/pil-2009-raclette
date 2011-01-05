@@ -30,7 +30,6 @@ __version__ = "0.7"
 import Image
 import ImageFile
 import ImagePalette
-import ImageString
 
 
 #
@@ -148,7 +147,7 @@ class BmpImageFile(ImageFile.ImageFile):
             else:
                 self.mode = "P"
                 self.palette = ImagePalette.raw(
-                    "BGR", ImageString.join(palette, "")
+                    "BGR", "".join(palette)
                     )
 
         if not offset:

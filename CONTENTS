@@ -145,7 +145,6 @@ Imaging/PIL/ImageQt.py
 Imaging/PIL/ImageSequence.py
 Imaging/PIL/ImageShow.py
 Imaging/PIL/ImageStat.py
-Imaging/PIL/ImageString.py
 Imaging/PIL/ImageSupport.py
 Imaging/PIL/ImageSupport2.py
 Imaging/PIL/ImageSupport3.py
@@ -298,4 +297,3 @@ Imaging/Tk/tkImaging.c
 Imaging/Tk/install.txt
 Imaging/Tk/booster.txt
 Imaging/Tk/pilbitmap.txt
-
