@@ -17,7 +17,9 @@
 #
 
 import array
-import Image, ImageColor
+
+import Image
+import ImageColor
 
 ##
 # Colour palette wrapper for palette mapped images.

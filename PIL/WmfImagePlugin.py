@@ -17,7 +17,8 @@
 
 __version__ = "0.2"
 
-import Image, ImageFile
+import Image
+import ImageFile
 
 _handler = None
 

@@ -19,7 +19,9 @@
 __version__ = "0.3"
 
 
-import Image, ImageFile
+import Image
+import ImageFile
+
 import os, tempfile
 
 

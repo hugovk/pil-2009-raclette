@@ -35,9 +35,11 @@
 
 __version__ = "0.7"
 
-import array, struct
-import Image, ImageFile
+import Image
+import ImageFile
 import ImageString
+
+import array, struct
 
 #
 # Parser

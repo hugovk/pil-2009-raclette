@@ -36,7 +36,9 @@ __version__ = "0.9"
 
 import re, zlib
 
-import Image, ImageFile, ImagePalette
+import Image
+import ImageFile
+import ImagePalette
 import ImageString
 
 

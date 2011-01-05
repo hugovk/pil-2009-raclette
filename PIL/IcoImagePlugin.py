@@ -19,7 +19,8 @@
 
 __version__ = "0.1"
 
-import Image, BmpImagePlugin
+import Image
+import BmpImagePlugin
 
 
 #

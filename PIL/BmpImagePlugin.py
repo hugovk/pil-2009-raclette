@@ -27,7 +27,9 @@
 __version__ = "0.7"
 
 
-import Image, ImageFile, ImagePalette
+import Image
+import ImageFile
+import ImagePalette
 import ImageString
 
 

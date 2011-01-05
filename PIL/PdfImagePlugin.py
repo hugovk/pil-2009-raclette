@@ -22,7 +22,9 @@
 
 __version__ = "0.4"
 
-import Image, ImageFile
+import Image
+import ImageFile
+
 import StringIO
 
 

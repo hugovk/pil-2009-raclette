@@ -25,7 +25,8 @@
 
 __version__ = "0.1"
 
-import ImageFile, ImagePalette
+import ImageFile
+import ImagePalette
 
 def i16(c):
     return ord(c[1]) + (ord(c[0])<<8)

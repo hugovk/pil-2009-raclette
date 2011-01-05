@@ -31,7 +31,8 @@
 # See the README file for information on usage and redistribution.
 #
 
-import Image, ImageColor
+import Image
+import ImageColor
 
 try:
     import warnings

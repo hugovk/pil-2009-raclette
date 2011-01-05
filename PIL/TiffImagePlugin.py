@@ -38,7 +38,8 @@
 
 __version__ = "1.3.6"
 
-import Image, ImageFile
+import Image
+import ImageFile
 import ImagePalette
 import ImageString
 

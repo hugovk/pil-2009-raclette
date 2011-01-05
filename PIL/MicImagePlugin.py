@@ -20,7 +20,9 @@
 __version__ = "0.1"
 
 
-import Image, TiffImagePlugin
+import Image
+import TiffImagePlugin
+
 from OleFileIO import *
 
 

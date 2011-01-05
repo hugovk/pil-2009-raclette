@@ -12,8 +12,10 @@
 # See the README file for information on usage and redistribution.
 #
 
+import Image
+import ImageFile
+
 import struct
-import Image, ImageFile
 
 # Image.DEBUG = 2
 
