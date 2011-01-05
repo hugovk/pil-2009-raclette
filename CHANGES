@@ -49,8 +49,8 @@ was last updated, see the repository revision history:
 + Added support for binary file streams (currently used by PNG and JPEG
   only).
 
-+ Dropped support for Python 1.5.2, and removed many obsolete constructs
-  from the code.
++ Dropped support for versions older than 2.3, and removed many
+  obsolete constructs from the code.
 
 + Added support for reading 16-bit RGB TIFF files.
 
