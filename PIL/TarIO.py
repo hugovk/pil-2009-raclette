@@ -15,7 +15,6 @@
 #
 
 import ContainerIO
-import ImageString
 
 ##
 # A file object that provides read access to a given member of a TAR
@@ -40,7 +39,7 @@ class TarIO(ContainerIO.ContainerIO):
                 raise IOError("unexpected end of tar file")
 
             name = s[:100]
-            i = ImageString.find(name, chr(0))
+            i = name.find(chr(0))
             if i == 0:
                 raise IOError("cannot find subfile")
             if i > 0:

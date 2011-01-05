@@ -18,7 +18,6 @@
 #
 
 import Image
-import ImageString
 
 import re
 

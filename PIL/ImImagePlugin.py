@@ -161,7 +161,7 @@ class ImImageFile(ImageFile.ImageFile):
 
                 # Convert value as appropriate
                 if k in [FRAMES, SCALE, SIZE]:
-                    v = ImageString.replace(v, "*", ",")
+                    v = v.replace("*", ",")
                     v = tuple(map(number, ImageString.split(v, ",")))
                     if len(v) == 1:
                         v = v[0]

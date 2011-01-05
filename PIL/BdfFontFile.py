@@ -58,7 +58,7 @@ def bdf_char(f):
         s = f.readline()
         if not s or s[:6] == "BITMAP":
             break
-        i = ImageString.find(s, " ")
+        i = s.find(" ")
         props[s[:i]] = s[i+1:-1]
 
     # load bitmap
@@ -103,10 +103,10 @@ class BdfFontFile(FontFile.FontFile):
             s = fp.readline()
             if not s or s[:13] == "ENDPROPERTIES":
                 break
-            i = ImageString.find(s, " ")
+            i = s.find(" ")
             props[s[:i]] = s[i+1:-1]
             if s[:i] in ["COMMENT", "COPYRIGHT"]:
-                if ImageString.find(s, "LogicalFontDescription") < 0:
+                if s.find("LogicalFontDescription") < 0:
                     comments.append(s[i+1:-1])
 
         font = ImageString.split(props["FONT"], "-")

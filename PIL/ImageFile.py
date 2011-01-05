@@ -29,7 +29,6 @@
 #
 
 import Image
-import ImageString
 import ImageSupport
 
 import traceback, os

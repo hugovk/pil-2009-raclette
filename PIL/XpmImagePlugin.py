@@ -117,7 +117,8 @@ class XpmImageFile(ImageFile.ImageFile):
         s = [None] * ysize
 
         for i in range(ysize):
-            s[i] = ImageString.ljust(self.fp.readline()[1:xsize+1], xsize)
+            line = self.fp.readline()[1:xsize+1]
+            s[i] = line.ljust(xsize)
 
         self.fp = None
 

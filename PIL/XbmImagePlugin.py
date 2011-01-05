@@ -25,7 +25,6 @@ import re
 
 import Image
 import ImageFile
-import ImageString
 
 # XBM header
 xbm_head = re.compile(
