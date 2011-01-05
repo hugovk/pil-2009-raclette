@@ -1,10 +1,10 @@
 The Python Imaging Library
 $Id$
 
-Release 1.1.7+ (November 15, 2009)
+Release 1.2a0 (January 5, 2011)
 
 ====================================================================
-The Python Imaging Library 1.1.7+
+The Python Imaging Library 1.2a0
 ====================================================================
 
 Contents
@@ -26,9 +26,8 @@ to your Python environment.  This library provides extensive file
 format support, an efficient internal representation, and powerful
 image processing capabilities.
 
-This source kit has been built and tested with Python 2.0 and newer,
-on Windows, Mac OS X, and major Unix platforms.  Large parts of the
-library also work on 1.5.2 and 1.6.
+This source kit has been built and tested with Python 2.1 and newer,
+on Windows, Mac OS X, and major Unix platforms.
 
 The main distribution site for this software is:
 
@@ -114,8 +113,8 @@ For a list of changes in this release, see the CHANGES document.
 
 0. If you're in a hurry, try this:
 
-        $ tar xvfz Imaging-1.1.7.tar.gz
-        $ cd Imaging-1.1.7
+        $ tar xvfz Imaging-1.2.tar.gz
+        $ cd Imaging-1.2
         $ python setup.py install
 
    If you prefer to know what you're doing, read on.
@@ -168,26 +167,9 @@ For a list of changes in this release, see the CHANGES document.
    missing libraries (also see the Mac OS X section below).
 
    Similar tools are available for many other platforms.
-
-
-2. To build under Python 1.5.2, you need to install the stand-alone
-   version of the distutils library:
-
-       http://www.python.org/sigs/distutils-sig/download.html
-
-   You can fetch distutils 1.0.2 from the Python source repository:
-   
-       svn export http://svn.python.org/projects/python/tags/Distutils-1_0_2/Lib/distutils/
-
-   For newer releases, the distutils library is included in the
-   Python standard library.
-
-   NOTE: Version 1.1.7 is not fully compatible with 1.5.2.  Some
-   more recent additions to the library may not work, but the core
-   functionality is available.
    
 
-3. If you didn't build Python from sources, make sure you have
+2. If you didn't build Python from sources, make sure you have
    Python's build support files on your machine.  If you've down-
    loaded a prebuilt package (e.g. a Linux RPM), you probably
    need additional developer packages.  Look for packages named
@@ -197,18 +179,18 @@ For a list of changes in this release, see the CHANGES document.
        sudo apt-get install python-dev
 
 
-4. When you have everything you need, unpack the PIL distribution
-   (the file Imaging-1.1.7.tar.gz) in a suitable work directory:
+3. When you have everything you need, unpack the PIL distribution
+   (the file Imaging-1.2.tar.gz) in a suitable work directory:
 
         $ cd MyExtensions # example
-        $ gunzip Imaging-1.1.7.tar.gz
-        $ tar xvf Imaging-1.1.7.tar
+        $ gunzip Imaging-1.2.tar.gz
+        $ tar xvf Imaging-1.2.tar
 
 
-5. Build the library.  We recommend that you do an in-place build,
+4. Build the library.  We recommend that you do an in-place build,
    and run the self test before installing.
 
-        $ cd Imaging-1.1.7
+        $ cd Imaging-1.2
         $ python setup.py build_ext -i
         $ python selftest.py
 
@@ -218,7 +200,7 @@ For a list of changes in this release, see the CHANGES document.
    components the tests found in the actual build files:
 
         ----------------------------------------------------------------
-        PIL 1.1.7 SETUP SUMMARY
+        PIL 1.2 SETUP SUMMARY
         ----------------------------------------------------------------
         *** TKINTER support not available (Tcl/Tk 8.5 libraries needed)
         --- JPEG support available
@@ -239,7 +221,7 @@ For a list of changes in this release, see the CHANGES document.
         $ python setup.py build_ext -i
 
 
-6. If the setup.py and selftest.py commands finish without any
+5. If the setup.py and selftest.py commands finish without any
    errors, you're ready to install the library:
 
         $ python setup.py install
