@@ -205,7 +205,7 @@ def _accept(prefix):
 ##
 # Wrapper for TIFF IFDs.
 
-class ImageFileDirectory:
+class ImageFileDirectory(object):
 
     # represents a TIFF tag directory.  to speed things up,
     # we don't decode tags unless they're asked for.

@@ -425,6 +425,7 @@ def _getencoder(mode, encoder_name, args, extra=()):
 # Simple expression analyzer
 
 class _E:
+    # FIXME: update to work with new-style classes
     def __init__(self, data): self.data = data
     def __coerce__(self, other): return self, _E(other)
     def __add__(self, other): return _E((self.data, "__add__", other.data))
@@ -1737,11 +1738,11 @@ class _ImageCrop(Image):
 # --------------------------------------------------------------------
 # Abstract handlers.
 
-class ImagePointHandler:
+class ImagePointHandler(object):
     # used as a mixin by point transforms (for use with im.point)
     pass
 
-class ImageTransformHandler:
+class ImageTransformHandler(object):
     # used as a mixin by geometry transforms (for use with im.transform)
     pass
 

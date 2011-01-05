@@ -311,6 +311,7 @@ class ImageFile(Image.Image):
     # def load_read(self, bytes):
     #     pass
 
+
 ##
 # Base class for stub image loaders.
 # <p>
@@ -346,7 +347,7 @@ class StubImageFile(ImageFile):
 ##
 # (Internal) Support class for the <b>Parser</b> class.
 
-class _ParserFile:
+class _ParserFile(object):
     # parser support class.
 
     def __init__(self, data):
@@ -393,7 +394,7 @@ class _ParserFile:
 # Incremental image parser.  This class implements the standard
 # feed/close consumer interface.
 
-class Parser:
+class Parser(object):
 
     incremental = None
     image = None

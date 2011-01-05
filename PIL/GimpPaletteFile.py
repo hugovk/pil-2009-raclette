@@ -20,7 +20,7 @@ import ImageString
 ##
 # File handler for GIMP's palette format.
 
-class GimpPaletteFile:
+class GimpPaletteFile(object):
 
     rawmode = "RGB"
 

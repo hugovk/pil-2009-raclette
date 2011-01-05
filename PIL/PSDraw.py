@@ -21,7 +21,7 @@ import ImageString
 ##
 # Simple Postscript graphics interface.
 
-class PSDraw:
+class PSDraw(object):
 
     def __init__(self, fp=None):
         if not fp:
