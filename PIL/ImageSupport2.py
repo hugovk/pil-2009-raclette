@@ -15,6 +15,32 @@
 
 import struct
 
+try:
+    unicode("")
+    ##
+    # (Internal) Checks if an object is a string.  If the current
+    # Python version supports Unicode, this checks for both 8-bit
+    # and Unicode strings.
+    def isStringType(t):
+        return isinstance(t, str) or isinstance(t, unicode)
+except NameError:
+    def isStringType(t):
+        return isinstance(t, str)
+
+from operator import isNumberType
+
+##
+# (Internal) Checks if an object is a tuple.
+
+def isTupleType(t):
+    return isinstance(t, tuple)
+
+##
+# (Internal) Checks if an object is callable.
+
+def isCallable(f):
+    return callable(f)
+
 ##
 # Simple byte array type.
 

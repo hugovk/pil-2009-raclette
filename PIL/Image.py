@@ -72,34 +72,19 @@ except ImportError, v:
 import ImageMode
 import ImagePalette
 
-import os, sys
+import ImageSupport
 
-# type stuff
-from types import IntType, StringType, TupleType
-
-try:
-    UnicodeStringType = type(unicode(""))
-    ##
-    # (Internal) Checks if an object is a string.  If the current
-    # Python version supports Unicode, this checks for both 8-bit
-    # and Unicode strings.
-    def isStringType(t):
-        return isinstance(t, StringType) or isinstance(t, UnicodeStringType)
-except NameError:
-    def isStringType(t):
-        return isinstance(t, StringType)
-
-##
-# (Internal) Checks if an object is a tuple.
-
-def isTupleType(t):
-    return isinstance(t, TupleType)
+# predicates
+isCallable = ImageSupport.isCallable
+isNumberType = ImageSupport.isNumberType
+isStringType = ImageSupport.isStringType
+isTupleType = ImageSupport.isTupleType
 
 ##
 # (Internal) Checks if an object is an image object.
 
 def isImageType(t):
-    return hasattr(t, "im")
+    return isinstance(t, Image) or hasattr(t, "im")
 
 ##
 # (Internal) Checks if an object is a string, and that it points to a
@@ -108,13 +93,8 @@ def isImageType(t):
 def isDirectory(f):
     return isStringType(f) and os.path.isdir(f)
 
-from operator import isNumberType
+import os, sys
 
-##
-# (Internal) Checks if an object is callable.
-
-def isCallable(f):
-    return callable(f)
 
 #
 # Debug level
