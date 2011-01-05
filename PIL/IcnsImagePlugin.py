@@ -126,7 +126,7 @@ class IcnsFile(object):
         sizes = []
         for size, fmts in self.SIZES.items():
             for (fmt, reader) in fmts:
-                if self.dct.has_key(fmt):
+                if fmt in self.dct:
                     sizes.append(size)
                     break
         return sizes
