@@ -18,9 +18,12 @@
 __version__ = "0.2"
 
 
-import re
-import Image, ImageFile, ImagePalette
+import Image
+import ImageFile
+import ImagePalette
 import ImageString
+
+import re
 
 # XPM header
 xpm_head = re.compile("\"([0-9]*) ([0-9]*) ([0-9]*) ([0-9]*)")
@@ -100,7 +103,7 @@ class XpmImageFile(ImageFile.ImageFile):
                 raise ValueError("cannot read this XPM file")
 
         self.mode = "P"
-        self.palette = ImagePalette.raw("RGB", string.join(palette, ""))
+        self.palette = ImagePalette.raw("RGB", ImageString.join(palette, ""))
 
         self.tile = [("raw", (0, 0)+self.size, self.fp.tell(), ("P", 0, 1))]
 
@@ -114,11 +117,11 @@ class XpmImageFile(ImageFile.ImageFile):
         s = [None] * ysize
 
         for i in range(ysize):
-            s[i] = string.ljust(self.fp.readline()[1:xsize+1], xsize)
+            s[i] = ImageString.ljust(self.fp.readline()[1:xsize+1], xsize)
 
         self.fp = None
 
-        return string.join(s, "")
+        return ImageString.join(s, "")
 
 #
 # Registry
