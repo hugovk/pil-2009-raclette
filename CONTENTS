@@ -107,6 +107,7 @@ Imaging/PIL/ArgImagePlugin.py
 Imaging/PIL/BdfFontFile.py
 Imaging/PIL/BmpImagePlugin.py
 Imaging/PIL/BufrStubImagePlugin.py
+Imaging/PIL/ByteArray.py
 Imaging/PIL/ContainerIO.py
 Imaging/PIL/CurImagePlugin.py
 Imaging/PIL/DcxImagePlugin.py
