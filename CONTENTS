@@ -161,6 +161,7 @@ Imaging/PIL/MicImagePlugin.py
 Imaging/PIL/MpegImagePlugin.py
 Imaging/PIL/MspImagePlugin.py
 Imaging/PIL/OleFileIO.py
+Imaging/PIL/OpenExrImagePlugin.py
 Imaging/PIL/PaletteFile.py
 Imaging/PIL/PalmImagePlugin.py
 Imaging/PIL/PcdImagePlugin.py
