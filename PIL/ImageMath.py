@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library
-# $Id: ImageMath.py 2508 2005-09-12 19:01:03Z fredrik $
+# $Id$
 #
 # a simple math add-on for the Python Imaging Library
 #
@@ -23,7 +23,7 @@ VERBOSE = 0
 def _isconstant(v):
     return isinstance(v, type(0)) or isinstance(v, type(0.0))
 
-class _Operand:
+class _Operand(object):
     # wraps an image operand, providing standard operators
 
     def __init__(self, im):
@@ -38,7 +38,7 @@ class _Operand:
             elif im1.im.mode in ("I", "F"):
                 return im1.im
             else:
-                raise ValueError, "unsupported mode: %s" % im1.im.mode
+                raise ValueError("unsupported mode: %s" % im1.im.mode)
         else:
             # argument was a constant
             if _isconstant(im1) and self.im.mode in ("1", "L", "I"):
@@ -55,7 +55,7 @@ class _Operand:
             try:
                 op = getattr(_imagingmath, op+"_"+im1.mode)
             except AttributeError:
-                raise TypeError, "bad operand type for '%s'" % op
+                raise TypeError("bad operand type for '%s'" % op)
             _imagingmath.unop(op, out.im.id, im1.im.id)
         else:
             # binary operation
@@ -65,7 +65,7 @@ class _Operand:
                 if im1.mode != "F": im1 = im1.convert("F")
                 if im2.mode != "F": im2 = im2.convert("F")
                 if im1.mode != im2.mode:
-                    raise ValueError, "mode mismatch"
+                    raise ValueError("mode mismatch")
             if im1.size != im2.size:
                 # crop both arguments to a common size
                 size = (min(im1.size[0], im2.size[0]),
@@ -79,7 +79,7 @@ class _Operand:
             try:
                 op = getattr(_imagingmath, op+"_"+im1.mode)
             except AttributeError:
-                raise TypeError, "bad operand type for '%s'" % op
+                raise TypeError("bad operand type for '%s'" % op)
             _imagingmath.binop(op, out.im.id, im1.im.id, im2.im.id)
         return _Operand(out)
 

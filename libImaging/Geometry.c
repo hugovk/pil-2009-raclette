@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library
- * $Id: Geometry.c 2308 2005-03-02 12:00:55Z fredrik $
+ * $Id$
  *
  * the imaging geometry methods
  *

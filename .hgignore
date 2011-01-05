@@ -1,7 +1,11 @@
 syntax: glob
 *~
+*.bat
 *.pyc
 *.obj
 PIL/*.pyd
-build/*/Release/*
+PIL/*.so
+build/*
+dist/*
+
 

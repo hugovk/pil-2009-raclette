@@ -6,8 +6,9 @@
 #
 # History:
 # 2008-04-06 fl   Created
+# 2010-04-25 fl   Don't mess up if multiple viewers are available.
 #
-# Copyright (c) Secret Labs AB 2008.
+# Copyright (c) Secret Labs AB 2008-2010.
 #
 # See the README file for information on usage and redistribution.
 #
@@ -45,28 +46,25 @@ def show(image, title=None, **options):
 ##
 # Base class for viewers.
 
-class Viewer:
+class Viewer(object):
 
     # main api
 
     def show(self, image, **options):
 
         # save temporary image to disk
-        if image.mode == "I;16":
+        if image.mode[:4] == "I;16":
             # @PIL88 @PIL101
             # "I;16" isn't an 'official' mode, but we still want to
             # provide a simple way to show 16-bit images.
             base = "L"
-        elif image.mode == "I;16B":
-            # do it the hard way
-            image = image.convert("I")
-            base = "L"
+            # FIXME: auto-contrast if max() > 255?
         else:
             base = Image.getmodebase(image.mode)
         if base != image.mode and image.mode != "1":
             image = image.convert(base)
 
-        self.show_image(image, **options)
+        return self.show_image(image, **options)
 
     # hook methods
 
@@ -106,7 +104,7 @@ if sys.platform == "win32":
 elif sys.platform == "darwin":
 
     class MacViewer(Viewer):
-        format = "JPEG" # pick better format for "P" images? (use get_format)
+        format = "BMP"
         def get_command(self, file, **options):
             # on darwin open returns immediately resulting in the temp
             # file removal while app is opening

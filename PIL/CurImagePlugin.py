@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: CurImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # Windows Cursor support for PIL
 #
@@ -50,7 +50,7 @@ class CurImageFile(BmpImagePlugin.BmpImageFile):
         # check magic
         s = self.fp.read(6)
         if not _accept(s):
-            raise SyntaxError, "not an CUR file"
+            raise SyntaxError("not an CUR file")
 
         # pick the largest cursor in the file
         m = ""

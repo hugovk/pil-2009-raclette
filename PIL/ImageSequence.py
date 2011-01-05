@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImageSequence.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # sequence support classes
 #
@@ -17,7 +17,7 @@
 # This class implements an iterator object that can be used to loop
 # over an image sequence.
 
-class Iterator:
+class Iterator(object):
 
     ##
     # Create an iterator.

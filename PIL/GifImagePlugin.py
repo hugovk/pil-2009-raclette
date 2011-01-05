@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: GifImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # GIF file handling
 #
@@ -69,7 +69,7 @@ class GifImageFile(ImageFile.ImageFile):
         # Screen
         s = self.fp.read(13)
         if s[:6] not in ["GIF87a", "GIF89a"]:
-            raise SyntaxError, "not a GIF file"
+            raise SyntaxError("not a GIF file")
 
         self.info["version"] = s[:6]
 
@@ -106,7 +106,7 @@ class GifImageFile(ImageFile.ImageFile):
             self.__fp.seek(self.__rewind)
 
         if frame != self.__frame + 1:
-            raise ValueError, "cannot seek to frame %d" % frame
+            raise ValueError("cannot seek to frame %d" % frame)
         self.__frame = frame
 
         self.tile = []
@@ -162,7 +162,9 @@ class GifImageFile(ImageFile.ImageFile):
                     #
                     self.info["extension"] = block, self.fp.tell()
                     if block[:11] == "NETSCAPE2.0":
-                        self.info["loop"] = 1 # FIXME
+                        block = self.data()
+                        if len(block) >= 3 and ord(block[0]) == 1:
+                            self.info["loop"] = i16(block[1:3])
                 while self.data():
                     pass
 
@@ -195,11 +197,11 @@ class GifImageFile(ImageFile.ImageFile):
 
             else:
                 pass
-                # raise IOError, "illegal GIF tag `%x`" % ord(s)
+                # raise IOError("illegal GIF tag `%x`" % ord(s))
 
         if not self.tile:
             # self.__fp = None
-            raise EOFError, "no more images in GIF file"
+            raise EOFError("no more images in GIF file")
 
         self.mode = "L"
         if self.palette:
@@ -359,7 +361,7 @@ def getdata(im, offset = (0, 0), **params):
        The first string is a local image header, the rest contains
        encoded image data."""
 
-    class collector:
+    class collector(object):
         data = []
         def write(self, data):
             self.data.append(data)

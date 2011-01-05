@@ -4,6 +4,15 @@ from PIL import Image
 
 def test_sanity():
 
+    data = lena().getdata()
+
+    assert_no_exception(lambda: len(data))
+    assert_no_exception(lambda: list(data))
+
+    assert_equal(data[0], (223, 162, 133))
+
+def test_roundtrip():
+
     def getdata(mode):
         im = lena(mode).resize((32, 30))
         data = im.getdata()

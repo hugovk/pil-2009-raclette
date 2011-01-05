@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImageTk.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # a Tk display interface
 #
@@ -59,7 +59,7 @@ def _pilbitmap_check():
 # everywhere Tkinter expects an image object.  If the image is an RGBA
 # image, pixels having alpha 0 are treated as transparent.
 
-class PhotoImage:
+class PhotoImage(object):
 
     ##
     # Create a photo image object. The constructor takes either
@@ -194,7 +194,7 @@ class PhotoImage:
 # Create a Tkinter-compatible bitmap image.  This can be used
 # everywhere Tkinter expects an image object.
 
-class BitmapImage:
+class BitmapImage(object):
 
     ##
     # Create a Tkinter-compatible bitmap image.
@@ -289,7 +289,7 @@ def _show(image, title):
                 bg="black", bd=0)
 
     if not Tkinter._default_root:
-        raise IOError, "tkinter not initialized"
+        raise IOError("tkinter not initialized")
     top = Tkinter.Toplevel()
     if title:
         top.title(title)

@@ -1,6 +1,5 @@
 /*
  * The Python Imaging Library.
- * $Id: encode.c 2751 2006-06-18 19:50:45Z fredrik $
  *
  * standard encoder interfaces for the Imaging library
  *
@@ -72,7 +71,7 @@ PyImaging_EncoderNew(int contextsize)
 	context = (void*) calloc(1, contextsize);
 	if (!context) {
 	    Py_DECREF(encoder);
-	    PyErr_NoMemory();
+	    (void) PyErr_NoMemory();
 	    return NULL;
 	}
     } else
@@ -146,10 +145,8 @@ _encode_to_file(ImagingEncoderObject* encoder, PyObject* args)
 
     /* Allocate an encoder buffer */
     buf = (UINT8*) malloc(bufsize);
-    if (!buf) {
-	PyErr_NoMemory();
-	return NULL;
-    }
+    if (!buf)
+	return PyErr_NoMemory();
 
     ImagingSectionEnter(&cookie);
 
@@ -223,10 +220,8 @@ _setimage(ImagingEncoderObject* encoder, PyObject* args)
     if (state->bits > 0) {
 	state->bytes = (state->bits * state->xsize+7)/8;
 	state->buffer = (UINT8*) malloc(state->bytes);
-	if (!state->buffer) {
-	    PyErr_NoMemory();
-	    return NULL;
-	}
+	if (!state->buffer)
+	    return PyErr_NoMemory();
     }
 
     /* Keep a reference to the image object, to make sure it doesn't
@@ -503,10 +498,11 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
     int optimize = 0;
     int streamtype = 0; /* 0=interchange, 1=tables only, 2=image only */
     int xdpi = 0, ydpi = 0;
-	int subsampling = -1; /* -1=default, 0=none, 1=medium, 2=high */
-    if (!PyArg_ParseTuple(args, "ss|iiiiiiii", &mode, &rawmode, &quality,
+    int subsampling = -1; /* -1=default, 0=none, 1=medium, 2=high */
+    char* extra = NULL; int extra_size;
+    if (!PyArg_ParseTuple(args, "ss|iiiiiiiis#", &mode, &rawmode, &quality,
 			  &progressive, &smooth, &optimize, &streamtype,
-                          &xdpi, &ydpi, &subsampling))
+                          &xdpi, &ydpi, &subsampling, &extra, &extra_size))
 	return NULL;
 
     encoder = PyImaging_EncoderNew(sizeof(JPEGENCODERSTATE));
@@ -515,6 +511,15 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
 
     if (get_packer(encoder, mode, rawmode) < 0)
 	return NULL;
+
+    if (extra && extra_size > 0) {
+        char* p = malloc(extra_size);
+        if (!p)
+            return PyErr_NoMemory();
+        memcpy(p, extra, extra_size);
+        extra = p;
+    } else
+        extra = NULL;
 
     encoder->encode = ImagingJpegEncode;
 
@@ -526,6 +531,8 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
     ((JPEGENCODERSTATE*)encoder->state.context)->streamtype = streamtype;
     ((JPEGENCODERSTATE*)encoder->state.context)->xdpi = xdpi;
     ((JPEGENCODERSTATE*)encoder->state.context)->ydpi = ydpi;
+    ((JPEGENCODERSTATE*)encoder->state.context)->extra = extra;
+    ((JPEGENCODERSTATE*)encoder->state.context)->extra_size = extra_size;
 
     return (PyObject*) encoder;
 }

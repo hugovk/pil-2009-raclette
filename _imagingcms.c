@@ -27,6 +27,15 @@ http://www.cazabon.com\n\
 #include "lcms.h"
 #include "Imaging.h"
 
+#if PY_VERSION_HEX < 0x01060000
+#define PyObject_New PyObject_NEW
+#define PyObject_Del PyMem_DEL
+#endif
+
+#if LCMS_VERSION < 117
+#define LCMSBOOL BOOL
+#endif
+
 #ifdef WIN32
 #include <wingdi.h>
 #endif
@@ -134,7 +143,7 @@ cms_profile_fromstring(PyObject* self, PyObject* args)
 static void
 cms_profile_dealloc(CmsProfileObject* self)
 {
-    cmsCloseProfile(self->profile);
+    (void) cmsCloseProfile(self->profile);
     PyObject_Del(self);
 }
 
@@ -577,6 +586,7 @@ init_imagingcms(void)
 {
     PyObject *m;
     PyObject *d;
+    PyObject *v;
 
     /* Patch up object types */
     CmsProfile_Type.ob_type = &PyType_Type;
@@ -585,8 +595,14 @@ init_imagingcms(void)
     m = Py_InitModule("_imagingcms", pyCMSdll_methods);
     d = PyModule_GetDict(m);
 
-    PyDict_SetItemString(
-        d, "littlecms_version",
-        PyString_FromFormat("%d.%d", LCMS_VERSION / 100, LCMS_VERSION % 100)
-    );
+#if PY_VERSION_HEX >= 0x02020000
+    v = PyString_FromFormat("%d.%d", LCMS_VERSION / 100, LCMS_VERSION % 100);
+#else
+    {
+        char buffer[100];
+        sprintf(buffer, "%d.%d", LCMS_VERSION / 100, LCMS_VERSION % 100);
+        v = PyString_FromString(buffer);
+    }
+#endif
+    PyDict_SetItemString(d, "littlecms_version", v);
 }

@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library.
- * $Id: JpegEncode.c 2134 2004-10-06 08:55:20Z fredrik $
+ * $Id$
  *
  * coder for JPEG data
  *
@@ -102,6 +102,8 @@ ImagingJpegEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 	jpeg_create_compress(&context->cinfo);
 	jpeg_buffer_dest(&context->cinfo, &context->destination);
 
+        context->extra_offset = 0;
+
 	/* Ready to encode */
 	state->state = 1;
 
@@ -201,6 +203,8 @@ ImagingJpegEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 	    /* image only */
 	    jpeg_suppress_tables(&context->cinfo, TRUE);
 	    jpeg_start_compress(&context->cinfo, FALSE);
+            /* suppress extra section */
+            context->extra_offset = context->extra_size;
 	    break;
 	default:
 	    /* interchange stream */
@@ -211,6 +215,25 @@ ImagingJpegEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 	/* fall through */
 
     case 2:
+
+        if (context->extra) {
+            /* copy extra buffer to output buffer */
+            unsigned int n = context->extra_size - context->extra_offset;
+            if (n > context->destination.pub.free_in_buffer)
+                n = context->destination.pub.free_in_buffer;
+            memcpy(context->destination.pub.next_output_byte,
+                   context->extra + context->extra_offset, n);
+            context->destination.pub.next_output_byte += n;
+            context->destination.pub.free_in_buffer -= n;
+            context->extra_offset += n;
+            if (context->extra_offset >= context->extra_size)
+                state->state++;
+            else
+                break;
+        } else
+              state->state++;
+
+    case 3:
 
 	ok = 1;
 	while (state->y < state->ysize) {
@@ -228,7 +251,7 @@ ImagingJpegEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 	state->state++;
 	/* fall through */
 
-    case 3:
+    case 4:
 
 	/* Finish compression */
 	if (context->destination.pub.free_in_buffer < 100)
@@ -236,6 +259,8 @@ ImagingJpegEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 	jpeg_finish_compress(&context->cinfo);
 
 	/* Clean up */
+        if (context->extra)
+            free(context->extra);
 	jpeg_destroy_compress(&context->cinfo);
 	/* if (jerr.pub.num_warnings) return BROKEN; */
 	state->errcode = IMAGING_CODEC_END;
@@ -251,7 +276,7 @@ ImagingJpegEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 const char*
 ImagingJpegVersion(void)
 {
-    static char version[10];
+    static char version[20];
     sprintf(version, "%d.%d", JPEG_LIB_VERSION / 10, JPEG_LIB_VERSION % 10);
     return version;
 }

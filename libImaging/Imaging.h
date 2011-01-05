@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library
- * $Id: Imaging.h 2542 2005-10-02 21:37:20Z Fredrik $
+ * $Id$
  * 
  * declarations for the imaging core library
  *
@@ -57,6 +57,7 @@ extern "C" {
 /* Handles */
 
 typedef struct ImagingMemoryInstance* Imaging;
+
 typedef struct ImagingAccessInstance* ImagingAccess;
 typedef struct ImagingHistogramInstance* ImagingHistogram;
 typedef struct ImagingOutlineInstance* ImagingOutline;
@@ -64,7 +65,6 @@ typedef struct ImagingPaletteInstance* ImagingPalette;
 
 /* handle magics (used with PyCObject). */
 #define IMAGING_MAGIC "PIL Imaging"
-#define IMAGING_ACCESS_MAGIC "PIL ImagingAccess"
 
 /* pixel types */
 #define IMAGING_TYPE_UINT8 0
@@ -117,18 +117,12 @@ struct ImagingMemoryInstance {
 #define IMAGING_PIXEL_INT32(im,x,y) ((im)->image32[(y)][(x)])
 #define IMAGING_PIXEL_FLOAT32(im,x,y) (((FLOAT32*)(im)->image32[y])[x])
 
-#define IMAGING_ACCESS_HEAD\
-    int (*getline)(ImagingAccess access, char *buffer, int y);\
-    void (*destroy)(ImagingAccess access)
-
 struct ImagingAccessInstance {
-    IMAGING_ACCESS_HEAD;
-
-    /* Data members */
-    Imaging im;
-
+  const char* mode;
+  void* (*line)(Imaging im, int x, int y);
+  void (*get_pixel)(Imaging im, int x, int y, void* pixel);
+  void (*put_pixel)(Imaging im, int x, int y, const void* pixel);
 };
-
 
 struct ImagingHistogramInstance {
 
@@ -181,8 +175,12 @@ extern void ImagingCopyInfo(Imaging destination, Imaging source);
 
 extern void ImagingHistogramDelete(ImagingHistogram histogram);
 
+extern void ImagingAccessInit(void);
 extern ImagingAccess ImagingAccessNew(Imaging im);
-extern void          ImagingAccessDelete(ImagingAccess access);
+extern void _ImagingAccessDelete(Imaging im, ImagingAccess access);
+#define ImagingAccessDelete(im, access) /* nop, for now */
+/*#define ImagingAccessDelete(im, access) \
+  ((access)->dynamic ? _ImagingAccessDelete((im), (access)), 0 : 0)) */
 
 extern ImagingPalette ImagingPaletteNew(const char *mode);
 extern ImagingPalette ImagingPaletteNewBrowser(void);
@@ -215,6 +213,7 @@ extern void* ImagingError_MemoryError(void);
 extern void* ImagingError_ModeError(void); /* maps to ValueError by default */
 extern void* ImagingError_Mismatch(void); /* maps to ValueError by default */
 extern void* ImagingError_ValueError(const char* message);
+extern void ImagingError_Clear(void);
 
 /* Transform callbacks */
 /* ------------------- */
@@ -280,7 +279,6 @@ extern Imaging ImagingPoint(
 extern Imaging ImagingPointTransform(
     Imaging imIn, double scale, double offset);
 extern Imaging ImagingPutBand(Imaging im, Imaging imIn, int band);
-extern Imaging ImagingPutPixel(Imaging im, int x, int y, const void* color);
 extern Imaging ImagingRankFilter(Imaging im, int size, int rank);
 extern Imaging ImagingResize(Imaging imOut, Imaging imIn, int filter);
 extern Imaging ImagingRotate(

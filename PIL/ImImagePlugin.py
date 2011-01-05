@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImImagePlugin.py 2285 2005-02-07 23:52:14Z fredrik $
+# $Id$
 #
 # IFUNC IM file handling for PIL
 #
@@ -78,7 +78,7 @@ OPEN = {
 for i in ["8", "8S", "16", "16S", "32", "32F"]:
     OPEN["L %s image" % i] = ("F", "F;%s" % i)
     OPEN["L*%s image" % i] = ("F", "F;%s" % i)
-for i in ["16", "16B"]:
+for i in ["16", "16L", "16B"]:
     OPEN["L %s image" % i] = ("I;%s" % i, "I;%s" % i)
     OPEN["L*%s image" % i] = ("I;%s" % i, "I;%s" % i)
 for i in ["32S"]:
@@ -113,7 +113,7 @@ class ImImageFile(ImageFile.ImageFile):
         # 100 bytes, this is (probably) not a text header.
 
         if not "\n" in self.fp.read(100):
-            raise SyntaxError, "not an IM file"
+            raise SyntaxError("not an IM file")
         self.fp.seek(0)
 
         n = 0
@@ -129,18 +129,17 @@ class ImImageFile(ImageFile.ImageFile):
 
             s = self.fp.read(1)
 
-            # Some versions of IFUNC uses \n\r instead of \r\n...
+            # Some versions of IFUNC use "\n\r" instead of "\r\n"
             if s == "\r":
                 continue
 
             if not s or s[0] == chr(0) or s[0] == chr(26):
                 break
 
-            # FIXME: this may read whole file if not a text file
-            s = s + self.fp.readline()
+            s = s + self.fp.safereadline(512)
 
             if len(s) > 100:
-                raise SyntaxError, "not an IM file"
+                raise SyntaxError("not an IM file")
 
             if s[-2:] == '\r\n':
                 s = s[:-2]
@@ -150,7 +149,7 @@ class ImImageFile(ImageFile.ImageFile):
             try:
                 m = split.match(s)
             except re.error, v:
-                raise SyntaxError, "not an IM file"
+                raise SyntaxError("not an IM file")
 
             if m:
 
@@ -180,10 +179,10 @@ class ImImageFile(ImageFile.ImageFile):
 
             else:
 
-                raise SyntaxError, "Syntax error in IM header: " + s
+                raise SyntaxError("Syntax error in IM header: " + s)
 
         if not n:
-            raise SyntaxError, "Not an IM file"
+            raise SyntaxError("Not an IM file")
 
         # Basic attributes
         self.size = self.info[SIZE]
@@ -193,7 +192,7 @@ class ImImageFile(ImageFile.ImageFile):
         while s and s[0] != chr(26):
             s = self.fp.read(1)
         if not s:
-            raise SyntaxError, "File truncated"
+            raise SyntaxError("File truncated")
 
         if self.info.has_key(LUT):
             # convert lookup table to palette or lut attribute
@@ -253,7 +252,7 @@ class ImImageFile(ImageFile.ImageFile):
     def seek(self, frame):
 
         if frame < 0 or frame >= self.info[FRAMES]:
-            raise EOFError, "seek outside sequence"
+            raise EOFError("seek outside sequence")
 
         if self.frame == frame:
             return
@@ -289,6 +288,7 @@ SAVE = {
     "PA": ("LA", "PA;L"),
     "I": ("L 32S", "I;32S"),
     "I;16": ("L 16", "I;16"),
+    "I;16L": ("L 16L", "I;16L"),
     "I;16B": ("L 16B", "I;16B"),
     "F": ("L 32F", "F;32F"),
     "RGB": ("RGB", "RGB;L"),
@@ -303,7 +303,7 @@ def _save(im, fp, filename, check=0):
     try:
         type, rawmode = SAVE[im.mode]
     except KeyError:
-        raise ValueError, "Cannot save %s images as IM" % im.mode
+        raise ValueError("Cannot save %s images as IM" % im.mode)
 
     try:
         frames = im.encoderinfo["frames"]

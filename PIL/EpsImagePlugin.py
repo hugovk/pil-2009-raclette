@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: EpsImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # EPS file handling
 #
@@ -20,8 +20,9 @@
 
 __version__ = "0.5"
 
-import re, string
+import re
 import Image, ImageFile
+import ImageString
 
 #
 # --------------------------------------------------------------------
@@ -55,7 +56,7 @@ def Ghostscript(tile, size, fp):
                "-sOutputFile=%s" % file,# output file
                "- >/dev/null 2>/dev/null"]
 
-    command = string.join(command)
+    command = ImageString.join(command, " ")
 
     # push data through ghostscript
     try:
@@ -81,7 +82,7 @@ def Ghostscript(tile, size, fp):
     return im
 
 
-class PSFile:
+class PSFile(object):
     """Wrapper that treats either CR or LF as end of line."""
     def __init__(self, fp):
         self.fp = fp
@@ -146,7 +147,7 @@ class EpsImageFile(ImageFile.ImageFile):
             length = i32(s[8:])
             fp.seek(offset)
         else:
-            raise SyntaxError, "not an EPS file"
+            raise SyntaxError("not an EPS file")
 
         fp.seek(offset)
 
@@ -163,7 +164,7 @@ class EpsImageFile(ImageFile.ImageFile):
         while s:
 
             if len(s) > 255:
-                raise SyntaxError, "not an EPS file"
+                raise SyntaxError("not an EPS file")
 
             if s[-2:] == '\r\n':
                 s = s[:-2]
@@ -173,7 +174,7 @@ class EpsImageFile(ImageFile.ImageFile):
             try:
                 m = split.match(s)
             except re.error, v:
-                raise SyntaxError, "not an EPS file"
+                raise SyntaxError("not an EPS file")
 
             if m:
                 k, v = m.group(1, 2)
@@ -183,7 +184,7 @@ class EpsImageFile(ImageFile.ImageFile):
                         # Note: The DSC spec says that BoundingBox
                         # fields should be integers, but some drivers
                         # put floating point values there anyway.
-                        box = map(int, map(float, string.split(v)))
+                        box = map(int, map(float, ImageString.split(v)))
                         self.size = box[2] - box[0], box[3] - box[1]
                         self.tile = [("eps", (0,0) + self.size, offset,
                                       (length, box))]
@@ -203,7 +204,7 @@ class EpsImageFile(ImageFile.ImageFile):
                     else:
                         self.info[k] = ""
                 else:
-                    raise IOError, "bad EPS header"
+                    raise IOError("bad EPS header")
 
             s = fp.readline()
 
@@ -217,7 +218,7 @@ class EpsImageFile(ImageFile.ImageFile):
         while s[0] == "%":
 
             if len(s) > 255:
-                raise SyntaxError, "not an EPS file"
+                raise SyntaxError("not an EPS file")
 
             if s[-2:] == '\r\n':
                 s = s[:-2]
@@ -226,8 +227,7 @@ class EpsImageFile(ImageFile.ImageFile):
 
             if s[:11] == "%ImageData:":
 
-                [x, y, bi, mo, z3, z4, en, id] =\
-                    string.split(s[11:], maxsplit=7)
+                [x, y, bi, mo, z3, z4, en, id] = s[11:].split(maxsplit=7)
 
                 x = int(x); y = int(y)
 
@@ -274,7 +274,7 @@ class EpsImageFile(ImageFile.ImageFile):
                 break
 
         if not box:
-            raise IOError, "cannot determine EPS bounding box"
+            raise IOError("cannot determine EPS bounding box")
 
     def load(self):
         # Load EPS via Ghostscript
@@ -304,7 +304,7 @@ def _save(im, fp, filename, eps=1):
     elif im.mode == "CMYK":
         operator = (8, 4, "false 4 colorimage")
     else:
-        raise ValueError, "image mode is not supported"
+        raise ValueError("image mode is not supported")
 
     if eps:
         #

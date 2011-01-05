@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: DcxImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # DCX file handling
 #
@@ -48,7 +48,7 @@ class DcxImageFile(PcxImageFile):
         # Header
         s = self.fp.read(4)
         if i32(s) != MAGIC:
-            raise SyntaxError, "not a DCX file"
+            raise SyntaxError("not a DCX file")
 
         # Component directory
         self._offset = []

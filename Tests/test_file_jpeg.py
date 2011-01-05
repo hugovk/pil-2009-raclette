@@ -1,6 +1,7 @@
 from tester import *
 
 from PIL import Image
+from PIL import ImageFile
 
 codecs = dir(Image.core)
 
@@ -44,21 +45,20 @@ def test_app():
     assert_equal(len(im.applist), 2)
 
 def test_cmyk():
-    # Test CMYK handling.  Thanks to Tim and Charlie for test data.
+    # Test CMYK handling.  Thanks to Tim and Charlie for test data,
+    # Michael for getting me to look one more time.
     file = "Tests/images/pil_sample_cmyk.jpg"
     im = Image.open(file)
-    # the source image has red pixels in the upper left corner.  with
-    # the default color profile, that gives us medium cyan/magenta and
-    # plenty of yellow.  don't ask.
+    # the source image has red pixels in the upper left corner.
     c, m, y, k = [x / 255.0 for x in im.getpixel((0, 0))]
-    assert_true(c < 0.4 and m < 0.4 and y > 0.9 and k == 0.0)
+    assert_true(c == 0.0 and m > 0.8 and y > 0.8 and k == 0.0)
     # the opposite corner is black
     c, m, y, k = [x / 255.0 for x in im.getpixel((im.size[0]-1, im.size[1]-1))]
     assert_true(k > 0.9)
     # roundtrip, and check again
     im = roundtrip(im)
     c, m, y, k = [x / 255.0 for x in im.getpixel((0, 0))]
-    assert_true(c > 0.3 and m > 0.3 and y > 0.9 and k == 0.0)
+    assert_true(c == 0.0 and m > 0.8 and y > 0.8 and k == 0.0)
     c, m, y, k = [x / 255.0 for x in im.getpixel((im.size[0]-1, im.size[1]-1))]
     assert_true(k > 0.9)
 
@@ -71,6 +71,41 @@ def test_dpi():
     assert_equal(test(300), (300, 300))
     assert_equal(test(100, 200), (100, 200))
     assert_equal(test(0), None) # square pixels
+
+def test_icc():
+    # Test ICC support
+    im1 = Image.open("Tests/images/rgb.jpg")
+    icc_profile = im1.info["icc_profile"]
+    assert_equal(len(icc_profile), 3144)
+    # Roundtrip via physical file.
+    file = tempfile("temp.jpg")
+    im1.save(file, icc_profile=icc_profile)
+    im2 = Image.open(file)
+    assert_equal(im2.info.get("icc_profile"), icc_profile)
+    # Roundtrip via memory buffer.
+    im1 = roundtrip(lena())
+    im2 = roundtrip(lena(), icc_profile=icc_profile)
+    assert_image_equal(im1, im2)
+    assert_false(im1.info.get("icc_profile"))
+    assert_true(im2.info.get("icc_profile"))
+
+def test_icc_big():
+    # Make sure that the "extra" support handles large blocks
+    def test(n):
+        # The ICC APP marker can store 65519 bytes per marker, so
+        # using a 4-byte test code should allow us to detect out of
+        # order issues.
+        icc_profile = ("Test"*int(n/4+1))[:n]
+        assert len(icc_profile) == n # sanity
+        im1 = roundtrip(lena(), icc_profile=icc_profile)
+        assert_equal(im1.info.get("icc_profile"), icc_profile or None)
+    test(0); test(1)
+    test(3); test(4); test(5)
+    test(65533-14) # full JPEG marker block
+    test(65533-14+1) # full block plus one byte
+    test(ImageFile.MAXBLOCK) # full buffer block
+    test(ImageFile.MAXBLOCK+1) # full buffer block plus one byte
+    test(ImageFile.MAXBLOCK*4+3) # large block
 
 def test_optimize():
     im1 = roundtrip(lena())

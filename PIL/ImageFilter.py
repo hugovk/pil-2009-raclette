@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImageFilter.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # standard filters
 #
@@ -15,7 +15,7 @@
 # See the README file for information on usage and redistribution.
 #
 
-class Filter:
+class Filter(object):
     pass
 
 ##
@@ -52,7 +52,7 @@ class Kernel(Filter):
     def filter(self, image):
         if image.mode == "P":
             raise ValueError("cannot filter palette images")
-        return apply(image.filter, self.filterargs)
+        return image.filter(*self.filterargs)
 
 class BuiltinFilter(Kernel):
     def __init__(self):
@@ -157,7 +157,7 @@ class GaussianBlur(Filter):
     name = "GaussianBlur"
 
     def __init__(self, radius=2):
-        self.radius = 2
+        self.radius = radius
     def filter(self, image):
         return image.gaussian_blur(self.radius)
 
@@ -168,7 +168,7 @@ class UnsharpMask(Filter):
     name = "UnsharpMask"
 
     def __init__(self, radius=2, percent=150, threshold=3):
-        self.radius = 2
+        self.radius = radius
         self.percent = percent
         self.threshold = threshold
     def filter(self, image):

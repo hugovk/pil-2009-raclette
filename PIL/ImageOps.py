@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: ImageOps.py 2760 2006-06-19 13:31:40Z fredrik $
+# $Id$
 #
 # standard image operations
 #
@@ -56,7 +56,7 @@ def _lut(image, lut):
             lut = lut + lut + lut
         return image.point(lut)
     else:
-        raise IOError, "not supported for this image mode"
+        raise IOError("not supported for this image mode")
 
 #
 # actions

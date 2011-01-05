@@ -1,6 +1,6 @@
 #
 # The Python Imaging Library.
-# $Id: BmpImagePlugin.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # BMP file handler
 #
@@ -27,8 +27,8 @@
 __version__ = "0.7"
 
 
-import string
 import Image, ImageFile, ImagePalette
+import ImageString
 
 
 #
@@ -47,7 +47,7 @@ BIT2MODE = {
     1: ("P", "P;1"),
     4: ("P", "P;4"),
     8: ("P", "P"),
-    16: ("RGB", "BGR;16"),
+    16: ("RGB", "BGR;15"),
     24: ("RGB", "BGR"),
     32: ("RGB", "BGRX")
 }
@@ -72,7 +72,7 @@ class BmpImageFile(ImageFile.ImageFile):
 
         # CORE/INFO
         s = read(4)
-        s = s + ImageFile._safe_read(self.fp, i32(s)-4)
+        s = s + self.fp.saferead(i32(s)-4)
 
         if len(s) == 12:
 
@@ -146,7 +146,7 @@ class BmpImageFile(ImageFile.ImageFile):
             else:
                 self.mode = "P"
                 self.palette = ImagePalette.raw(
-                    "BGR", string.join(palette, "")
+                    "BGR", ImageString.join(palette, "")
                     )
 
         if not offset:

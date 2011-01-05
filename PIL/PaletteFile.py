@@ -1,6 +1,6 @@
 #
 # Python Imaging Library
-# $Id: PaletteFile.py 2134 2004-10-06 08:55:20Z fredrik $
+# $Id$
 #
 # stuff to read simple, teragon-style palette files
 #
@@ -13,12 +13,12 @@
 # See the README file for information on usage and redistribution.
 #
 
-import string
+import ImageString
 
 ##
 # File handler for Teragon-style palette files.
 
-class PaletteFile:
+class PaletteFile(object):
 
     rawmode = "RGB"
 
@@ -32,10 +32,12 @@ class PaletteFile:
 
             if not s:
                 break
+            if s[0] == "#":
+                continue
             if len(s) > 100:
-                raise SyntaxError, "bad palette file"
+                raise SyntaxError("bad palette file")
 
-            v = map(int, string.split(s))
+            v = map(int, ImageString.split(s))
             try:
                 [i, r, g, b] = v
             except ValueError:
@@ -45,7 +47,7 @@ class PaletteFile:
             if 0 <= i <= 255:
                 self.palette[i] = chr(r) + chr(g) + chr(b)
 
-        self.palette = string.join(self.palette, "")
+        self.palette = ImageString.join(self.palette, "")
 
 
     def getpalette(self):

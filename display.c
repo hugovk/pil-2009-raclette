@@ -1,6 +1,5 @@
 /*
  * The Python Imaging Library.
- * $Id: display.c 2751 2006-06-18 19:50:45Z fredrik $
  *
  * display support (and other windows-related stuff)
  *
@@ -497,6 +496,7 @@ PyImaging_GrabClipboardWin32(PyObject* self, PyObject* args)
     if (!handle) {
         /* FIXME: add CF_HDROP support to allow cut-and-paste from
            the explorer */
+        CloseClipboard();
         Py_INCREF(Py_None);
         return Py_None;
     }

@@ -31,3 +31,13 @@ def test_promote():
     im.putalpha(4)
     assert_equal(im.mode, 'RGBA')
     assert_equal(im.getpixel((0, 0)), (1, 2, 3, 4))
+
+def test_readonly():
+
+    im = Image.new("RGB", (1, 1), (1, 2, 3))
+    im.readonly = 1
+
+    im.putalpha(4)
+    assert_false(im.readonly)
+    assert_equal(im.mode, 'RGBA')
+    assert_equal(im.getpixel((0, 0)), (1, 2, 3, 4))
