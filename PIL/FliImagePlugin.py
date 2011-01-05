@@ -62,7 +62,7 @@ class FliImageFile(ImageFile.ImageFile):
         self.info["duration"] = duration
 
         # look for palette
-        palette = map(lambda a: (a,a,a), range(256))
+        palette = [(a,a,a) for a in range(256)]
 
         s = self.fp.read(16)
 
