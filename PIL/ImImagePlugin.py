@@ -129,15 +129,14 @@ class ImImageFile(ImageFile.ImageFile):
 
             s = self.fp.read(1)
 
-            # Some versions of IFUNC uses \n\r instead of \r\n...
+            # Some versions of IFUNC use "\n\r" instead of "\r\n"
             if s == "\r":
                 continue
 
             if not s or s[0] == chr(0) or s[0] == chr(26):
                 break
 
-            # FIXME: this may read whole file if not a text file
-            s = s + self.fp.readline()
+            s = s + ImageFile._safe_readline(self.fp, 512)
 
             if len(s) > 100:
                 raise SyntaxError("not an IM file")

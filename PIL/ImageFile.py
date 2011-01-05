@@ -280,7 +280,7 @@ class StubImageFile(ImageFile):
             )
 
 ##
-# (Internal) Support class for the <b>Parser</b> file.
+# (Internal) Support class for the <b>Parser</b> class.
 
 class _ParserFile:
     # parser support class.
@@ -528,3 +528,25 @@ def _safe_read(fp, size):
         data.append(block)
         size = size - len(block)
     return ImageString.join(data, "")
+
+##
+# Safe and slow readline implementation.
+# <p>
+# Note: Codecs that mix line and binary access should be rewritten to
+# use an extra buffering layer.
+#
+# @param fp File handle.  Must implement a <b>read</b> method.
+# @param size Max number of bytes to read.
+# @return A string containing up to <i>size</i> bytes of data,
+#   including the newline, if found.
+
+def _safe_readline(fp, size):
+    s = ""
+    while 1:
+        c = fp.read(1)
+        if not c:
+            break
+        s = s + c
+        if c == "\n" or len(s) >= size:
+            break
+    return s
