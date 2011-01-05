@@ -185,7 +185,7 @@ def DQT(self, marker):
             s = s[65:]
         else:
             return # FIXME: add code to read 16-bit tables!
-            # raise SyntaxError, "bad quantization table element size"
+            # raise SyntaxError("bad quantization table element size")
 
 
 #
