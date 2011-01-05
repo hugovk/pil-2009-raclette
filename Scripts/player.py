@@ -16,7 +16,7 @@ Image.DEBUG = 0
 class UI(Label):
 
     def __init__(self, master, im):
-        if type(im) == type([]):
+        if isinstance(im, list):
             # list of images
             self.im = im[1:]
             im = self.im[0]

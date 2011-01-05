@@ -483,7 +483,7 @@ class PILDriver(object):
             if self.verbose:
                 print "Stack: " + `self.stack`
             top = self.top()
-            if type(top) != type(""):
+            if not isinstance(top, str):
                 continue;
             funcname = "do_" + top
             if not hasattr(self, funcname):
@@ -508,7 +508,7 @@ if __name__ == '__main__':
         driver.execute(sys.argv[1:])
     else:
         print "PILDriver says hello."
-        while 1:
+        while True:
             try:
                 line = raw_input('pildriver> ');
             except EOFError:
