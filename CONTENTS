@@ -187,7 +187,6 @@ Imaging/PIL/XVThumbImagePlugin.py
 
 Imaging/Docs/index.html
 Imaging/Docs/effbot.css
-Imaging/Docs/pythondoc-PIL.ArgImagePlugin.html
 Imaging/Docs/pythondoc-PIL.BdfFontFile.html
 Imaging/Docs/pythondoc-PIL.BmpImagePlugin.html
 Imaging/Docs/pythondoc-PIL.BufrStubImagePlugin.html
