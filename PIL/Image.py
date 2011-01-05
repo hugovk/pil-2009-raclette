@@ -175,6 +175,15 @@ SAVE = {}
 EXTENSION = {}
 
 # --------------------------------------------------------------------
+# Exceptions.  Note that for backwards compatibility, all custom
+# exceptions inherit from standard exceptions.
+
+# FIXME: add more exceptions here
+
+class VerificationError(SyntaxError):
+    pass
+
+# --------------------------------------------------------------------
 # Modes supported by this version
 
 _MODEINFO = {

@@ -372,8 +372,11 @@ class PngImageFile(ImageFile.ImageFile):
         # back up to beginning of IDAT block
         self.fp.seek(self.tile[0][2] - 8)
 
-        self.png.verify()
-        self.png.close()
+        try:
+            self.png.verify()
+            self.png.close()
+        except SyntaxError, v:
+            raise Image.VerificationError(v)
 
         self.fp = None
 
