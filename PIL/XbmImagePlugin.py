@@ -21,8 +21,10 @@
 
 __version__ = "0.6"
 
-import re, string
+import re
+
 import Image, ImageFile
+import ImageString
 
 # XBM header
 xbm_head = re.compile(
@@ -36,7 +38,7 @@ xbm_head = re.compile(
 )
 
 def _accept(prefix):
-    return string.lstrip(prefix)[:7] == "#define"
+    return ImageString.strip(prefix)[:7] == "#define"
 
 ##
 # Image plugin for X11 bitmaps.

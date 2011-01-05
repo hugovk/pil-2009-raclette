@@ -36,7 +36,8 @@
 # See the README file for information on usage and redistribution.
 #
 
-import string, StringIO
+import ImageString
+import StringIO
 
 
 def i16(c, o = 0):
@@ -105,7 +106,7 @@ class _OleStream(StringIO.StringIO):
             data.append(fp.read(sectorsize))
             sect = fat[sect]
 
-        data = string.join(data, "")
+        data = ImageString.join(data, "")
 
         # print len(data), size
 

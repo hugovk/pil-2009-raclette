@@ -70,8 +70,9 @@ except ImportError, v:
 
 import ImageMode
 import ImagePalette
+import ImageString
 
-import os, string, sys
+import os, sys
 
 # type stuff
 from types import IntType, StringType, TupleType
@@ -548,7 +549,7 @@ class Image:
         if s < 0:
             raise RuntimeError("encoder error %d in tostring" % s)
 
-        return string.join(data, "")
+        return ImageString.join(data, "")
 
     ##
     # Returns the image converted to an X11 bitmap.  This method
@@ -565,7 +566,7 @@ class Image:
         if self.mode != "1":
             raise ValueError("not a bitmap")
         data = self.tostring("xbm")
-        return string.join(["#define %s_width %d\n" % (name, self.size[0]),
+        return ImageString.join(["#define %s_width %d\n" % (name, self.size[0]),
                 "#define %s_height %d\n"% (name, self.size[1]),
                 "static char %s_bits[] = {\n" % name, data, "};"], "")
 
@@ -1237,7 +1238,7 @@ class Image:
             palette = ImagePalette.raw(data.rawmode, data.palette)
         else:
             if not isStringType(data):
-                data = string.join(map(chr, data), "")
+                data = ImageString.join(map(chr, data), "")
             palette = ImagePalette.raw(rawmode, data)
         self.mode = "P"
         self.palette = palette
@@ -1412,7 +1413,7 @@ class Image:
 
         preinit()
 
-        ext = string.lower(os.path.splitext(filename)[1])
+        ext = ImageString.lower(os.path.splitext(filename)[1])
 
         if not format:
             try:
@@ -1425,10 +1426,10 @@ class Image:
                     raise KeyError(ext) # unknown extension
 
         try:
-            save_handler = SAVE[string.upper(format)]
+            save_handler = SAVE[ImageString.upper(format)]
         except KeyError:
             init()
-            save_handler = SAVE[string.upper(format)] # unknown format
+            save_handler = SAVE[ImageString.upper(format)] # unknown format
 
         if isStringType(fp):
             import __builtin__
@@ -2091,7 +2092,7 @@ def merge(mode, bands):
 #    reject images having another format.
 
 def register_open(id, factory, accept=None):
-    id = string.upper(id)
+    id = ImageString.upper(id)
     ID.append(id)
     OPEN[id] = factory, accept
 
@@ -2103,7 +2104,7 @@ def register_open(id, factory, accept=None):
 # @param mimetype The image MIME type for this format.
 
 def register_mime(id, mimetype):
-    MIME[string.upper(id)] = mimetype
+    MIME[ImageString.upper(id)] = mimetype
 
 ##
 # Registers an image save function.  This function should not be
@@ -2113,7 +2114,7 @@ def register_mime(id, mimetype):
 # @param driver A function to save images in this format.
 
 def register_save(id, driver):
-    SAVE[string.upper(id)] = driver
+    SAVE[ImageString.upper(id)] = driver
 
 ##
 # Registers an image extension.  This function should not be
@@ -2123,7 +2124,7 @@ def register_save(id, driver):
 # @param extension An extension used for this format.
 
 def register_extension(id, extension):
-    EXTENSION[string.lower(extension)] = string.upper(id)
+    EXTENSION[ImageString.lower(extension)] = ImageString.upper(id)
 
 
 # --------------------------------------------------------------------

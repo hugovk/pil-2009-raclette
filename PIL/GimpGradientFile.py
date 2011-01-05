@@ -14,7 +14,8 @@
 #
 
 from math import pi, log, sin, sqrt
-import string
+
+import ImageString
 
 # --------------------------------------------------------------------
 # Stuff to translate curve segments to palette values (derived from
@@ -87,7 +88,7 @@ class GradientFile:
             # add to palette
             palette.append(r + g + b + a)
 
-        return string.join(palette, ""), "RGBA"
+        return ImageString.join(palette, ""), "RGBA"
 
 ##
 # File handler for GIMP's gradient format.
@@ -105,7 +106,7 @@ class GimpGradientFile(GradientFile):
 
         for i in range(count):
 
-            s = string.split(fp.readline())
+            s = ImageString.split(fp.readline())
             w = map(float, s[:11])
 
             x0, x1  = w[0], w[2]

@@ -26,7 +26,9 @@
 #
 
 import Image
-import os, string, sys
+import ImageString
+
+import os, sys
 
 class _imagingft_not_installed:
     # module placeholder
@@ -99,7 +101,7 @@ class ImageFont:
         # read PILfont header
         if file.readline() != "PILfont\n":
             raise SyntaxError("Not a PILfont file")
-        d = string.split(file.readline(), ";")
+        d = ImageString.split(file.readline(), ";")
         self.info = [] # FIXME: should be a dictionary
         while True:
             s = file.readline()

@@ -147,6 +147,7 @@ Imaging/PIL/ImageQt.py
 Imaging/PIL/ImageSequence.py
 Imaging/PIL/ImageShow.py
 Imaging/PIL/ImageStat.py
+Imaging/PIL/ImageString.py
 Imaging/PIL/ImageTk.py
 Imaging/PIL/ImageTransform.py
 Imaging/PIL/ImageWin.py

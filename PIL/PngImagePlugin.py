@@ -33,9 +33,10 @@
 
 __version__ = "0.9"
 
-import re, string
+import re, zlib
 
-import Image, ImageFile, ImagePalette, zlib
+import Image, ImageFile, ImagePalette
+import ImageString
 
 
 def i16(c):
@@ -188,7 +189,7 @@ class PngStream(ChunkStream):
         # Null separator        1 byte (null character)
         # Compression method    1 byte (0)
         # Compressed profile    n bytes (zlib with deflate compression)
-        i = string.find(s, chr(0))
+        i = ImageString.find(s, chr(0))
         if Image.DEBUG:
             print "iCCP profile name", s[:i]
             print "Compression method", ord(s[i])
@@ -242,7 +243,7 @@ class PngStream(ChunkStream):
         # transparency
         s = ImageFile._safe_read(self.fp, len)
         if self.im_mode == "P":
-            i = string.find(s, chr(0))
+            i = ImageString.find(s, chr(0))
             if i >= 0:
                 self.im_info["transparency"] = i
         elif self.im_mode == "L":
@@ -276,7 +277,7 @@ class PngStream(ChunkStream):
         # text
         s = ImageFile._safe_read(self.fp, len)
         try:
-            k, v = string.split(s, "\0", 1)
+            k, v = ImageString.split(s, "\0", 1)
         except ValueError:
             k = s; v = "" # fallback for broken tEXt tags
         if k:
@@ -287,7 +288,7 @@ class PngStream(ChunkStream):
 
         # compressed text
         s = ImageFile._safe_read(self.fp, len)
-        k, v = string.split(s, "\0", 1)
+        k, v = ImageString.split(s, "\0", 1)
         comp_method = ord(v[0])
         if comp_method != 0:
             raise SyntaxError("Unknown compression method %s in zTXt chunk" % comp_method)
@@ -442,7 +443,7 @@ _OUTMODES = {
 def putchunk(fp, cid, *data):
     "Write a PNG chunk (including CRC field)"
 
-    data = string.join(data, "")
+    data = ImageString.join(data, "")
 
     fp.write(o32(len(data)) + cid)
     fp.write(data)
@@ -592,7 +593,7 @@ def getchunks(im, **params):
             self.data.append(chunk)
 
     def append(fp, cid, *data):
-        data = string.join(data, "")
+        data = ImageString.join(data, "")
         hi, lo = Image.core.crc32(data, Image.core.crc32(cid))
         crc = o16(hi) + o16(lo)
         fp.append((cid, data, crc))

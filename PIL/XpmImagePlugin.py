@@ -18,8 +18,9 @@
 __version__ = "0.2"
 
 
-import re, string
+import re
 import Image, ImageFile, ImagePalette
+import ImageString
 
 # XPM header
 xpm_head = re.compile("\"([0-9]*) ([0-9]*) ([0-9]*) ([0-9]*)")
@@ -72,7 +73,7 @@ class XpmImageFile(ImageFile.ImageFile):
                 s = s[:-1]
 
             c = ord(s[1])
-            s = string.split(s[2:-2])
+            s = ImageString.split(s[2:-2])
 
             for i in range(0, len(s), 2):
 
@@ -84,7 +85,7 @@ class XpmImageFile(ImageFile.ImageFile):
                         self.info["transparency"] = c
                     elif rgb[0] == "#":
                         # FIXME: handle colour names (see ImagePalette.py)
-                        rgb = string.atoi(rgb[1:], 16)
+                        rgb = int(rgb[1:], 16)
                         palette[c] = chr((rgb >> 16) & 255) +\
                                      chr((rgb >> 8) & 255) +\
                                      chr(rgb & 255)

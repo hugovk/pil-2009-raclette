@@ -770,7 +770,7 @@ if __name__ == "__main__":
     # create a cheap manual from the __doc__ strings for the functions above
 
     import ImageCms
-    import string
+    import ImageString
     print __doc__
 
     for f in dir(pyCMS):
@@ -779,7 +779,7 @@ if __name__ == "__main__":
 
         try:
             exec ("doc = ImageCms.%s.__doc__" %(f))
-            if string.find(doc, "pyCMS") >= 0:
+            if ImageString.find(doc, "pyCMS") >= 0:
                 # so we don't get the __doc__ string for imported modules
                 print doc
         except AttributeError:

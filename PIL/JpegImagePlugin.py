@@ -35,8 +35,8 @@
 __version__ = "0.6"
 
 import array, struct
-import string
 import Image, ImageFile
+import ImageString
 
 def i16(c,o=0):
     return ord(c[o+1]) + (ord(c[o])<<8)
@@ -154,7 +154,7 @@ def SOF(self, marker):
             profile = []
             for p in self.icclist:
                 profile.append(p[14:])
-            icc_profile = string.join(profile, "")
+            icc_profile = ImageString.join(profile, "")
         else:
             icc_profile = None # wrong number of fragments
         self.info["icc_profile"] = icc_profile

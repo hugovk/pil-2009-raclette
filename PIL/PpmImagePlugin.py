@@ -17,8 +17,6 @@
 
 __version__ = "0.2"
 
-import string
-
 import Image, ImageFile
 
 #
@@ -51,7 +49,7 @@ class PpmImageFile(ImageFile.ImageFile):
     def _token(self, s = ""):
         while 1: # read until next whitespace
             c = self.fp.read(1)
-            if not c or c in string.whitespace:
+            if not c or not c.strip():
                 break
             s = s + c
         return s
@@ -74,7 +72,7 @@ class PpmImageFile(ImageFile.ImageFile):
             while 1:
                 while 1:
                     s = self.fp.read(1)
-                    if s not in string.whitespace:
+                    if s.strip():
                         break
                 if s != "#":
                     break
