@@ -72,7 +72,7 @@ class BmpImageFile(ImageFile.ImageFile):
 
         # CORE/INFO
         s = read(4)
-        s = s + ImageFile._safe_read(self.fp, i32(s)-4)
+        s = s + self.fp.saferead(i32(s)-4)
 
         if len(s) == 12:
 

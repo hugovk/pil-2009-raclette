@@ -49,7 +49,7 @@ def i32(c,o=0):
 
 def Skip(self, marker):
     n = i16(self.fp.read(2))-2
-    ImageFile._safe_read(self.fp, n)
+    self.fp.saferead(n)
 
 def APP(self, marker):
     #
@@ -57,7 +57,7 @@ def APP(self, marker):
     # Also look for well-known application markers.
 
     n = i16(self.fp.read(2))-2
-    s = ImageFile._safe_read(self.fp, n)
+    s = self.fp.saferead(n)
 
     app = "APP%d" % (marker&15)
 
@@ -113,7 +113,7 @@ def COM(self, marker):
     # Comment marker.  Store these in the APP dictionary.
 
     n = i16(self.fp.read(2))-2
-    s = ImageFile._safe_read(self.fp, n)
+    s = self.fp.saferead(n)
 
     self.app["COM"] = s # compatibility
     self.applist.append(("COM", s))
@@ -127,7 +127,7 @@ def SOF(self, marker):
     # looking for JFIF and Adobe APP markers.
 
     n = i16(self.fp.read(2))-2
-    s = ImageFile._safe_read(self.fp, n)
+    s = self.fp.saferead(n)
     self.size = i16(s[3:]), i16(s[1:])
 
     self.bits = ord(s[0])
@@ -175,7 +175,7 @@ def DQT(self, marker):
     # compression quality.
 
     n = i16(self.fp.read(2))-2
-    s = ImageFile._safe_read(self.fp, n)
+    s = self.fp.saferead(n)
     while len(s):
         if len(s) < 65:
             raise SyntaxError("bad quantization table marker")

@@ -374,7 +374,7 @@ class ImageFileDirectory:
             if size > 4:
                 here = fp.tell()
                 fp.seek(i32(ifd, 8))
-                data = ImageFile._safe_read(fp, size)
+                data = fp.saferead(size)
                 fp.seek(here)
             else:
                 data = ifd[8:8+size]
