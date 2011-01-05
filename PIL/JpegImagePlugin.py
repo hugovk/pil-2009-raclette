@@ -25,9 +25,9 @@
 # 2009-09-06 fl   Added icc_profile support (from Florian Hoech)
 # 2009-03-06 fl   Changed CMYK handling; always use Adobe polarity (0.6)
 # 2009-03-08 fl   Added subsampling support (from Justin Huff).
-# 2010-01-05 fl   Updated to use binary stream.
+# 2011-01-05 fl   Updated to use binary stream.
 #
-# Copyright (c) 1997-2010 by Secret Labs AB.
+# Copyright (c) 1997-2011 by Secret Labs AB.
 # Copyright (c) 1995-1996 by Fredrik Lundh.
 #
 # See the README file for information on usage and redistribution.

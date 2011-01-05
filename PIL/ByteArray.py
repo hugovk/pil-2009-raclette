@@ -1,4 +1,17 @@
-# byte array wrapper
+#
+# The Python Imaging Library.
+# $Id$
+#
+# simple <byte array type
+#
+# history:
+# 2011-01-05 fl   Created
+#
+# Copyright (c) 2011 by Secret Labs AB
+# Copyright (c) 2011 by Fredrik Lundh
+#
+# See the README file for information on usage and redistribution.
+#
 
 class ByteArray(object):
 

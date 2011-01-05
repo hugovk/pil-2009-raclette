@@ -24,9 +24,9 @@
 # 2009-03-06 fl   Support for preserving ICC profiles (by Florian Hoech)
 # 2009-03-08 fl   Added zTXT support (from Lowell Alleman)
 # 2009-03-29 fl   Read interlaced PNG files (from Conrado Porto Lopes Gouvua)
-# 2010-01-05 fl   Updated to use binary stream.
+# 2011-01-05 fl   Updated to use binary stream.
 #
-# Copyright (c) 1997-2010 by Secret Labs AB
+# Copyright (c) 1997-2011 by Secret Labs AB
 # Copyright (c) 1996 by Fredrik Lundh
 #
 # See the README file for information on usage and redistribution.

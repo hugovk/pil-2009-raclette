@@ -20,9 +20,9 @@
 # 2003-04-21 fl   Fall back on mmap/map_buffer if map is not available
 # 2003-10-30 fl   Added StubImageFile class
 # 2004-02-25 fl   Made incremental parser more robust
-# 2010-01-05 fl   Added binary/text file stream wrappers
+# 2011-01-05 fl   Added binary/text file stream wrappers
 #
-# Copyright (c) 1997-2010 by Secret Labs AB
+# Copyright (c) 1997-2011 by Secret Labs AB
 # Copyright (c) 1995-2004 by Fredrik Lundh
 #
 # See the README file for information on usage and redistribution.
