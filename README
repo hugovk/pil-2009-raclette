@@ -11,9 +11,7 @@ Contents
 --------
 
 + Introduction
-+ Support Options
-  - Commercial support
-  - Free support
++ Support
 + Software License
 + Build instructions (all platforms)
   - Additional notes for Mac OS X
@@ -45,33 +43,21 @@ Development versions (alphas, betas) are available here:
         http://effbot.org/downloads/
 
 
-The PIL handbook is not included in this distribution; to get the
+The full PIL handbook is not included in this distribution; to get the
 latest version, check:
 
         http://www.pythonware.com/library/
         http://effbot.org/books/imagingbook/ (drafts)
+
+However, some reference material is available in the Docs directory.
 
 
 For installation and licensing details, see below.
 
 
 --------------------------------------------------------------------
-Support Options
+Support
 --------------------------------------------------------------------
-
-+ Commercial Support
-
-Secret Labs (PythonWare) offers support contracts for companies using
-the Python Imaging Library in commercial applications, and in mission-
-critical environments.  The support contract includes technical support,
-bug fixes, extensions to the PIL library, sample applications, and more.
-
-For the full story, check:
-
-        http://www.pythonware.com/products/pil/support.htm
-
-
-+ Free Support
 
 For support and general questions on the Python Imaging Library, send
 e-mail to the Image SIG mailing list:
@@ -95,8 +81,8 @@ Software License
 
 The Python Imaging Library is
 
-Copyright (c) 1997-2009 by Secret Labs AB
-Copyright (c) 1995-2009 by Fredrik Lundh
+Copyright (c) 1997-2010 by Secret Labs AB
+Copyright (c) 1995-2010 by Fredrik Lundh
 
 By obtaining, using, and/or copying this software and/or its
 associated documentation, you agree that you have read, understood,
@@ -226,10 +212,10 @@ For a list of changes in this release, see the CHANGES document.
         $ python setup.py build_ext -i
         $ python selftest.py
 
-   During the build process, the setup.py will display a summary
-   report that lists what external components it found.  The self-
-   test will display a similar report, with what external components
-   the tests found in the actual build files:
+   During the build process, the setup.py script will display a
+   summary report that lists what external components it found.
+   The self test will display a similar report, with what external
+   components the tests found in the actual build files:
 
         ----------------------------------------------------------------
         PIL 1.1.7 SETUP SUMMARY
