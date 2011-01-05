@@ -15,6 +15,3 @@ def split(s, sep=None, maxsplit=None):
     if maxsplit is None:
         return s.split(sep)
     return s.split(sep, maxsplit)
-
-def strip(s):
-    return s.strip()

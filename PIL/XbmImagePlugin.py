@@ -38,7 +38,7 @@ xbm_head = re.compile(
 )
 
 def _accept(prefix):
-    return ImageString.strip(prefix)[:7] == "#define"
+    return prefix.lstrip()[:7] == "#define"
 
 ##
 # Image plugin for X11 bitmaps.

@@ -50,7 +50,7 @@ def bdf_char(f):
             return None
         if s[:9] == "STARTCHAR":
             break
-    id = ImageString.strip(s[9:])
+    id = s[9:].strip()
 
     # load symbol properties
     props = {}
