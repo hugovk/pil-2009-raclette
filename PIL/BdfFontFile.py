@@ -111,8 +111,8 @@ class BdfFontFile(FontFile.FontFile):
 
         font = ImageString.split(props["FONT"], "-")
 
-        font[4] = bdf_slant[ImageString.upper(font[4])]
-        font[11] = bdf_spacing[ImageString.upper(font[11])]
+        font[4] = bdf_slant[font[4].upper()]
+        font[11] = bdf_spacing[font[11].upper()]
 
         ascent = int(props["FONT_ASCENT"])
         descent = int(props["FONT_DESCENT"])

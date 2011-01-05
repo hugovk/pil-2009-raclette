@@ -37,7 +37,7 @@ def getrgb(color):
     except KeyError:
         try:
             # fall back on case-insensitive lookup
-            rgb = colormap[ImageString.lower(color)]
+            rgb = colormap[color.lower()]
         except KeyError:
             rgb = None
     # found color in cache
