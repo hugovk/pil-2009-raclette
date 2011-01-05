@@ -138,7 +138,7 @@ class ChunkStream(object):
 
         cids = []
 
-        while 1:
+        while True:
             cid, pos, len = self.read()
             if cid == endchunk:
                 break
@@ -325,7 +325,7 @@ class PngImageFile(ImageFile.ImageFile):
 
         self.png = PngStream(self.fp)
 
-        while 1:
+        while True:
 
             #
             # get next chunk

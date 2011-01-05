@@ -191,7 +191,7 @@ def _safe_read(fp, size, safesize):
 
 def _safe_readline(fp, size, safesize):
     s = ""
-    while 1:
+    while True:
         c = fp.read(1)
         if not c:
             break

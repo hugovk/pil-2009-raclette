@@ -173,7 +173,7 @@ class _OleDirectoryEntry(object):
                 if right != -1: # 0xFFFFFFFFL:
                     # and then back to the left
                     sid = right
-                    while 1:
+                    while True:
                         left, right, child = sidlist[sid][4]
                         if left == -1: # 0xFFFFFFFFL:
                             break
@@ -181,7 +181,7 @@ class _OleDirectoryEntry(object):
                         sid = left
                 else:
                     # couldn't move right; move up instead
-                    while 1:
+                    while True:
                         ptr = stack[-1]
                         del stack[-1]
                         left, right, child = sidlist[ptr][4]
@@ -265,7 +265,7 @@ class OleFileIO(object):
     def open(self, filename):
         """Open an OLE2 file"""
 
-        if type(filename) == type(""):
+        if isinstance(filename, basestring):
             self.fp = open(filename, "rb")
         else:
             self.fp = filename
@@ -340,7 +340,7 @@ class OleFileIO(object):
 
         # create list of sid entries
         self.sidlist = []
-        while 1:
+        while True:
             entry = fp.read(128)
             if not entry:
                 break
@@ -520,8 +520,7 @@ if __name__ == "__main__":
                 if file[-1][0] == "\005":
                     print file
                     props = ole.getproperties(file)
-                    props = props.items()
-                    props.sort()
+                    props = sorted(props.items())
                     for k, v in props:
                         print "   ", k, v
         except IOError, v:

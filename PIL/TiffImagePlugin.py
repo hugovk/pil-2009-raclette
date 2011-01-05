@@ -280,7 +280,7 @@ class ImageFileDirectory(object):
         return tag in self.tags or tag in self.tagdata
 
     def __setitem__(self, tag, value):
-        if type(value) is not type(()):
+        if not isinstance(value, tuple):
             value = (value,)
         self.tags[tag] = value
 
@@ -406,8 +406,7 @@ class ImageFileDirectory(object):
         fp.write(o16(len(self.tags)))
 
         # always write in ascending tag order
-        tags = self.tags.items()
-        tags.sort()
+        tags = sorted(self.tags.items())
 
         directory = []
         append = directory.append
@@ -430,7 +429,7 @@ class ImageFileDirectory(object):
             elif typ == 7:
                 # untyped data
                 data = value = "".join(value)
-            elif type(value[0]) is type(""):
+            elif isinstance(value[0], basestring):
                 # string data
                 typ = 2
                 data = value = "\0".join(value) + "\0"
@@ -745,7 +744,7 @@ def _cvt_res(value):
     if type(value) in (type([]), type(())):
         assert(len(value) % 2 == 0)
         return value
-    if type(value) == type(1):
+    if isinstance(value, int):
         return (value, 1)
     value = float(value)
     return (int(value * 65536), 65536)

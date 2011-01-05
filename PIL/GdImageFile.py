@@ -73,7 +73,7 @@ def open(fp, mode = "r"):
     if mode != "r":
         raise ValueError("bad mode")
 
-    if type(fp) == type(""):
+    if isinstance(fp, basestring):
         import __builtin__
         filename = fp
         fp = __builtin__.open(fp, "rb")

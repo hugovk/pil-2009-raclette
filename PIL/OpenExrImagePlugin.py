@@ -103,7 +103,7 @@ class OpenExrImageFile(ImageFile.ImageFile):
         # read attributes
         stream = AttributeStream(self.fp)
         attributes = []
-        while 1:
+        while True:
             key = stream.readstr()
             if not key:
                 break
@@ -122,8 +122,7 @@ class OpenExrImageFile(ImageFile.ImageFile):
 
         bbox = self.info["displayWindow"]
 
-        channels = [channel[0] for channel in self.info["channels"]]
-        channels.sort()
+        channels = sorted([channel[0] for channel in self.info["channels"]])
 
         self.mode = modes[tuple(channels)]
         self.size = bbox[2] - bbox[0], bbox[3] - bbox[1]

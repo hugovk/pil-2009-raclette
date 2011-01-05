@@ -48,7 +48,7 @@ class PpmImageFile(ImageFile.ImageFile):
     format_description = "Pbmplus image"
 
     def _token(self, s = ""):
-        while 1: # read until next whitespace
+        while True: # read until next whitespace
             c = self.fp.read(1)
             if not c or not c.strip():
                 break
@@ -70,8 +70,8 @@ class PpmImageFile(ImageFile.ImageFile):
             self.mode = rawmode = mode
 
         for ix in range(3):
-            while 1:
-                while 1:
+            while True:
+                while True:
                     s = self.fp.read(1)
                     if s.strip():
                         break

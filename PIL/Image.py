@@ -223,8 +223,7 @@ def _conv_type_shape(im):
         return shape+(extra,), typ
 
 
-MODES = _MODEINFO.keys()
-MODES.sort()
+MODES = sorted(_MODEINFO.keys())
 
 # raw modes that may be memory mapped.  NOTE: if you change this, you
 # may have to modify the stride calculation in map.c too!
@@ -539,7 +538,7 @@ class Image(object):
         bufsize = max(65536, self.size[0] * 4) # see RawEncode.c
 
         data = []
-        while 1:
+        while True:
             l, s, d = e.encode(bufsize)
             data.append(d)
             if s:
