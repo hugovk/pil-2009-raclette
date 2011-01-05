@@ -110,7 +110,13 @@ def isImageType(t):
 def isDirectory(f):
     return isStringType(f) and os.path.isdir(f)
 
-from operator import isNumberType, isSequenceType
+from operator import isNumberType
+
+##
+# (Internal) Checks if an object is callable.
+
+def isCallable(f):
+    return callable(f)
 
 #
 # Debug level
@@ -809,7 +815,7 @@ class Image:
 
         self.load()
 
-        if callable(filter):
+        if isCallable(filter):
             filter = filter()
         if not hasattr(filter, "filter"):
             raise TypeError("filter argument should be ImageFilter.Filter instance or class")
@@ -1114,7 +1120,8 @@ class Image:
     #    image. A function can be used instead, it should take a single
     #    argument. The function is called once for each possible pixel
     #    value, and the resulting table is applied to all bands of the
-    #    image.
+    #    image.  For modes "I" and "F", the function must have the form
+    #    "x * scale + offset".
     # @param mode Output mode (default is same as input).  In the
     #    current version, this can only be used if the source image
     #    has mode "L" or "P", and the output has mode "1".
@@ -1128,7 +1135,7 @@ class Image:
         if isinstance(lut, ImagePointHandler):
             return lut.point(self)
 
-        if not isSequenceType(lut):
+        if isCallable(lut):
             # if it isn't a list, it should be a function
             if self.mode in ("I", "I;16", "F"):
                 # check if the function can be used with point_transform
