@@ -47,6 +47,8 @@ def assert_equal(a, b, msg=None):
     if a == b:
         success()
     else:
+        if len(repr(b)) > 160:
+            b = b[:160] + "..."
         failure(msg or "got %r, expected %r" % (a, b))
 
 def assert_match(v, pattern, msg=None):

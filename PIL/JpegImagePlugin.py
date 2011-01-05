@@ -25,30 +25,25 @@
 # 2009-09-06 fl   Added icc_profile support (from Florian Hoech)
 # 2009-03-06 fl   Changed CMYK handling; always use Adobe polarity (0.6)
 # 2009-03-08 fl   Added subsampling support (from Justin Huff).
+# 2010-01-05 fl   Updated to use binary stream.
 #
-# Copyright (c) 1997-2003 by Secret Labs AB.
+# Copyright (c) 1997-2010 by Secret Labs AB.
 # Copyright (c) 1995-1996 by Fredrik Lundh.
 #
 # See the README file for information on usage and redistribution.
 #
 
-__version__ = "0.6"
+__version__ = "0.7"
 
 import array, struct
 import Image, ImageFile
 import ImageString
 
-def i16(c,o=0):
-    return ord(c[o+1]) + (ord(c[o])<<8)
-
-def i32(c,o=0):
-    return ord(c[o+3]) + (ord(c[o+2])<<8) + (ord(c[o+1])<<16) + (ord(c[o])<<24)
-
 #
 # Parser
 
 def Skip(self, marker):
-    n = i16(self.fp.read(2))-2
+    n = self.fp.read(2).int16b(0)-2
     self.fp.saferead(n)
 
 def APP(self, marker):
@@ -56,22 +51,22 @@ def APP(self, marker):
     # Application marker.  Store these in the APP dictionary.
     # Also look for well-known application markers.
 
-    n = i16(self.fp.read(2))-2
+    n = self.fp.read(2).int16b(0)-2
     s = self.fp.saferead(n)
 
-    app = "APP%d" % (marker&15)
+    app = "APP%d" % (marker & 15)
 
-    self.app[app] = s # compatibility
-    self.applist.append((app, s))
+    self.app[app] = s.tostring() # compatibility
+    self.applist.append((app, s.tostring()))
 
-    if marker == 0xFFE0 and s[:4] == "JFIF":
+    if marker == 0xFFE0 and s[:4].tostring() == "JFIF":
         # extract JFIF information
-        self.info["jfif"] = version = i16(s, 5) # version
+        self.info["jfif"] = version = s.int16b(5) # version
         self.info["jfif_version"] = divmod(version, 256)
         # extract JFIF properties
         try:
-            jfif_unit = ord(s[7])
-            jfif_density = i16(s, 8), i16(s, 10)
+            jfif_unit = s[7]
+            jfif_density = s.int16b(8), s.int16b(10)
         except:
             pass
         else:
@@ -99,10 +94,10 @@ def APP(self, marker):
         # markers appear in the correct sequence.
         self.icclist.append(s)
     elif marker == 0xFFEE and s[:5] == "Adobe":
-        self.info["adobe"] = i16(s, 5)
+        self.info["adobe"] = s.int16b(5)
         # extract Adobe custom properties
         try:
-            adobe_transform = ord(s[1])
+            adobe_transform = s[1]
         except:
             pass
         else:
@@ -112,11 +107,11 @@ def COM(self, marker):
     #
     # Comment marker.  Store these in the APP dictionary.
 
-    n = i16(self.fp.read(2))-2
+    n = self.fp.read(2).int16b(0)-2
     s = self.fp.saferead(n)
 
-    self.app["COM"] = s # compatibility
-    self.applist.append(("COM", s))
+    self.app["COM"] = s.tostring() # compatibility
+    self.applist.append(("COM", s.tostring()))
 
 def SOF(self, marker):
     #
@@ -126,15 +121,15 @@ def SOF(self, marker):
     # mode.  Note that this could be made a bit brighter, by
     # looking for JFIF and Adobe APP markers.
 
-    n = i16(self.fp.read(2))-2
+    n = self.fp.read(2).int16b(0)-2
     s = self.fp.saferead(n)
-    self.size = i16(s[3:]), i16(s[1:])
+    self.size = s.int16b(3), s.int16b(1)
 
-    self.bits = ord(s[0])
+    self.bits = s[0]
     if self.bits != 8:
         raise SyntaxError("cannot handle %d-bit layers" % self.bits)
 
-    self.layers = ord(s[5])
+    self.layers = s[5]
     if self.layers == 1:
         self.mode = "L"
     elif self.layers == 3:
@@ -163,7 +158,7 @@ def SOF(self, marker):
     for i in range(6, len(s), 3):
         t = s[i:i+3]
         # 4-tuples: id, vsamp, hsamp, qtable
-        self.layer.append((t[0], ord(t[1])/16, ord(t[1])&15, ord(t[2])))
+        self.layer.append((chr(t[0]), t[1]/16, t[1]&15, t[2]))
 
 def DQT(self, marker):
     #
@@ -174,14 +169,14 @@ def DQT(self, marker):
     # FIXME: The quantization tables can be used to estimate the
     # compression quality.
 
-    n = i16(self.fp.read(2))-2
+    n = self.fp.read(2).int16b(0)-2
     s = self.fp.saferead(n)
     while len(s):
         if len(s) < 65:
             raise SyntaxError("bad quantization table marker")
-        v = ord(s[0])
+        v = s[0]
         if v/16 == 0:
-            self.quantization[v&15] = array.array("b", s[1:65])
+            self.quantization[v&15] = array.array("b", s[1:65].tostring())
             s = s[65:]
         else:
             return # FIXME: add code to read 16-bit tables!
@@ -269,11 +264,13 @@ class JpegImageFile(ImageFile.ImageFile):
     format = "JPEG"
     format_description = "JPEG (ISO 10918)"
 
+    use_binary_stream = True
+
     def _open(self):
 
         s = self.fp.read(1)
 
-        if ord(s[0]) != 255:
+        if s[0] != 255:
             raise SyntaxError("not a JPEG file")
 
         # Create attributes
@@ -292,7 +289,7 @@ class JpegImageFile(ImageFile.ImageFile):
 
             s = s + self.fp.read(1)
 
-            i = i16(s)
+            i = s.int16b(0)
 
             if MARKER.has_key(i):
                 name, description, handler = MARKER[i]
@@ -309,7 +306,7 @@ class JpegImageFile(ImageFile.ImageFile):
                 s = self.fp.read(1)
             elif i == 0 or i == 65535:
                 # padded marker or junk; move on
-                s = "\xff"
+                s = ImageFile.ByteArray("\xff")
             else:
                 raise SyntaxError("no marker found")
 

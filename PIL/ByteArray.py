@@ -5,6 +5,12 @@ class ByteArray(object):
     def __init__(self, data):
         self.data = data
 
+    def __len__(self):
+        return len(self.data)
+
+    def __add__(self, other):
+        return ByteArray(self.data + other.data)
+
     def __getitem__(self, i):
         return ord(self.data[i])
 
