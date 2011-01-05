@@ -359,7 +359,8 @@ class JpegImageFile(ImageFile.ImageFile):
         # Extract EXIF information.  This method is highly experimental,
         # and is likely to be replaced with something better in a future
         # version.
-        import TiffImagePlugin, StringIO
+        import TiffImagePlugin
+        import StringIO
         def fixup(value):
             if len(value) == 1:
                 return value[0]
