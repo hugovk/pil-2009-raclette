@@ -30,6 +30,8 @@
 import Image
 import ImageString
 
+import ByteArray
+
 import traceback, os
 
 MAXBLOCK = 65536
@@ -61,6 +63,51 @@ def _tilesort(t1, t2):
     # sort on offset
     return cmp(t1[2], t2[2])
 
+##
+# File wrapper for new-style binary readers.  This treats the
+# file header as a stream of byte arrays.
+
+class BinaryFileWrapper(object):
+
+    def __init__(self, fp, filename):
+        def copy(attribute):
+            value = getattr(fp, attribute, None)
+            if value is not None:
+                setattr(self, attribute, value)
+        copy('seek')
+        copy('tell')
+        copy('fileno')
+        self.fp = fp
+        self.name = filename
+
+    def read(self, size):
+        return ByteArray.ByteArray(self.fp.read(size))
+
+    def saferead(self, size):
+        return ByteArray.ByteArray(_safe_read(self.fp, size))
+
+##
+# File wrapper for old-style text stream readers.  This treats the
+# file header as a stream of (iso-8859-1) text strings.
+
+class TextFileWrapper(object):
+
+    def __init__(self, fp, filename):
+        def copy(attribute):
+            value = getattr(fp, attribute, None)
+            if value is not None:
+                setattr(self, attribute, value)
+        copy('read')
+        copy('readline') # FIXME: remove
+        copy('seek')
+        copy('tell')
+        copy('fileno')
+        self.fp = fp
+        self.name = filename
+
+    def saferead(self, size):
+        return _safe_read(self.fp, size)
+
 #
 # --------------------------------------------------------------------
 # ImageFile base class
@@ -70,6 +117,8 @@ def _tilesort(t1, t2):
 
 class ImageFile(Image.Image):
     "Base class for image file format handlers."
+
+    use_binary_stream = False
 
     def __init__(self, fp=None, filename=None):
         Image.Image.__init__(self)
@@ -88,6 +137,11 @@ class ImageFile(Image.Image):
             # stream
             self.fp = fp
             self.filename = filename
+
+        if self.use_binary_stream:
+            self.fp = BinaryFileWrapper(self.fp, filename)
+        else:
+            self.fp = TextFileWrapper(self.fp, filename)
 
         try:
             self._open()
@@ -198,6 +252,8 @@ class ImageFile(Image.Image):
                 t = len(b)
                 while 1:
                     s = read(self.decodermaxblock)
+                    if isinstance(s, ByteArray.ByteArray):
+                        s = s.tostring()
                     if not s:
                         self.tile = []
                         raise IOError("image file is truncated (%d bytes not processed)" % len(b))
