@@ -136,7 +136,7 @@ class ImImageFile(ImageFile.ImageFile):
             if not s or s[0] == chr(0) or s[0] == chr(26):
                 break
 
-            s = s + ImageFile._safe_readline(self.fp, 512)
+            s = s + self.fp.safereadline(512)
 
             if len(s) > 100:
                 raise SyntaxError("not an IM file")

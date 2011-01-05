@@ -98,7 +98,7 @@ class TextFileWrapper(object):
             if value is not None:
                 setattr(self, attribute, value)
         copy('read')
-        copy('readline') # FIXME: remove
+        copy('readline') # FIXME: remove?
         copy('seek')
         copy('tell')
         copy('fileno')
@@ -107,6 +107,9 @@ class TextFileWrapper(object):
 
     def saferead(self, size):
         return _safe_read(self.fp, size)
+
+    def safereadline(self, size):
+        return _safe_readline(self.fp, size)
 
 #
 # --------------------------------------------------------------------

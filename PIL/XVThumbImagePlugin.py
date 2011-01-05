@@ -45,11 +45,11 @@ class XVThumbImageFile(ImageFile.ImageFile):
             raise SyntaxError("not an XV thumbnail file")
 
         # Skip to beginning of next line
-        ImageFile._safe_readline(self.fp, 512)
+        self.fp.safereadline(512)
 
         # skip info comments
         while 1:
-            s = ImageFile._safe_readline(self.fp, 65536)
+            s = self.fp.safereadline(65536)
             if not s:
                 raise SyntaxError("Unexpected EOF reading XV thumbnail file")
             if s[0] != '#':

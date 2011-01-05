@@ -76,7 +76,7 @@ class PpmImageFile(ImageFile.ImageFile):
                         break
                 if s != "#":
                     break
-                s = ImageFile._safe_readline(self.fp, 512)
+                s = self.fp.safereadline(512)
             s = int(self._token(s))
             if ix == 0:
                 xsize = s
