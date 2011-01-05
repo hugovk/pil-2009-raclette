@@ -14,7 +14,7 @@
 #
 
 import site
-import getopt, string, sys
+import getopt, sys
 
 from PIL import Image
 
@@ -58,7 +58,7 @@ for o, a in opt:
         id.sort()
         print "Supported formats (* indicates output format):"
         for i in id:
-            if Image.SAVE.has_key(i):
+            if i in Image.SAVE:
                 print i+"*",
             else:
                 print i,
@@ -77,7 +77,7 @@ for o, a in opt:
     elif o == "-o":
         options["optimize"] = 1
     elif o == "-q":
-        options["quality"] = string.atoi(a)
+        options["quality"] = int(a)
 
 if len(argv) != 2:
     usage()
@@ -88,9 +88,9 @@ try:
         im.draft(convert, im.size)
         im = im.convert(convert)
     if format:
-        apply(im.save, (argv[1], format), options)
+        im.save(*(argv[1], format), **options)
     else:
-        apply(im.save, (argv[1],), options)
+        im.save(*(argv[1],), **options)
 except:
     print "cannot convert image",
     print "(%s:%s)" % (sys.exc_type, sys.exc_value)

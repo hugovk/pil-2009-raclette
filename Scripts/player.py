@@ -10,26 +10,6 @@ import sys
 
 Image.DEBUG = 0
 
-
-# --------------------------------------------------------------------
-# experimental: support ARG animation scripts
-
-import ArgImagePlugin
-
-def applet_hook(animation, images):
-    app = animation(animation_display, images)
-    app.run()
-
-ArgImagePlugin.APPLET_HOOK = applet_hook
-
-class AppletDisplay:
-    def __init__(self, ui):
-        self.__ui = ui
-    def paste(self, im, bbox):
-        self.__ui.image.paste(im, bbox)
-    def update(self):
-        self.__ui.update_idletasks()
-
 # --------------------------------------------------------------------
 # an image animation player
 
@@ -49,10 +29,6 @@ class UI(Label):
         else:
             self.image = ImageTk.PhotoImage(im)
 
-        # APPLET SUPPORT (very crude, and not 100% safe)
-        global animation_display
-        animation_display = AppletDisplay(self)
-
         Label.__init__(self, master, image=self.image, bg="black", bd=0)
 
         self.update()
@@ -65,7 +41,7 @@ class UI(Label):
 
     def next(self):
 
-        if type(self.im) == type([]):
+        if isinstance(self.im, list):
 
             try:
                 im = self.im[0]
