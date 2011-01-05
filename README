@@ -173,6 +173,11 @@ For a list of changes in this release, see the CHANGES document.
        sudo apt-get install libfreetype6-dev
        sudo apt-get install liblcms1-dev
 
+   For Tkinter development, you also need:
+
+       sudo apt-get install python-tk
+       sudo apt-get install tk-dev
+
    If you're using Mac OS X, you can use the 'fink' tool to install
    missing libraries (also see the Mac OS X section below).
 
