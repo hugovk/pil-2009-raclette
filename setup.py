@@ -5,7 +5,7 @@
 # Usage: python setup.py install
 #
 
-import glob, os, re, struct, string, sys
+import glob, os, re, struct, sys
 
 # make it possible to run the setup script from another directory
 try:
@@ -383,10 +383,10 @@ class pil_build_ext(build_ext):
         print "PIL", VERSION, "SETUP SUMMARY"
         print "-" * 68
         print "version      ", VERSION
-        v = string.split(sys.version, "[")
-        print "platform     ", sys.platform, string.strip(v[0])
+        v = sys.version.split("[")
+        print "platform     ", sys.platform, v[0].strip()
         for v in v[1:]:
-            print "             ", string.strip("[" + v)
+            print "             ", "[" + v.strip()
         print "-" * 68
 
         options = [
