@@ -211,7 +211,7 @@ class pil_build_ext(build_ext):
 
         for root in (TCL_ROOT, JPEG_ROOT, TCL_ROOT, TIFF_ROOT, ZLIB_ROOT,
                      FREETYPE_ROOT, LCMS_ROOT):
-            if isinstance(root, type(())):
+            if isinstance(root, tuple):
                 lib_root, include_root = root
             else:
                 lib_root = include_root = root
