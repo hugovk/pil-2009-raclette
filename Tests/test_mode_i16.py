@@ -47,8 +47,8 @@ def test_basic():
         verify(imOut)
 
         imOut = Image.new(mode, (w, h), None)
-        imOut.paste(imIn.crop((0, 0, w/2, h)), (0, 0))
-        imOut.paste(imIn.crop((w/2, 0, w, h)), (w/2, 0))
+        imOut.paste(imIn.crop((0, 0, w//2, h)), (0, 0))
+        imOut.paste(imIn.crop((w//2, 0, w, h)), (w//2, 0))
 
         verify(imIn)
         verify(imOut)

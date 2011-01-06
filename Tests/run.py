@@ -34,6 +34,8 @@ success = failure = 0
 include = [x for x in sys.argv[1:] if x[:2] != "--"]
 skipped = []
 
+# python_options.append("-Qwarn")
+
 python_options = " ".join(python_options)
 tester_options = " ".join(tester_options)
 

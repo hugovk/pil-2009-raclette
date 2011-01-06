@@ -54,7 +54,7 @@ class Stat(object):
             self.h = image_or_list # assume it to be a histogram list
         if not isinstance(self.h, list):
             raise TypeError("first argument must be image or list")
-        self.bands = range(len(self.h) / 256)
+        self.bands = range(len(self.h) // 256)
 
     def __getattr__(self, id):
         "Calculate missing attribute"
@@ -126,7 +126,7 @@ class Stat(object):
         v = []
         for i in self.bands:
             s = 0
-            l = self.count[i]/2
+            l = self.count[i]//2
             b = i * 256
             for j in range(256):
                 s = s + self.h[b+j]

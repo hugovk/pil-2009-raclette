@@ -80,7 +80,7 @@ class RankFilter(Filter):
     def filter(self, image):
         if image.mode == "P":
             raise ValueError("cannot filter palette images")
-        image = image.expand(self.size/2, self.size/2)
+        image = image.expand(self.size//2, self.size//2)
         return image.rankfilter(self.size, self.rank)
 
 ##
@@ -97,7 +97,7 @@ class MedianFilter(RankFilter):
 
     def __init__(self, size=3):
         self.size = size
-        self.rank = size*size/2
+        self.rank = size*size//2
 
 ##
 # Min filter.  Picks the lowest pixel value in a window with the given

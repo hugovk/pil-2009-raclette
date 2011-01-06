@@ -94,7 +94,7 @@ def autocontrast(image, cutoff=0, ignore=None):
             for ix in range(256):
                 n = n + h[ix]
             # remove cutoff% pixels from the low end
-            cut = n * cutoff / 100
+            cut = n * cutoff // 100
             for lo in range(256):
                 if cut > h[lo]:
                     cut = cut - h[lo]
@@ -105,7 +105,7 @@ def autocontrast(image, cutoff=0, ignore=None):
                 if cut <= 0:
                     break
             # remove cutoff% samples from the hi end
-            cut = n * cutoff / 100
+            cut = n * cutoff // 100
             for hi in range(255, -1, -1):
                 if cut > h[hi]:
                     cut = cut - h[hi]
@@ -155,9 +155,9 @@ def colorize(image, black, white):
     white = _color(white, "RGB")
     red = []; green = []; blue = []
     for i in range(256):
-        red.append(black[0]+i*(white[0]-black[0])/255)
-        green.append(black[1]+i*(white[1]-black[1])/255)
-        blue.append(black[2]+i*(white[2]-black[2])/255)
+        red.append(black[0]+i*(white[0]-black[0])//255)
+        green.append(black[1]+i*(white[1]-black[1])//255)
+        blue.append(black[2]+i*(white[2]-black[2])//255)
     image = image.convert("RGB")
     return _lut(image, red + green + blue)
 
@@ -213,13 +213,13 @@ def equalize(image, mask=None):
         if len(histo) <= 1:
             lut.extend(range(256))
         else:
-            step = (reduce(operator.add, histo) - histo[-1]) / 255
+            step = (reduce(operator.add, histo) - histo[-1]) // 255
             if not step:
                 lut.extend(range(256))
             else:
-                n = step / 2
+                n = step // 2
                 for i in range(256):
-                    lut.append(n / step)
+                    lut.append(n // step)
                     n = n + h[i+b]
     return _lut(image, lut)
 
@@ -302,7 +302,7 @@ def fit(image, size, method=Image.NEAREST, bleed=0.0, centering=(0.5, 0.5)):
     liveSize = (liveArea[2] - liveArea[0], liveArea[3] - liveArea[1])
 
     # calculate the aspect ratio of the liveArea
-    liveAreaAspectRatio = float(liveSize[0])/float(liveSize[1])
+    liveAreaAspectRatio = float(liveSize[0]) / float(liveSize[1])
 
     # calculate the aspect ratio of the output image
     aspectRatio = float(size[0]) / float(size[1])
@@ -315,7 +315,7 @@ def fit(image, size, method=Image.NEAREST, bleed=0.0, centering=(0.5, 0.5)):
     else:
         # liveArea is taller than what's needed, crop the top and bottom
         cropWidth = liveSize[0]
-        cropHeight = int((float(liveSize[0])/aspectRatio) + 0.5)
+        cropHeight = int((float(liveSize[0]) / aspectRatio) + 0.5)
 
     # make the crop
     leftSide = int(liveArea[0] + (float(liveSize[0]-cropWidth) * centering[0]))

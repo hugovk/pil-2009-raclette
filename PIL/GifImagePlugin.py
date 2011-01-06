@@ -89,7 +89,7 @@ class GifImageFile(ImageFile.ImageFile):
             # check if palette contains colour indices
             p = self.fp.read(3<<bits)
             for i in range(0, len(p), 3):
-                if not (chr(i/3) == p[i] == p[i+1] == p[i+2]):
+                if not (chr(i//3) == p[i] == p[i+1] == p[i+2]):
                     p = ImagePalette.raw("RGB", p)
                     self.global_palette = self.palette = p
                     break
