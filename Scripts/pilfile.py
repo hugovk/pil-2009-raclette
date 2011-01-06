@@ -82,7 +82,7 @@ for file in globfix(args):
             except:
                 if not quiet:
                     print "failed to verify image",
-                    print "(%s:%s)" % (sys.exc_type, sys.exc_value)
+                    print "(%s:%s)" % sys.exc_info()[:2]
     except IOError, v:
         if not quiet:
             print file, "failed:", v

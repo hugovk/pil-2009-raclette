@@ -66,7 +66,7 @@ def assert_exception(exc_class, func):
         success()
     except:
         failure("expected %r exception, got %r" % (
-                exc_class.__name__, sys.exc_type.__name__))
+                exc_class.__name__, sys.exc_info()[0].__name__))
         traceback.print_exc()
     else:
         failure("expected %r exception, got no exception" % exc_class.__name__)
@@ -76,7 +76,7 @@ def assert_no_exception(func):
     try:
         func()
     except:
-        failure("expected no exception, got %r" % sys.exc_type.__name__)
+        failure("expected no exception, got %r" % sys.exc_info()[0].__name__)
         traceback.print_exc()
     else:
         success()

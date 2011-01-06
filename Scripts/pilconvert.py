@@ -92,4 +92,4 @@ try:
         im.save(*(argv[1],), **options)
 except:
     print "cannot convert image",
-    print "(%s:%s)" % (sys.exc_type, sys.exc_value)
+    print "(%s:%s)" % sys.exc_info()[:2]

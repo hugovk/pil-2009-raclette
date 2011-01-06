@@ -360,7 +360,7 @@ def init():
                 except ImportError:
                     if DEBUG:
                         print "Image: failed to import",
-                        print f, ":", sys.exc_value
+                        print f, ":", sys.exc_info()[:2]
         visited[fullpath] = None
 
     if OPEN or SAVE:
