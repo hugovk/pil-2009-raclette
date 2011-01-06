@@ -29,11 +29,6 @@ __version__ = "1.2a0"
 
 VERSION = __version__  # compatibility with 1.1.7 and earlier
 
-try:
-    import warnings
-except ImportError:
-    warnings = None
-
 class _imaging_not_installed(object):
     # module placeholder
     def __getattr__(self, id):
@@ -59,18 +54,17 @@ try:
     del _imaging
 except ImportError, v:
     core = _imaging_not_installed()
-    if str(v)[:20] == "Module use of python" and warnings:
+    if str(v)[:20] == "Module use of python":
         # The _imaging C module is present, but not compiled for
-        # the right version (windows only).  Print a warning, if
-        # possible.
+        # the right version (windows only).
+        import warnings
         warnings.warn(
             "The _imaging extension was built for another version "
             "of Python; most PIL functions will be disabled",
             RuntimeWarning
             )
 
-import ImageMode
-import ImagePalette
+import os, sys
 
 import ImageSupport
 
@@ -92,9 +86,6 @@ def isImageType(t):
 
 def isDirectory(f):
     return isStringType(f) and os.path.isdir(f)
-
-import os, sys
-
 
 #
 # Debug level
@@ -249,6 +240,7 @@ _MAPMODES = ("L", "P", "RGBX", "RGBA", "CMYK", "I;16", "I;16L", "I;16B")
 # @exception KeyError If the input mode was not a standard mode.
 
 def getmodebase(mode):
+    import ImageMode
     return ImageMode.getmode(mode).basemode
 
 ##
@@ -260,6 +252,7 @@ def getmodebase(mode):
 # @exception KeyError If the input mode was not a standard mode.
 
 def getmodetype(mode):
+    import ImageMode
     return ImageMode.getmode(mode).basetype
 
 ##
@@ -274,6 +267,7 @@ def getmodetype(mode):
 # @exception KeyError If the input mode was not a standard mode.
 
 def getmodebandnames(mode):
+    import ImageMode
     return ImageMode.getmode(mode).bands
 
 ##
@@ -284,6 +278,7 @@ def getmodebandnames(mode):
 # @exception KeyError If the input mode was not a standard mode.
 
 def getmodebands(mode):
+    import ImageMode
     return len(ImageMode.getmode(mode).bands)
 
 # --------------------------------------------------------------------
@@ -474,6 +469,7 @@ class Image(object):
         new.size = im.size
         new.palette = self.palette
         if im.mode == "P":
+            import ImagePalette
             new.palette = ImagePalette.ImagePalette()
         try:
             new.info = self.info.copy()
@@ -839,6 +835,7 @@ class Image(object):
     def getbands(self):
         "Get band names"
 
+        import ImageMode
         return ImageMode.getmode(self.mode).bands
 
     ##
@@ -1219,6 +1216,7 @@ class Image(object):
     def putpalette(self, data, rawmode="RGB"):
         "Put palette data into an image."
 
+        import ImagePalette
         if self.mode not in ("L", "P"):
             raise ValueError("illegal image mode")
         self.load()
@@ -1751,7 +1749,6 @@ def new(mode, size, color=0):
 
     if isStringType(color):
         # css3-style specifier
-
         import ImageColor
         color = ImageColor.getcolor(color, mode)
 
@@ -1834,13 +1831,13 @@ def frombuffer(mode, size, data, decoder_name="raw", *args):
 
     if decoder_name == "raw":
         if args == ():
-            if warnings:
-                warnings.warn(
-                    "the frombuffer defaults may change in a future release; "
-                    "for portability, change the call to read:\n"
-                    "  frombuffer(mode, size, data, 'raw', mode, 0, 1)",
-                    RuntimeWarning, stacklevel=2
-                )
+            import warnings
+            warnings.warn(
+                "the frombuffer defaults may change in a future release; "
+                "for portability, change the call to read:\n"
+                "  frombuffer(mode, size, data, 'raw', mode, 0, 1)",
+                RuntimeWarning, stacklevel=2
+            )
             args = mode, 0, -1 # may change to (mode, 0, 1) post-1.1.6
         if args[0] in _MAPMODES:
             im = new(mode, (1,1))

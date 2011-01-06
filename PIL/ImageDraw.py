@@ -34,11 +34,6 @@
 import Image
 import ImageColor
 
-try:
-    import warnings
-except ImportError:
-    warnings = None
-
 ##
 # A simple 2D drawing interface for PIL images.
 # <p>
