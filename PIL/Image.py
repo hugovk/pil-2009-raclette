@@ -806,7 +806,9 @@ class Image(object):
         self.load()
 
         if isCallable(filter):
-            filter = filter()
+            # do in two steps to avoid confusing 2to3
+            filter_factory = filter
+            filter = filter_factory()
         if not hasattr(filter, "filter"):
             raise TypeError("filter argument should be ImageFilter.Filter instance or class")
 
@@ -1956,7 +1958,6 @@ def open(fp, mode="r"):
             pass
 
     if init():
-
         for i in ID:
             try:
                 factory, accept = OPEN[i]

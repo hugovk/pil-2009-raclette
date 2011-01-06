@@ -226,7 +226,7 @@ class ImageFileDirectory(object):
         self.tags = {}
         self.tagdata = {}
         self.tagtype = {} # added 2008-06-05 by Florian Hoech
-        self.next = None
+        self.link = None
 
     # dictionary API (sort of)
 
@@ -394,7 +394,7 @@ class ImageFileDirectory(object):
                 else:
                     print "- value:", self[tag]
 
-        self.next = i32(fp.read(4))
+        self.link = i32(fp.read(4))
 
     # save primitives
 
@@ -522,7 +522,7 @@ class TiffImageFile(ImageFile.ImageFile):
         self.tag = self.ifd = ImageFileDirectory(ifh[:2])
 
         # setup frame pointers
-        self.__first = self.__next = self.ifd.i32(ifh, 4)
+        self.__first = self.__link = self.ifd.i32(ifh, 4)
         self.__frame = -1
         self.__fp = self.fp
 
@@ -547,13 +547,13 @@ class TiffImageFile(ImageFile.ImageFile):
         if frame < self.__frame:
             # rewind file
             self.__frame = -1
-            self.__next = self.__first
+            self.__link = self.__first
         while self.__frame < frame:
-            if not self.__next:
+            if not self.__link:
                 raise EOFError("no more images in TIFF file")
-            self.fp.seek(self.__next)
+            self.fp.seek(self.__link)
             self.tag.load(self.fp)
-            self.__next = self.tag.next
+            self.__link = self.tag.link
             self.__frame = self.__frame + 1
         self._setup()
 

@@ -324,13 +324,6 @@ class OleFileIO(object):
         self.fp.seek(512 + self.sectorsize * sect)
         return self.fp.read(self.sectorsize)
 
-    def _unicode(self, s):
-        # Map unicode string to Latin 1
-
-        # FIXME: some day, Python will provide an official way to handle
-        # Unicode strings, but until then, this will have to do...
-        return filter(ord, s)
-
     def loaddirectory(self, sect):
         # Load the directory.  The directory is stored in a standard
         # substream, independent of its size.
@@ -345,7 +338,7 @@ class OleFileIO(object):
             if not entry:
                 break
             type = ord(entry[66])
-            name = self._unicode(entry[0:0+i16(entry, 64)])
+            name = entry[0:0+i16(entry, 64)].decode("utf-16")
             ptrs = i32(entry, 68), i32(entry, 72), i32(entry, 76)
             sect, size = i32(entry, 116), i32(entry, 120)
             clsid = self._clsid(entry[80:96])
@@ -475,7 +468,7 @@ class OleFileIO(object):
                 value = s[offset+8:offset+8+count]
             elif type == VT_LPWSTR:
                 count = i32(s, offset+4)
-                value = self._unicode(s[offset+8:offset+8+count*2])
+                value = s[offset+8:offset+8+count*2].decode("utf-16")
             elif type == VT_FILETIME:
                 value = long(i32(s, offset+4)) + (long(i32(s, offset+8))<<32)
                 # FIXME: this is a 64-bit int: "number of 100ns periods
