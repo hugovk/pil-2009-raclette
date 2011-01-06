@@ -13,6 +13,9 @@ try:
 except OSError:
     pass
 
+def out(*args, **opts):
+    sys.stdout.write(" ".join(args) + opts.get("end", "\n"))
+
 def libinclude(root):
     # map root to (root/lib, root/include)
     return os.path.join(root, "lib"), os.path.join(root, "include")
@@ -56,7 +59,7 @@ for name in dir(module):
         if value:
             if os.pathsep in value:
                 value = tuple(value.split(os.pathsep)[:2])
-            print "---", name, "set to", value, "by environment variable"
+            out("---", name, "set to", value, "by environment variable")
             setattr(module, name, value)
 
 # --------------------------------------------------------------------
@@ -196,8 +199,8 @@ class pil_build_ext(build_ext):
                 TCL_ROOT = os.path.abspath(TCL_ROOT)
                 if os.path.isfile(os.path.join(TCL_ROOT, "include", "tk.h")):
                     # FIXME: use distutils logging (?)
-                    print "--- using Tcl/Tk libraries at", TCL_ROOT
-                    print "--- using Tcl/Tk version", TCL_VERSION
+                    out("--- using Tcl/Tk libraries at", TCL_ROOT)
+                    out("--- using Tcl/Tk version", TCL_VERSION)
                     TCL_ROOT = libinclude(TCL_ROOT)
                     break
             else:
@@ -358,7 +361,7 @@ class pil_build_ext(build_ext):
             for root in framework_roots:
                 if (os.path.exists(os.path.join(root, "Tcl.framework")) and
                     os.path.exists(os.path.join(root, "Tk.framework"))):
-                    print "--- using frameworks at", root
+                    out("--- using frameworks at", root)
                     frameworks = ["-framework", "Tcl", "-framework", "Tk"]
                     dir = os.path.join(root, "Tcl.framework", "Headers")
                     add_directory(self.compiler.include_dirs, dir, 0)
@@ -396,15 +399,15 @@ class pil_build_ext(build_ext):
 
     def summary_report(self, feature, unsafe_zlib):
 
-        print "-" * 68
-        print "PIL", VERSION, "SETUP SUMMARY"
-        print "-" * 68
-        print "version      ", VERSION
+        out("-" * 68)
+        out("PIL", VERSION, "SETUP SUMMARY")
+        out("-" * 68)
+        out("version      ", VERSION)
         v = sys.version.split("[")
-        print "platform     ", sys.platform, v[0].strip()
+        out("platform     ", sys.platform, v[0].strip())
         for v in v[1:]:
-            print "             ", "[" + v.strip()
-        print "-" * 68
+            out("             ", "[" + v.strip())
+        out("-" * 68)
 
         options = [
             (feature.tcl and feature.tk, "TKINTER"),
@@ -418,34 +421,34 @@ class pil_build_ext(build_ext):
         all = 1
         for option in options:
             if option[0]:
-                print "---", option[1], "support available"
+                out("---", option[1], "support available")
             else:
-                print "***", option[1], "support not available",
+                out("***", option[1], "support not available", end=' ')
                 if option[1] == "TKINTER" and _tkinter:
                     version = _tkinter.TCL_VERSION
-                    print "(Tcl/Tk %s libraries needed)" % version,
-                print
+                    out("(Tcl/Tk %s libraries needed)" % version, end=' ')
+                out()
                 all = 0
 
         if feature.zlib and unsafe_zlib:
-            print
-            print "*** Warning: zlib", unsafe_zlib,
-            print "may contain a security vulnerability."
-            print "*** Consider upgrading to zlib 1.2.3 or newer."
-            print "*** See: http://www.kb.cert.org/vuls/id/238678"
-            print "         http://www.kb.cert.org/vuls/id/680620"
-            print "         http://www.gzip.org/zlib/advisory-2002-03-11.txt"
-            print
+            out()
+            out("*** Warning: zlib", unsafe_zlib, end=' ')
+            out("may contain a security vulnerability.")
+            out("*** Consider upgrading to zlib 1.2.3 or newer.")
+            out("*** See: http://www.kb.cert.org/vuls/id/238678")
+            out("         http://www.kb.cert.org/vuls/id/680620")
+            out("         http://www.gzip.org/zlib/advisory-2002-03-11.txt")
+            out()
 
-        print "-" * 68
+        out("-" * 68)
 
         if not all:
-            print "To add a missing option, make sure you have the required"
-            print "library, and set the corresponding ROOT variable in the"
-            print "setup.py script."
-            print
+            out("To add a missing option, make sure you have the required")
+            out("library, and set the corresponding ROOT variable in the")
+            out("setup.py script.")
+            out()
 
-        print "To check the build, run the selftest.py script."
+        out("To check the build, run the selftest.py script.")
 
     def check_zlib_version(self, include_dirs):
         # look for unsafe versions of zlib
@@ -493,7 +496,7 @@ if __name__ == "__main__":
         license="Python (MIT style)",
         long_description=DESCRIPTION,
         name=NAME,
-        platforms="Python 1.5.2 and later.",
+        platforms="Python 2.3 and later.",
         scripts = glob.glob("Scripts/pil*.py"),
         url=HOMEPAGE,
         version=VERSION,
@@ -512,4 +515,4 @@ if __name__ == "__main__":
         ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
         ))
 
-    apply(setup, (), configuration)  # old school :-)
+    setup(**configuration)
