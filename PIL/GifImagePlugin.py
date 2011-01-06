@@ -185,8 +185,7 @@ class GifImageFile(ImageFile.ImageFile):
 
                 if flags & 128:
                     bits = (flags & 7) + 1
-                    self.palette =\
-                        ImagePalette.raw("RGB", self.fp.read(3<<bits))
+                    self.palette = ImagePalette.raw("RGB", self.fp.read(3<<bits))
 
                 # image data
                 bits = ord(self.fp.read(1))

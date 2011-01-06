@@ -88,9 +88,9 @@ class XpmImageFile(ImageFile.ImageFile):
                     elif rgb[0] == "#":
                         # FIXME: handle colour names (see ImagePalette.py)
                         rgb = int(rgb[1:], 16)
-                        palette[c] = chr((rgb >> 16) & 255) +\
-                                     chr((rgb >> 8) & 255) +\
-                                     chr(rgb & 255)
+                        palette[c] = (chr((rgb >> 16) & 255) +
+                                      chr((rgb >> 8) & 255) +
+                                      chr(rgb & 255))
                     else:
                         # unknown colour
                         raise ValueError("cannot read this XPM file")

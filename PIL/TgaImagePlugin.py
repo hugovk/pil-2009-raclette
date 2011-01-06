@@ -74,9 +74,9 @@ class TgaImageFile(ImageFile.ImageFile):
         self.size = i16(s[12:]), i16(s[14:])
 
         # validate header fields
-        if id != 0 or colormaptype not in (0, 1) or\
-           self.size[0] <= 0 or self.size[1] <= 0 or\
-           depth not in (1, 8, 16, 24, 32):
+        if (id != 0 or colormaptype not in (0, 1) or
+            self.size[0] <= 0 or self.size[1] <= 0 or
+                depth not in (1, 8, 16, 24, 32)):
             raise SyntaxError("not a TGA file")
 
         # image mode
