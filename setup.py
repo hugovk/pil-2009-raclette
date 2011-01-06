@@ -32,6 +32,9 @@ def libinclude(root):
 # you can use the "libinclude" helper:
 #
 # TIFF_ROOT = libinclude("/opt/tiff")
+#
+# You can override the settings from outside the script using
+# environment variables of the form PIL_SETUP_TCL_ROOT etc.
 
 TCL_ROOT = None
 JPEG_ROOT = None
@@ -41,6 +44,20 @@ FREETYPE_ROOT = None
 LCMS_ROOT = None
 
 # FIXME: add mechanism to explicitly *disable* the use of a library
+
+# --------------------------------------------------------------------
+# Handle external library overrides.
+
+module = sys.modules[__name__]
+
+for name in dir(module):
+    if name.endswith("_ROOT"):
+        value = os.environ.get("PIL_SETUP_" + name)
+        if value:
+            if os.pathsep in value:
+                value = tuple(value.split(os.pathsep)[:2])
+            print "---", name, "set to", value, "by environment variable"
+            setattr(module, name, value)
 
 # --------------------------------------------------------------------
 # Identification
