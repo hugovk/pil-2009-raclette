@@ -1956,6 +1956,9 @@ def open(fp, mode="r"):
 
     prefix = fp.read(16)
 
+    if not isinstance(prefix, str):
+        prefix = prefix.decode("iso-8859-1") # byte string
+
     preinit()
 
     for i in ID:

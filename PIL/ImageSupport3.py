@@ -13,16 +13,19 @@
 # See the README file for information on usage and redistribution.
 #
 
+import collections, numbers, struct
+
 def isStringType(t):
     return isinstance(t, str)
 
-from operator import isNumberType
+def isNumberType(t):
+    return isinstance(t, numbers.Number)
 
 def isTupleType(t):
     return isinstance(t, tuple)
 
 def isCallable(f):
-    return hasattr(f, "__call__")
+    return isinstance(t, collections.Callable)
 
 ##
 # Simple byte array type.
@@ -40,19 +43,18 @@ class ByteArray(object):
         return ByteArray(self.data + other.data)
 
     def __getitem__(self, i):
-        return ord(self.data[i])
+        if isinstance(i, slice):
+            return ByteArray(self.data[i])
+        return self.data[i]
 
     def find(self, p):
-        return self.data.find(p)
-
-    def __getslice__(self, i, j):
-        return ByteArray(self.data[i:j])
+        return self.data.find(p.encode("iso-8859-1"))
 
     def startswith(self, s):
-        return self.data[:len(s)] == s
+        return self.data[:len(s)].decode("iso-8859-1") == s
 
     def tostring(self):
-        return self.data
+        return self.data.decode("iso-8859-1")
 
     def unpack(self, fmt, i=0):
         try:
@@ -85,6 +87,9 @@ class BinaryFileWrapper(object):
         self.name = filename
         self.safesize = safesize
 
+    def get(self, fmt):
+        return self.read(struct.calcsize(fmt)).unpack(fmt)
+
     def read(self, size):
         return ByteArray(self.fp.read(size))
 
@@ -105,7 +110,6 @@ class TextFileWrapper(object):
             value = getattr(fp, attribute, None)
             if value is not None:
                 setattr(self, attribute, value)
-        copy('read')
         copy('seek')
         copy('tell')
         copy('fileno')
@@ -144,7 +148,7 @@ class TextFileWrapper(object):
 
 def _safe_read(fp, size, safesize):
     if size <= 0:
-        return ""
+        return b""
     if size <= safesize:
         return fp.read(size)
     data = []
@@ -154,7 +158,7 @@ def _safe_read(fp, size, safesize):
             break
         data.append(block)
         size = size - len(block)
-    return "".join(data)
+    return b"".join(data)
 
 ##
 # (Internal) Safe (and slow) readline implementation.
@@ -169,12 +173,12 @@ def _safe_read(fp, size, safesize):
 #   including the newline, if found.
 
 def _safe_readline(fp, size, safesize):
-    s = ""
+    s = b""
     while True:
         c = fp.read(1)
         if not c:
             break
         s = s + c
-        if c == "\n" or len(s) >= size:
+        if c == b"\n" or len(s) >= size:
             break
     return s

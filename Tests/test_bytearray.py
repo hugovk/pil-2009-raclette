@@ -2,9 +2,13 @@ from tester import *
 
 from PIL import ImageSupport
 
+def data(s):
+    # portably convert string to raw bytes object
+    return s.encode("iso-8859-1")
+
 def test_array():
 
-    array = ImageSupport.ByteArray("\x00\x01\x02\x03")
+    array = ImageSupport.ByteArray(data("\x00\x01\x02\x03"))
 
     assert_true(array)
     assert_equal(len(array), 4)
