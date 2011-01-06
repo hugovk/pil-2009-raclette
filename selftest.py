@@ -155,7 +155,7 @@ def testimage():
     """
 
 
-def check_module(feature, module):
+def check_module(feature, module, version=None):
     try:
         m = __import__(module)
         p1 = os.path.dirname(os.path.abspath(Image.core.__file__))
@@ -165,14 +165,23 @@ def check_module(feature, module):
     except ImportError:
         print "***", feature, "support not installed"
     else:
-        print "---", feature, "support ok"
+        print "---", feature, "support ok",
+        if version:
+            version = getattr(m, version, None)
+            if version:
+                print "(version %s)" % version,
+        print
 
-def check_codec(feature, codec):
+def check_codec(feature, codec, version=None):
     if codec + "_encoder" not in dir(Image.core):
         print "***", feature, "support not installed"
     else:
-        print "---", feature, "support ok"
-
+        print "---", feature, "support ok",
+        if version:
+            version = getattr(Image.core, version, None)
+            if version:
+                print "(version %s)" % version,
+        print
 
 if __name__ == "__main__":
     # check build sanity
@@ -187,10 +196,10 @@ if __name__ == "__main__":
     print "-"*68
     check_module("PIL CORE", "_imaging")
     check_module("TKINTER", "_imagingtk")
-    check_codec("JPEG", "jpeg")
-    check_codec("ZLIB (PNG/ZIP)", "zip")
-    check_module("FREETYPE2", "_imagingft")
-    check_module("LITTLECMS", "_imagingcms")
+    check_codec("JPEG", "jpeg", "jpeglib_version")
+    check_codec("ZLIB (PNG/ZIP)", "zip", "zlib_version")
+    check_module("FREETYPE2", "_imagingft", "freetype2_version")
+    check_module("LITTLECMS", "_imagingcms", "littlecms_version")
     print "-"*68
 
     # use doctest to make sure the test program behaves as documented!
