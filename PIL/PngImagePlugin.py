@@ -24,7 +24,7 @@
 # 2009-03-06 fl   Support for preserving ICC profiles (by Florian Hoech)
 # 2009-03-08 fl   Added zTXT support (from Lowell Alleman)
 # 2009-03-29 fl   Read interlaced PNG files (from Conrado Porto Lopes Gouvua)
-# 2011-01-05 fl   Updated to use binary stream.
+# 2011-01-05 fl   Updated to use binary stream API.
 #
 # Copyright (c) 1997-2011 by Secret Labs AB
 # Copyright (c) 1996 by Fredrik Lundh
@@ -88,10 +88,8 @@ class ChunkStream(object):
             del self.queue[-1]
             self.fp.seek(pos)
         else:
-            s = self.fp.read(8)
-            cid = s[4:].tostring()
+            len, cid = self.fp.get("!I4s")
             pos = self.fp.tell()
-            len = s.int32b(0)
 
         if not is_cid(cid):
             raise SyntaxError("broken PNG file (chunk %s)" % repr(cid))
@@ -118,10 +116,8 @@ class ChunkStream(object):
     def crc(self, cid, data):
         "Read and verify checksum"
 
-        s = self.fp.read(4)
-
         crc1 = Image.core.crc32(data.tostring(), Image.core.crc32(cid))
-        crc2 = s.int16b(0), s.int16b(2)
+        crc2 = self.fp.get("!HH")
 
         if crc1 != crc2:
             raise SyntaxError("broken PNG file (bad header checksum in %s)" % cid)
@@ -210,7 +206,7 @@ class PngStream(ChunkStream):
 
         # image header
         s = self.fp.saferead(len)
-        self.im_size = s.int32b(0), s.int32b(4)
+        self.im_size = s.unpack("!II")
         try:
             self.im_mode, self.im_rawmode = _MODES[(s[8], s[9])]
         except:
@@ -250,24 +246,24 @@ class PngStream(ChunkStream):
             if i >= 0:
                 self.im_info["transparency"] = i
         elif self.im_mode == "L":
-            self.im_info["transparency"] = s.int16b(0)
+            self.im_info["transparency"] = s.unpack("!H")
         elif self.im_mode == "RGB":
-            self.im_info["transparency"] = s.int16b(0), s.int16b(2), s.int16b(4)
+            self.im_info["transparency"] = s.unpack("!HHH")
         return s
 
     def chunk_gAMA(self, pos, len):
 
         # gamma setting
         s = self.fp.saferead(len)
-        self.im_info["gamma"] = s.int32b(0) / 100000.0
+        gamma = s.unpack("!I")
+        self.im_info["gamma"] = gamma / 100000.0
         return s
 
     def chunk_pHYs(self, pos, len):
 
         # pixels per unit
         s = self.fp.saferead(len)
-        px, py = s.int32b(0), s.int32b(4)
-        unit = s[8]
+        px, py, unit = s.unpack("!IIB")
         if unit == 1: # meter
             dpi = int(px * 0.0254 + 0.5), int(py * 0.0254 + 0.5)
             self.im_info["dpi"] = dpi

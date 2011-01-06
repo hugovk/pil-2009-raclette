@@ -15,17 +15,8 @@
 
 import struct
 
-try:
-    unicode("")
-    ##
-    # (Internal) Checks if an object is a string.  If the current
-    # Python version supports Unicode, this checks for both 8-bit
-    # and Unicode strings.
-    def isStringType(t):
-        return isinstance(t, str) or isinstance(t, unicode)
-except NameError:
-    def isStringType(t):
-        return isinstance(t, str)
+def isStringType(t):
+    return isinstance(t, basestring)
 
 from operator import isNumberType
 
@@ -60,18 +51,6 @@ class ByteArray(object):
 
     def find(self, p):
         return self.data.find(p)
-
-    def int16(self, i):
-        return self[i] + (self[i+1]<<8)
-
-    def int32(self, i):
-        return self[i] + (self[i+1]<<8) + (self[i+2]<<16) + (self[i+3]<<24)
-
-    def int16b(self, i):
-        return self[i+1] + (self[i]<<8)
-
-    def int32b(self, i):
-        return self[i+3] + (self[i+2]<<8) + (self[i+1]<<16) + (self[i]<<24)
 
     def __getslice__(self, i, j):
         return ByteArray(self.data[i:j])
@@ -112,6 +91,9 @@ class BinaryFileWrapper(object):
         self.fp = fp
         self.name = filename
         self.safesize = safesize
+
+    def get(self, fmt):
+        return self.read(struct.calcsize(fmt)).unpack(fmt)
 
     def read(self, size):
         return ByteArray(self.fp.read(size))

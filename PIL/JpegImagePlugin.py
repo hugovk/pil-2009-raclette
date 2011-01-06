@@ -25,7 +25,7 @@
 # 2009-09-06 fl   Added icc_profile support (from Florian Hoech)
 # 2009-03-06 fl   Changed CMYK handling; always use Adobe polarity (0.6)
 # 2009-03-08 fl   Added subsampling support (from Justin Huff).
-# 2011-01-05 fl   Updated to use binary stream.
+# 2011-01-05 fl   Updated to use binary stream API.
 #
 # Copyright (c) 1997-2011 by Secret Labs AB.
 # Copyright (c) 1995-1996 by Fredrik Lundh.
@@ -44,7 +44,7 @@ import array, struct
 # Parser
 
 def Skip(self, marker):
-    n = self.fp.read(2).int16b(0)-2
+    n = self.fp.get("!H") - 2
     self.fp.saferead(n)
 
 def APP(self, marker):
@@ -52,7 +52,7 @@ def APP(self, marker):
     # Application marker.  Store these in the APP dictionary.
     # Also look for well-known application markers.
 
-    n = self.fp.read(2).int16b(0)-2
+    n = self.fp.get("!H") - 2
     s = self.fp.saferead(n)
 
     app = "APP%d" % (marker & 15)
@@ -62,12 +62,12 @@ def APP(self, marker):
 
     if marker == 0xFFE0 and s.startswith("JFIF"):
         # extract JFIF information
-        self.info["jfif"] = version = s.int16b(5) # version
+        self.info["jfif"] = version = s.unpack("!H", 5) # version
         self.info["jfif_version"] = divmod(version, 256)
         # extract JFIF properties
         try:
             jfif_unit = s[7]
-            jfif_density = s.int16b(8), s.int16b(10)
+            jfif_density = s.unpack("!HH", 8)
         except:
             pass
         else:
@@ -95,7 +95,7 @@ def APP(self, marker):
         # markers appear in the correct sequence.
         self.icclist.append(s.tostring())
     elif marker == 0xFFEE and s.startswith("Adobe"):
-        self.info["adobe"] = s.int16b(5)
+        self.info["adobe"] = s.unpack("!H", 5)
         # extract Adobe custom properties
         try:
             adobe_transform = s[1]
@@ -108,7 +108,7 @@ def COM(self, marker):
     #
     # Comment marker.  Store these in the APP dictionary.
 
-    n = self.fp.read(2).int16b(0)-2
+    n = self.fp.get("!H") - 2
     s = self.fp.saferead(n)
 
     self.app["COM"] = s.tostring() # compatibility
@@ -122,9 +122,10 @@ def SOF(self, marker):
     # mode.  Note that this could be made a bit brighter, by
     # looking for JFIF and Adobe APP markers.
 
-    n = self.fp.read(2).int16b(0)-2
+    n = self.fp.get("!H") - 2
     s = self.fp.saferead(n)
-    self.size = s.int16b(3), s.int16b(1)
+    h, w = s.unpack("!HH", 1)
+    self.size = w, h
 
     self.bits = s[0]
     if self.bits != 8:
@@ -170,7 +171,7 @@ def DQT(self, marker):
     # FIXME: The quantization tables can be used to estimate the
     # compression quality.
 
-    n = self.fp.read(2).int16b(0)-2
+    n = self.fp.get("!H") - 2
     s = self.fp.saferead(n)
     while len(s):
         if len(s) < 65:
@@ -290,7 +291,7 @@ class JpegImageFile(ImageFile.ImageFile):
 
             s = s + self.fp.read(1)
 
-            i = s.int16b(0)
+            i = s.unpack("!H")
 
             if i in MARKER:
                 name, description, handler = MARKER[i]
