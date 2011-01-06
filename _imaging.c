@@ -92,9 +92,6 @@
 
 #define WITH_DEBUG /* extra debugging interfaces */
 
-/* PIL Plus extensions */
-#undef  WITH_CRACKCODE /* pil plus */
-
 #undef	VERBOSE
 
 #define CLIP(x) ((x) <= 0 ? 0 : (x) < 256 ? (x) : 255)
@@ -2886,9 +2883,6 @@ static struct PyMethodDef methods[] = {
     {"convert_matrix", (PyCFunction)_convert_matrix, 1},
     {"copy", (PyCFunction)_copy, 1},
     {"copy2", (PyCFunction)_copy2, 1},
-#ifdef WITH_CRACKCODE
-    {"crackcode", (PyCFunction)_crackcode, 1},
-#endif
     {"crop", (PyCFunction)_crop, 1},
     {"expand", (PyCFunction)_expand, 1},
     {"filter", (PyCFunction)_filter, 1},
