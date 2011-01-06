@@ -513,7 +513,8 @@ if __name__ == "__main__":
                 if file[-1][0] == "\005":
                     print file
                     props = ole.getproperties(file)
-                    props = sorted(props.items())
+                    props = list(props.items())
+                    props.sort()
                     for k, v in props:
                         print "   ", k, v
         except IOError, v:

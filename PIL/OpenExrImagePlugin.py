@@ -122,7 +122,8 @@ class OpenExrImageFile(ImageFile.ImageFile):
 
         bbox = self.info["displayWindow"]
 
-        channels = sorted([channel[0] for channel in self.info["channels"]])
+        channels = [channel[0] for channel in self.info["channels"]]
+        channels.sort()
 
         self.mode = modes[tuple(channels)]
         self.size = bbox[2] - bbox[0], bbox[3] - bbox[1]

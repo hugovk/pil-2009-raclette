@@ -319,7 +319,7 @@ class pil_build_ext(build_ext):
             defs.append(("HAVE_LIBZ", None))
         if sys.platform == "win32":
             libs.extend(["kernel32", "user32", "gdi32"])
-        if struct.unpack("h", "\0\1")[0] == 1:
+        if sys.byteorder == "big":
             defs.append(("WORDS_BIGENDIAN", None))
 
         exts = [(Extension(
