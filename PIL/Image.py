@@ -158,6 +158,15 @@ EXTENSION = {}
 
 # FIXME: add more exceptions here
 
+class CodecError(IOError):
+    pass
+
+class DecodeError(CodecError):
+    pass
+
+class EncodeError(CodecError):
+    pass
+
 class VerificationError(SyntaxError):
     pass
 
@@ -379,7 +388,7 @@ def _getdecoder(mode, decoder_name, args, extra=()):
         # print decoder, (mode,) + args + extra
         return decoder(mode, *(args + extra))
     except AttributeError:
-        raise IOError("decoder %s not available" % decoder_name)
+        raise DecodeError("decoder %s not available" % decoder_name)
 
 def _getencoder(mode, encoder_name, args, extra=()):
 
@@ -395,7 +404,7 @@ def _getencoder(mode, encoder_name, args, extra=()):
         # print encoder, (mode,) + args + extra
         return encoder(mode, *(args + extra))
     except AttributeError:
-        raise IOError("encoder %s not available" % encoder_name)
+        raise EncodeError("encoder %s not available" % encoder_name)
 
 
 # --------------------------------------------------------------------
@@ -1418,7 +1427,10 @@ class Image(object):
             close = 0
 
         try:
-            save_handler(self, fp, filename)
+            try:
+                save_handler(self, fp, filename)
+            except IOError, v:
+                raise EncodeError(v) # failed to save
         finally:
             # do what we can to clean up
             if close:
@@ -1967,7 +1979,7 @@ def open(fp, mode="r"):
             except (SyntaxError, IndexError, TypeError):
                 pass
 
-    raise IOError("cannot identify image file")
+    raise DecodeError("cannot identify image file")
 
 #
 # Image processing.
