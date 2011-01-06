@@ -33,7 +33,7 @@ def libinclude(root):
 #
 # TIFF_ROOT = libinclude("/opt/tiff")
 #
-# You can override the settings from outside the script using
+# Alternatively, you can set the variables outside the script via
 # environment variables of the form PIL_SETUP_TCL_ROOT etc.
 
 TCL_ROOT = None
@@ -51,7 +51,7 @@ LCMS_ROOT = None
 module = sys.modules[__name__]
 
 for name in dir(module):
-    if name.endswith("_ROOT"):
+    if name.endswith("_ROOT") and getattr(module, name) is None:
         value = os.environ.get("PIL_SETUP_" + name)
         if value:
             if os.pathsep in value:
