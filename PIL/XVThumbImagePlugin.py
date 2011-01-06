@@ -23,13 +23,6 @@ import Image
 import ImageFile
 import ImagePalette
 
-# standard color palette for thumbnails (RGB332)
-PALETTE = ""
-for r in range(8):
-    for g in range(8):
-        for b in range(4):
-            PALETTE = PALETTE + (chr((r*255)/7)+chr((g*255)/7)+chr((b*255)/3))
-
 ##
 # Image plugin for XV thumbnail images.
 
@@ -62,7 +55,7 @@ class XVThumbImageFile(ImageFile.ImageFile):
         self.mode = "P"
         self.size = int(s[0]), int(s[1])
 
-        self.palette = ImagePalette.raw("RGB", PALETTE)
+        self.palette = ImagePalette.raw_rgb332()
 
         self.tile = [
             ("raw", (0, 0)+self.size,

@@ -99,6 +99,17 @@ def raw(rawmode, data):
     palette.dirty = 1
     return palette
 
+def raw_rgb332():
+    palette = []
+    for r in range(8):
+        for g in range(8):
+            for b in range(4):
+                palette.append(r*255//7)
+                palette.append(g*255//7)
+                palette.append(b*255//3)
+    palette = "".join(map(chr, palette))
+    return raw("RGB", palette)
+
 # --------------------------------------------------------------------
 # Factories
 
@@ -106,7 +117,7 @@ def _make_linear_lut(black, white):
     lut = []
     if black == 0:
         for i in range(256):
-            lut.append(white*i/255)
+            lut.append(white*i//255)
     else:
         raise NotImplementedError # FIXME
     return lut
