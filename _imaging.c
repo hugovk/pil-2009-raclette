@@ -3248,7 +3248,7 @@ static PyMethodDef functions[] = {
     {NULL, NULL} /* sentinel */
 };
 
-DL_EXPORT(void)
+PyMODINIT_FUNC
 init_imaging(void)
 {
     PyObject* m;

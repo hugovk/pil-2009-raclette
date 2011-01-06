@@ -470,7 +470,7 @@ static PyMethodDef _functions[] = {
     {NULL, NULL}
 };
 
-DL_EXPORT(void)
+PyMODINIT_FUNC
 init_imagingft(void)
 {
     PyObject* m;
