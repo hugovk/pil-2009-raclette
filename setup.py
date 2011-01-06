@@ -504,9 +504,7 @@ if __name__ == "__main__":
 
     # Standard configuration for PIL package
     configuration.update(dict(
-        extra_path = "PIL",
-        package_dir={"": "PIL"},
-        packages=[""],
+        packages=["PIL"],
         ))
 
     # Extensions

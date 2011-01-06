@@ -37,6 +37,9 @@ was last updated, see the repository revision history:
 
 (1.2a0 snapshot)
 
++ Modules must now be imported using the full package name.  The
+  PIL.pth helper has been removed.
+
 + Added support for identifying OpenEXR files.
 
 + Removed obsolete ARG codec.

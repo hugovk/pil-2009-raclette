@@ -157,7 +157,11 @@ def testimage():
 
 def check_module(feature, module):
     try:
-        __import__("PIL." + module)
+        m = __import__(module)
+        p1 = os.path.dirname(os.path.abspath(Image.core.__file__))
+        p2 = os.path.dirname(os.path.abspath(m.__file__))
+        if p1 != p2:
+            raise ImportError # path mismatch
     except ImportError:
         print "***", feature, "support not installed"
     else:
