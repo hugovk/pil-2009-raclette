@@ -326,6 +326,8 @@ class pil_build_ext(build_ext):
             "_imaging", files, libraries=libs, define_macros=defs
             ))]
 
+        del self.extensions[:]
+
         #
         # additional libraries
 
@@ -382,8 +384,6 @@ class pil_build_ext(build_ext):
 
         if os.path.isfile("_imagingmath.c"):
             exts.append(Extension("_imagingmath", ["_imagingmath.c"]))
-
-        del self.extensions[:]
 
         # only build extensions for Python 2.X, for now
         if sys.version_info < (3, 0):

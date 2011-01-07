@@ -6,9 +6,6 @@ import os, sys
 sys.path.insert(0, ROOT)
 
 from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFilter
-from PIL import ImageMath
 
 try:
     Image.core.ping
@@ -17,6 +14,10 @@ except ImportError, v:
     sys.exit()
 except AttributeError:
     pass
+
+from PIL import ImageDraw
+from PIL import ImageFilter
+from PIL import ImageMath
 
 def _info(im):
     im.load()
