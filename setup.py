@@ -5,7 +5,7 @@
 # Usage: python setup.py install
 #
 
-import glob, os, re, struct, sys
+import glob, os, re, struct, sys, textwrap
 
 # make it possible to run the setup script from another directory
 try:
@@ -383,7 +383,11 @@ class pil_build_ext(build_ext):
         if os.path.isfile("_imagingmath.c"):
             exts.append(Extension("_imagingmath", ["_imagingmath.c"]))
 
-        self.extensions[:] = exts
+        del self.extensions[:]
+
+        # only build extensions for Python 2.X, for now
+        if sys.version_info < (3, 0):
+            self.extensions[:] = exts
 
         build_ext.build_extensions(self)
 
@@ -403,10 +407,11 @@ class pil_build_ext(build_ext):
         out("PIL", VERSION, "SETUP SUMMARY")
         out("-" * 68)
         out("version      ", VERSION)
-        v = sys.version.split("[")
-        out("platform     ", sys.platform, v[0].strip())
+        v = "Python " + sys.version + " on " + sys.platform
+        v = textwrap.wrap(v, 52)
+        out("platform     ", v[0].strip())
         for v in v[1:]:
-            out("             ", "[" + v.strip())
+            out("             ", v.strip())
         out("-" * 68)
 
         options = [
