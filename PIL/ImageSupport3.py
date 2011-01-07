@@ -27,6 +27,14 @@ def isTupleType(t):
 def isCallable(f):
     return isinstance(t, collections.Callable)
 
+def str2bytes(s):
+    # convert str w. bytes to bytes object
+    return s.encode("iso-8859-1")
+
+def bytes2str(b):
+    # convert bytes object to str w. bytes
+    return b.decode("iso-8859-1")
+
 ##
 # Simple byte array type.
 
@@ -48,13 +56,13 @@ class ByteArray(object):
         return self.data[i]
 
     def find(self, p):
-        return self.data.find(p.encode("iso-8859-1"))
+        return self.data.find(str2bytes(p))
 
     def startswith(self, s):
-        return self.data[:len(s)].decode("iso-8859-1") == s
+        return self.data[:len(s)] == str2bytes(s)
 
     def tostring(self):
-        return self.data.decode("iso-8859-1")
+        return bytes2str(self.data)
 
     def unpack(self, fmt, i=0):
         try:
@@ -118,23 +126,19 @@ class TextFileWrapper(object):
         self.safesize = safesize
 
     def read(self, size):
-        s = self.fp.read(size)
-        return s.decode("iso-8859-1")
+        return bytes2str(self.fp.read(size))
 
     def saferead(self, size):
-        s = _safe_read(self.fp, size, self.safesize)
-        return s.decode("iso-8859-1")
+        return bytes2str(_safe_read(self.fp, size, self.safesize))
 
     def readline(self, size=None):
         # always use safe mode
         if size is None:
             size = self.safesize
-        s = _safe_readline(self.fp, size, self.safesize)
-        return s.decode("iso-8859-1")
+        return bytes2str(_safe_readline(self.fp, size, self.safesize))
 
     def safereadline(self, size):
-        s = _safe_readline(self.fp, size, self.safesize)
-        return s.decode("iso-8859-1")
+        return bytes2str(_safe_readline(self.fp, size, self.safesize))
 
 ##
 # (Internal) Reads large blocks in a safe way.  Unlike fp.read(n),
@@ -144,7 +148,7 @@ class TextFileWrapper(object):
 # @param fp File handle.  Must implement a <b>read</b> method.
 # @param size Number of bytes to read.
 # @param safesize Max safe block size.
-# @return A string containing up to <i>size</i> bytes of data.
+# @return A buffer containing up to <i>size</i> bytes of data.
 
 def _safe_read(fp, size, safesize):
     if size <= 0:
@@ -169,7 +173,7 @@ def _safe_read(fp, size, safesize):
 # @param fp File handle.  Must implement a <b>read</b> method.
 # @param size Max number of bytes to read.
 # @param safesize Max safe block size (not used in current version).
-# @return A string containing up to <i>size</i> bytes of data,
+# @return A buffer containing up to <i>size</i> bytes of data,
 #   including the newline, if found.
 
 def _safe_readline(fp, size, safesize):
