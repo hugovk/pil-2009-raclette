@@ -105,6 +105,10 @@ except ImportError:
 from distutils import sysconfig
 from distutils.core import Extension, setup
 from distutils.command.build_ext import build_ext
+try:
+    from distutils.command.build_py import build_py_2to3
+except ImportError:
+    build_py_2to3 = None
 
 try:
     import _tkinter
@@ -484,6 +488,11 @@ if __name__ == "__main__":
     except:
         pass
 
+    # command implementations
+    cmdclass = {"build_ext": pil_build_ext}
+    if sys.version_info >= (3, 0) and build_py_2to3:
+        cmdclass["build_py"] = build_py_2to3
+
     # Basic metadata
     configuration = dict(
         author=AUTHOR[0], author_email=AUTHOR[1],
@@ -496,26 +505,18 @@ if __name__ == "__main__":
             "Topic :: Multimedia :: Graphics :: Graphics Conversion",
             "Topic :: Multimedia :: Graphics :: Viewers",
             ],
+        cmdclass=cmdclass,
         description=DESCRIPTION,
         download_url=DOWNLOAD_URL % (NAME, VERSION),
+        ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
         license="Python (MIT style)",
         long_description=DESCRIPTION,
         name=NAME,
         platforms="Python 2.3 and later.",
+        packages=["PIL"],
         scripts = glob.glob("Scripts/pil*.py"),
         url=HOMEPAGE,
         version=VERSION,
         )
-
-    # Standard configuration for PIL package
-    configuration.update(dict(
-        packages=["PIL"],
-        ))
-
-    # Extensions
-    configuration.update(dict(
-        cmdclass = {"build_ext": pil_build_ext},
-        ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
-        ))
 
     setup(**configuration)
