@@ -89,6 +89,8 @@ class ChunkStream(object):
             self.fp.seek(pos)
         else:
             len, cid = self.fp.get("!I4s")
+            if not isinstance(cid, str):
+                cid = cid.decode("iso-8859-1")
             pos = self.fp.tell()
 
         if not is_cid(cid):
@@ -100,7 +102,6 @@ class ChunkStream(object):
         self.queue = self.crc = self.fp = None
 
     def push(self, cid, pos, len):
-
         self.queue.append((cid, pos, len))
 
     def call(self, cid, pos, len):
