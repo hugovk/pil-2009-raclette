@@ -39,7 +39,7 @@ def bytes2str(b):
 # Simple byte array type.
 
 class ByteArray(object):
-    # FIXME: adapt to use binary string type
+    # FIXME: can we inherit from binary type?
 
     def __init__(self, data):
         self.data = data
@@ -106,7 +106,8 @@ class BinaryFileWrapper(object):
 
 ##
 # File wrapper for old-style text stream readers.  This treats the
-# file header as a stream of (iso-8859-1) text strings.
+# file header as a stream of ISO-8859-1 text strings, with one
+# character per byte.
 #
 # @param fp File handle.  Must implement a <b>read</b> method.
 # @param filename Name of file, if known.

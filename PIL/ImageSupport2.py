@@ -93,6 +93,8 @@ class BinaryFileWrapper(object):
         self.safesize = safesize
 
     def get(self, fmt):
+        # FIXME: rename?
+        # FIXME: move unpack functionality into wrapper?
         return self.read(struct.calcsize(fmt)).unpack(fmt)
 
     def read(self, size):
@@ -103,7 +105,7 @@ class BinaryFileWrapper(object):
 
 ##
 # File wrapper for old-style text stream readers.  This treats the
-# file header as a stream of (iso-8859-1) text strings.
+# file header as a stream of (ISO-8859-1) text strings.
 #
 # @param fp File handle.  Must implement a <b>read</b> method.
 # @param filename Name of file, if known.
