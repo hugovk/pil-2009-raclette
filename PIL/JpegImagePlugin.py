@@ -38,7 +38,7 @@ __version__ = "0.7"
 import Image
 import ImageFile
 
-import array, struct
+import struct
 
 #
 # Parser
@@ -178,7 +178,7 @@ def DQT(self, marker):
             raise SyntaxError("bad quantization table marker")
         v = s[0]
         if v // 16 == 0:
-            self.quantization[v&15] = array.array("b", s[1:65].tostring())
+            self.quantization[v&15] = list(s[1:65])
             s = s[65:]
         else:
             return # FIXME: add code to read 16-bit tables!
