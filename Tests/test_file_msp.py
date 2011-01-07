@@ -6,6 +6,9 @@ def test_sanity():
 
     file = tempfile("temp.msp")
 
+    assert_no_exception(lambda: lena("1").save(file))
+    assert_exception(IOError, lambda: lena("L").save(file))
+
     lena("1").save(file)
 
     im = Image.open(file)

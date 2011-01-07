@@ -1,9 +1,11 @@
 syntax: glob
+MANIFEST
 *~
 *.bat
 *.pyc
 *.obj
 PIL/*.pyd
+PIL/*.so
 build/*
 dist/*
 

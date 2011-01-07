@@ -26,9 +26,10 @@
 #
 
 import Image
-import os, string, sys
 
-class _imagingft_not_installed:
+import os, sys
+
+class _imagingft_not_installed(object):
     # module placeholder
     def __getattr__(self, id):
         raise ImportError("The _imagingft C module is not installed")
@@ -71,7 +72,7 @@ except ImportError:
 # @see ImageDraw#ImageDraw.text
 # @see pilfont
 
-class ImageFont:
+class ImageFont(object):
     "PIL font wrapper"
 
     def _load_pilfont(self, filename):
@@ -99,7 +100,7 @@ class ImageFont:
         # read PILfont header
         if file.readline() != "PILfont\n":
             raise SyntaxError("Not a PILfont file")
-        d = string.split(file.readline(), ";")
+        d = file.readline().split(";")
         self.info = [] # FIXME: should be a dictionary
         while True:
             s = file.readline()
@@ -126,7 +127,7 @@ class ImageFont:
 # Wrapper for FreeType fonts.  Application code should use the
 # <b>truetype</b> factory function to create font objects.
 
-class FreeTypeFont:
+class FreeTypeFont(object):
     "FreeType font wrapper (requires _imagingft service)"
 
     def __init__(self, file, size, index=0, encoding=""):
@@ -160,7 +161,7 @@ class FreeTypeFont:
 #     be one of Image.FLIP_LEFT_RIGHT, Image.FLIP_TOP_BOTTOM,
 #     Image.ROTATE_90, Image.ROTATE_180, or Image.ROTATE_270.
 
-class TransposedFont:
+class TransposedFont(object):
     "Wrapper for writing rotated or mirrored text"
 
     def __init__(self, font, orientation=None):

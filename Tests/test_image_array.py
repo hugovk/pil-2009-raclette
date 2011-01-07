@@ -13,8 +13,10 @@ def test_toarray():
     assert_equal(test("I"), ((100, 128), '<i4', 51200)) # FIXME: wrong?
     assert_equal(test("F"), ((100, 128), '<f4', 51200)) # FIXME: wrong?
     assert_equal(test("RGB"), ((100, 128, 3), '|u1', 38400))
+    assert_equal(test("YCbCr"), ((100, 128, 3), '|u1', 38400))
     assert_equal(test("RGBA"), ((100, 128, 4), '|u1', 51200))
     assert_equal(test("RGBX"), ((100, 128, 4), '|u1', 51200))
+    assert_equal(test("CMYK"), ((100, 128, 4), '|u1', 51200))
 
 def test_fromarray():
     def test(mode):
@@ -29,5 +31,7 @@ def test_fromarray():
     assert_equal(test("I"), ("I", (128, 100), True))
     assert_equal(test("F"), ("F", (128, 100), True))
     assert_equal(test("RGB"), ("RGB", (128, 100), True))
+    assert_equal(test("YCbCr"), ("RGB", (128, 100), True))
     assert_equal(test("RGBA"), ("RGBA", (128, 100), True))
     assert_equal(test("RGBX"), ("RGBA", (128, 100), True))
+    assert_equal(test("CMYK"), ("RGBA", (128, 100), True))

@@ -1,6 +1,6 @@
 python make-manifest.py
 # hg kwexpand
-RELEASE=Imaging-`python -c "from PIL import Image; print Image.VERSION"`
+RELEASE=PIL-`python -c "from PIL import Image; print Image.__version__"`
 SOURCE=`basename $PWD`
 cd ..
 if [ ! -d $RELEASE ]

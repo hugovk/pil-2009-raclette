@@ -581,7 +581,7 @@ statichere PyTypeObject CmsTransform_Type = {
     0 /*tp_hash*/
 };
 
-DL_EXPORT(void)
+PyMODINIT_FUNC
 init_imagingcms(void)
 {
     PyObject *m;

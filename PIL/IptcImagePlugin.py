@@ -19,7 +19,9 @@
 __version__ = "0.3"
 
 
-import Image, ImageFile
+import Image
+import ImageFile
+
 import os, tempfile
 
 
@@ -70,12 +72,12 @@ class IptcImageFile(ImageFile.ImageFile):
 
         # syntax
         if ord(s[0]) != 0x1C or tag[0] < 1 or tag[0] > 9:
-            raise SyntaxError, "invalid IPTC/NAA file"
+            raise SyntaxError("invalid IPTC/NAA file")
 
         # field size
         size = ord(s[3])
         if size > 132:
-            raise IOError, "illegal field length in IPTC/NAA file"
+            raise IOError("illegal field length in IPTC/NAA file")
         elif size == 128:
             size = 0
         elif size > 128:
@@ -97,7 +99,7 @@ class IptcImageFile(ImageFile.ImageFile):
         if sz != size[0]:
             return 0
         y = 1
-        while 1:
+        while True:
             self.fp.seek(sz, 1)
             t, s = self.field()
             if t != (8, 10):
@@ -110,7 +112,7 @@ class IptcImageFile(ImageFile.ImageFile):
     def _open(self):
 
         # load descriptive fields
-        while 1:
+        while True:
             offset = self.fp.tell()
             tag, size = self.field()
             if not tag or tag == (8,10):
@@ -132,7 +134,7 @@ class IptcImageFile(ImageFile.ImageFile):
         # mode
         layers = ord(self.info[(3,60)][0])
         component = ord(self.info[(3,60)][1])
-        if self.info.has_key((3,65)):
+        if (3,65) in self.info:
             id = ord(self.info[(3,65)][0])-1
         else:
             id = 0
@@ -150,7 +152,7 @@ class IptcImageFile(ImageFile.ImageFile):
         try:
             compression = COMPRESSION[self.getint((3,120))]
         except KeyError:
-            raise IOError, "Unknown IPTC image compression"
+            raise IOError("Unknown IPTC image compression")
 
         # tile
         if tag == (8,10):
@@ -179,7 +181,7 @@ class IptcImageFile(ImageFile.ImageFile):
             # To simplify access to the extracted file,
             # prepend a PPM header
             o.write("P5\n%d %d\n255\n" % self.size)
-        while 1:
+        while True:
             type, size = self.field()
             if type != (8, 10):
                 break
@@ -271,7 +273,7 @@ def getiptcinfo(im):
         return None # no properties
 
     # create an IptcImagePlugin object without initializing it
-    class FakeImage:
+    class FakeImage(object):
         pass
     im = FakeImage()
     im.__class__ = IptcImageFile

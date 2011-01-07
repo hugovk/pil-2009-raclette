@@ -10,7 +10,6 @@ Imaging/BUILDME
 Imaging/setup.py
 
 Imaging/selftest.py
-Imaging/doctest.py
 
 Imaging/libImaging/Imaging.h
 Imaging/libImaging/ImDib.h
@@ -103,9 +102,7 @@ Imaging/_imagingft.c
 Imaging/_imagingcms.c
 Imaging/_imagingmath.c
 
-Imaging/PIL.pth
 Imaging/PIL/__init__.py
-Imaging/PIL/ArgImagePlugin.py
 Imaging/PIL/BdfFontFile.py
 Imaging/PIL/BmpImagePlugin.py
 Imaging/PIL/BufrStubImagePlugin.py
@@ -149,6 +146,9 @@ Imaging/PIL/ImageQt.py
 Imaging/PIL/ImageSequence.py
 Imaging/PIL/ImageShow.py
 Imaging/PIL/ImageStat.py
+Imaging/PIL/ImageSupport.py
+Imaging/PIL/ImageSupport2.py
+Imaging/PIL/ImageSupport3.py
 Imaging/PIL/ImageTk.py
 Imaging/PIL/ImageTransform.py
 Imaging/PIL/ImageWin.py
@@ -161,6 +161,7 @@ Imaging/PIL/MicImagePlugin.py
 Imaging/PIL/MpegImagePlugin.py
 Imaging/PIL/MspImagePlugin.py
 Imaging/PIL/OleFileIO.py
+Imaging/PIL/OpenExrImagePlugin.py
 Imaging/PIL/PaletteFile.py
 Imaging/PIL/PalmImagePlugin.py
 Imaging/PIL/PcdImagePlugin.py
@@ -187,7 +188,6 @@ Imaging/PIL/XVThumbImagePlugin.py
 
 Imaging/Docs/index.html
 Imaging/Docs/effbot.css
-Imaging/Docs/pythondoc-PIL.ArgImagePlugin.html
 Imaging/Docs/pythondoc-PIL.BdfFontFile.html
 Imaging/Docs/pythondoc-PIL.BmpImagePlugin.html
 Imaging/Docs/pythondoc-PIL.BufrStubImagePlugin.html
@@ -298,4 +298,3 @@ Imaging/Tk/tkImaging.c
 Imaging/Tk/install.txt
 Imaging/Tk/booster.txt
 Imaging/Tk/pilbitmap.txt
-

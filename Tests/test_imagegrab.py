@@ -3,7 +3,8 @@ from tester import *
 from PIL import Image
 try:
     from PIL import ImageGrab
-except ImportError, v:
+    Image.core.grabscreen
+except (AttributeError, ImportError), v:
     skip(v)
 
 def test_grab():

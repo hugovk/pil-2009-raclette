@@ -17,7 +17,8 @@
 
 __version__ = "0.2"
 
-import Image, ImageFile
+import Image
+import ImageFile
 
 _handler = None
 
@@ -30,10 +31,10 @@ def register_handler(handler):
     global _handler
     _handler = handler
 
-if hasattr(Image.core, "drawwmf"):
+if Image.has_feature("drawwmf"):
     # install default handler (windows only)
 
-    class WmfHandler:
+    class WmfHandler(object):
 
         def open(self, im):
             im.mode = "RGB"

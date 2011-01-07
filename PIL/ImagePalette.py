@@ -17,12 +17,14 @@
 #
 
 import array
-import Image, ImageColor
+
+import Image
+import ImageColor
 
 ##
 # Colour palette wrapper for palette mapped images.
 
-class ImagePalette:
+class ImagePalette(object):
     "Colour palette for palette mapped images"
 
     def __init__(self, mode = "RGB", palette = None):
@@ -32,7 +34,7 @@ class ImagePalette:
         self.colors = {}
         self.dirty = None
         if len(self.mode)*256 != len(self.palette):
-            raise ValueError, "wrong palette size"
+            raise ValueError("wrong palette size")
 
     def getdata(self):
         # experimental: get palette contents in format suitable
@@ -76,7 +78,7 @@ class ImagePalette:
         # (experimental) save palette to text file
         if self.rawmode:
             raise ValueError("palette contains raw palette data")
-        if type(fp) == type(""):
+        if not hasattr(fp, "write"):
             fp = open(fp, "w")
         fp.write("# Palette\n")
         fp.write("# Mode: %s\n" % self.mode)
@@ -85,7 +87,7 @@ class ImagePalette:
             for j in range(i, len(self.palette), 256):
                 fp.write(" %d" % self.palette[j])
             fp.write("\n")
-        fp.close()
+        # fp.close()
 
 # --------------------------------------------------------------------
 # Internal
@@ -97,6 +99,17 @@ def raw(rawmode, data):
     palette.dirty = 1
     return palette
 
+def raw_rgb332():
+    palette = []
+    for r in range(8):
+        for g in range(8):
+            for b in range(4):
+                palette.append(r*255//7)
+                palette.append(g*255//7)
+                palette.append(b*255//3)
+    palette = "".join(map(chr, palette))
+    return raw("RGB", palette)
+
 # --------------------------------------------------------------------
 # Factories
 
@@ -104,7 +117,7 @@ def _make_linear_lut(black, white):
     lut = []
     if black == 0:
         for i in range(256):
-            lut.append(white*i/255)
+            lut.append(white*i//255)
     else:
         raise NotImplementedError # FIXME
     return lut
@@ -176,7 +189,7 @@ def load(filename):
             pass
 
     if not lut:
-        raise IOError, "cannot load palette"
+        raise IOError("cannot load palette")
 
     return lut # data, rawmode
 

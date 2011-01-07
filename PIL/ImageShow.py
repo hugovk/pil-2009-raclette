@@ -6,14 +6,16 @@
 #
 # History:
 # 2008-04-06 fl   Created
+# 2010-04-25 fl   Don't mess up if multiple viewers are available.
+# 2011-01-05 fl   Check executable bits on Unix.
 #
-# Copyright (c) Secret Labs AB 2008.
+# Copyright (c) Secret Labs AB 2008-2011.
 #
 # See the README file for information on usage and redistribution.
 #
 
 import Image
-import os, sys
+import os, stat, sys
 
 _viewers = []
 
@@ -45,7 +47,7 @@ def show(image, title=None, **options):
 ##
 # Base class for viewers.
 
-class Viewer:
+class Viewer(object):
 
     # main api
 
@@ -63,7 +65,7 @@ class Viewer:
         if base != image.mode and image.mode != "1":
             image = image.convert(base)
 
-        self.show_image(image, **options)
+        return self.show_image(image, **options)
 
     # hook methods
 
@@ -124,8 +126,9 @@ else:
         for dirname in path.split(os.pathsep):
             filename = os.path.join(dirname, executable)
             if os.path.isfile(filename):
-                # FIXME: make sure it's executable
-                return filename
+                mode = os.stat(filename)[stat.ST_MODE]
+                if mode & (stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH):
+                    return filename
         return None
 
     class UnixViewer(Viewer):

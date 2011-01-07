@@ -4,7 +4,7 @@ import PIL.Image
 # Make sure we have the binary extension
 im = PIL.Image.core.new("L", (100, 100))
 
-assert PIL.Image.VERSION[:3] == '1.1'
+assert PIL.Image.VERSION[:3] == PIL.Image.__version__[:3] == "1.2"
 
 # Create an image and do stuff with it.
 im = PIL.Image.new("1", (100, 100))

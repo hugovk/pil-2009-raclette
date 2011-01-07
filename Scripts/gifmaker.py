@@ -40,16 +40,17 @@
 #
 
 from PIL import Image, ImageChops
-import string
 
 from PIL.GifImagePlugin import getheader, getdata
 
 # --------------------------------------------------------------------
 # sequence iterator
 
-class image_sequence:
+class ImageSequence(object):
+
     def __init__(self, im):
         self.im = im
+
     def __getitem__(self, ix):
         try:
             if ix:
@@ -116,7 +117,7 @@ def compress(infile, outfile):
     # open output file
     fp = open(outfile, "wb")
 
-    seq = image_sequence(im)
+    seq = ImageSequence(im)
 
     makedelta(fp, seq)
 

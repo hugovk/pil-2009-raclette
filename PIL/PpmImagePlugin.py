@@ -17,9 +17,8 @@
 
 __version__ = "0.2"
 
-import string
-
-import Image, ImageFile
+import Image
+import ImageFile
 
 #
 # --------------------------------------------------------------------
@@ -49,9 +48,9 @@ class PpmImageFile(ImageFile.ImageFile):
     format_description = "Pbmplus image"
 
     def _token(self, s = ""):
-        while 1: # read until next whitespace
+        while True: # read until next whitespace
             c = self.fp.read(1)
-            if not c or c in string.whitespace:
+            if not c or not c.strip():
                 break
             s = s + c
         return s
@@ -61,7 +60,7 @@ class PpmImageFile(ImageFile.ImageFile):
         # check magic
         s = self.fp.read(1)
         if s != "P":
-            raise SyntaxError, "not a PPM file"
+            raise SyntaxError("not a PPM file")
         mode = MODES[self._token(s)]
 
         if mode == "1":
@@ -71,14 +70,14 @@ class PpmImageFile(ImageFile.ImageFile):
             self.mode = rawmode = mode
 
         for ix in range(3):
-            while 1:
-                while 1:
+            while True:
+                while True:
                     s = self.fp.read(1)
-                    if s not in string.whitespace:
+                    if s.strip():
                         break
                 if s != "#":
                     break
-                s = self.fp.readline()
+                s = self.fp.safereadline(512)
             s = int(self._token(s))
             if ix == 0:
                 xsize = s
@@ -111,7 +110,7 @@ def _save(im, fp, filename):
     elif im.mode == "RGBA":
         rawmode, head = "RGB", "P6"
     else:
-        raise IOError, "cannot write mode %s as PPM" % im.mode
+        raise IOError("cannot write mode %s as PPM" % im.mode)
     fp.write(head + "\n%d %d\n" % im.size)
     if head != "P4":
         fp.write("255\n")

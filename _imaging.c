@@ -92,9 +92,6 @@
 
 #define WITH_DEBUG /* extra debugging interfaces */
 
-/* PIL Plus extensions */
-#undef  WITH_CRACKCODE /* pil plus */
-
 #undef	VERBOSE
 
 #define CLIP(x) ((x) <= 0 ? 0 : (x) < 256 ? (x) : 255)
@@ -108,8 +105,13 @@
 #define PyObject_Del PyMem_DEL
 #endif
 
+#if PY_VERSION_HEX < 0x02030000
+#define PyLong_AsUnsignedLongMask PyLong_AsUnsignedLong
+#endif
+
 #if PY_VERSION_HEX < 0x02050000
 #define Py_ssize_t int
+#define lenfunc inquiry
 #define ssizeargfunc intargfunc
 #define ssizessizeargfunc intintargfunc
 #define ssizeobjargproc intobjargproc
@@ -527,9 +529,12 @@ getink(PyObject* color, Imaging im, char* ink)
             ink[1] = ink[2] = ink[3] = 0;
         } else {
             a = 255;
-            if (PyInt_Check(color)) {
-                r = PyInt_AS_LONG(color);
-                /* compatibility: ABGR */
+            if (PyInt_Check(color) || PyLong_Check(color)) {
+                if (PyInt_Check(color))
+                    r = PyInt_AS_LONG(color);
+                else
+                    r = (int) PyLong_AsUnsignedLongMask(color);
+                /* compatibility: treat integer as packed ABGR */
                 a = (UINT8) (r >> 24);
                 b = (UINT8) (r >> 16);
                 g = (UINT8) (r >> 8);
@@ -2917,9 +2922,6 @@ static struct PyMethodDef methods[] = {
     {"convert_matrix", (PyCFunction)_convert_matrix, 1},
     {"copy", (PyCFunction)_copy, 1},
     {"copy2", (PyCFunction)_copy2, 1},
-#ifdef WITH_CRACKCODE
-    {"crackcode", (PyCFunction)_crackcode, 1},
-#endif
     {"crop", (PyCFunction)_crop, 1},
     {"expand", (PyCFunction)_expand, 1},
     {"filter", (PyCFunction)_filter, 1},
@@ -3055,7 +3057,7 @@ image_item(ImagingObject *self, Py_ssize_t i)
 }
 
 static PySequenceMethods image_as_sequence = {
-    (inquiry) image_length, /*sq_length*/
+    (lenfunc) image_length, /*sq_length*/
     (binaryfunc) NULL, /*sq_concat*/
     (ssizeargfunc) NULL, /*sq_repeat*/
     (ssizeargfunc) image_item, /*sq_item*/
@@ -3115,7 +3117,7 @@ statichere PyTypeObject ImagingDraw_Type = {
 #endif
 
 static PyMappingMethods pixel_access_as_mapping = {
-    (inquiry) NULL, /*mp_length*/
+    (lenfunc) NULL, /*mp_length*/
     (binaryfunc) pixel_access_getitem, /*mp_subscript*/
     (objobjargproc) pixel_access_setitem, /*mp_ass_subscript*/
 };
@@ -3287,7 +3289,7 @@ static PyMethodDef functions[] = {
     {NULL, NULL} /* sentinel */
 };
 
-DL_EXPORT(void)
+PyMODINIT_FUNC
 init_imaging(void)
 {
     PyObject* m;

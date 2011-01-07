@@ -25,7 +25,9 @@
 
 __version__ = "0.1"
 
-import ImageFile, ImagePalette
+import Image
+import ImageFile
+import ImagePalette
 
 def i16(c):
     return ord(c[1]) + (ord(c[0])<<8)
@@ -72,7 +74,7 @@ def open(fp, mode = "r"):
     if mode != "r":
         raise ValueError("bad mode")
 
-    if type(fp) == type(""):
+    if not hasattr(fp, "read"):
         import __builtin__
         filename = fp
         fp = __builtin__.open(fp, "rb")

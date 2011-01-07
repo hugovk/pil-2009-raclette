@@ -9,7 +9,8 @@
 
 __version__ = "1.0"
 
-import Image, ImageFile
+import Image
+import ImageFile
 
 _Palm8BitColormapValues = (
     ( 255, 255, 255 ), ( 255, 204, 255 ), ( 255, 153, 255 ), ( 255, 102, 255 ),
@@ -127,7 +128,7 @@ def _save(im, fp, filename, check=0):
         bpp = 8
         version = 1
 
-    elif im.mode == "L" and im.encoderinfo.has_key("bpp") and im.encoderinfo["bpp"] in (1, 2, 4):
+    elif im.mode == "L" and "bpp" in im.encoderinfo and im.encoderinfo["bpp"] in (1, 2, 4):
 
         # this is 8-bit grayscale, so we shift it to get the high-order bits, and invert it because
         # Palm does greyscale from white (0) to black (1)
@@ -138,7 +139,7 @@ def _save(im, fp, filename, check=0):
         rawmode = "P;" + str(bpp)
         version = 1
 
-    elif im.mode == "L" and im.info.has_key("bpp") and im.info["bpp"] in (1, 2, 4):
+    elif im.mode == "L" and "bpp" in im.info and im.info["bpp"] in (1, 2, 4):
 
         # here we assume that even though the inherent mode is 8-bit grayscale, only
         # the lower bpp bits are significant.  We invert them to match the Palm.
@@ -158,7 +159,7 @@ def _save(im, fp, filename, check=0):
 
     else:
 
-        raise IOError, "cannot write mode %s as Palm" % im.mode
+        raise IOError("cannot write mode %s as Palm" % im.mode)
 
     if check:
         return check
@@ -177,7 +178,7 @@ def _save(im, fp, filename, check=0):
     compression_type = _COMPRESSION_TYPES["none"]
 
     flags = 0;
-    if im.mode == "P" and im.info.has_key("custom-colormap"):
+    if im.mode == "P" and "custom-colormap" in im.info:
         flags = flags & _FLAGS["custom-colormap"]
         colormapsize = 4 * 256 + 2;
         colormapmode = im.palette.mode
@@ -185,7 +186,7 @@ def _save(im, fp, filename, check=0):
     else:
         colormapsize = 0
 
-    if im.info.has_key("offset"):
+    if "offset" in im.info:
         offset = (rowbytes * rows + 16 + 3 + colormapsize) / 4;
     else:
         offset = 0

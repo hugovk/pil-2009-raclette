@@ -19,7 +19,8 @@
 
 __version__ = "0.1"
 
-import Image, ImageFile
+import Image
+import ImageFile
 
 
 #
@@ -45,14 +46,14 @@ class MspImageFile(ImageFile.ImageFile):
         # Header
         s = self.fp.read(32)
         if s[:4] not in ["DanM", "LinS"]:
-            raise SyntaxError, "not an MSP file"
+            raise SyntaxError("not an MSP file")
 
         # Header checksum
-        sum = 0
+        checksum = 0
         for i in range(0, 32, 2):
-            sum = sum ^ i16(s[i:i+2])
-        if sum != 0:
-            raise SyntaxError, "bad MSP checksum"
+            checksum = checksum ^ i16(s[i:i+2])
+        if checksum != 0:
+            raise SyntaxError("bad MSP checksum")
 
         self.mode = "1"
         self.size = i16(s[4:]), i16(s[6:])
@@ -71,7 +72,7 @@ def o16(i):
 def _save(im, fp, filename):
 
     if im.mode != "1":
-        raise IOError, "cannot write mode %s as MSP" % im.mode
+        raise IOError("cannot write mode %s as MSP" % im.mode)
 
     # create MSP header
     header = [0] * 16
@@ -82,10 +83,10 @@ def _save(im, fp, filename):
     header[6], header[7] = 1, 1
     header[8], header[9] = im.size
 
-    sum = 0
+    checksum = 0
     for h in header:
-        sum = sum ^ h
-    header[12] = sum # FIXME: is this the right field?
+        checksum = checksum ^ h
+    header[12] = checksum # FIXME: is this the right field?
 
     # header
     for h in header:

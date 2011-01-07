@@ -20,15 +20,21 @@
 # 2003-04-21 fl   Fall back on mmap/map_buffer if map is not available
 # 2003-10-30 fl   Added StubImageFile class
 # 2004-02-25 fl   Made incremental parser more robust
+# 2011-01-05 fl   Added binary/text file stream wrappers
 #
-# Copyright (c) 1997-2004 by Secret Labs AB
+# Copyright (c) 1997-2011 by Secret Labs AB
 # Copyright (c) 1995-2004 by Fredrik Lundh
 #
 # See the README file for information on usage and redistribution.
 #
 
 import Image
-import traceback, string, os
+import ImageSupport
+
+import traceback, os
+
+# compatibility
+ByteArray = ImageSupport.ByteArray
 
 MAXBLOCK = 65536
 
@@ -69,6 +75,9 @@ def _tilesort(t1, t2):
 class ImageFile(Image.Image):
     "Base class for image file format handlers."
 
+    # set to true if codec wants BinaryFileWrapper API
+    use_binary_stream = False
+
     def __init__(self, fp=None, filename=None):
         Image.Image.__init__(self)
 
@@ -78,7 +87,7 @@ class ImageFile(Image.Image):
         self.decoderconfig = ()
         self.decodermaxblock = MAXBLOCK
 
-        if Image.isStringType(fp):
+        if not hasattr(fp, "read"):
             # filename
             self.fp = open(fp, "rb")
             self.filename = fp
@@ -87,27 +96,32 @@ class ImageFile(Image.Image):
             self.fp = fp
             self.filename = filename
 
+        if self.use_binary_stream:
+            self.fp = ImageSupport.BinaryFileWrapper(self.fp, filename, SAFEBLOCK)
+        else:
+            self.fp = ImageSupport.TextFileWrapper(self.fp, filename, SAFEBLOCK)
+
         try:
             self._open()
         except IndexError, v: # end of data
             if Image.DEBUG > 1:
                 traceback.print_exc()
-            raise SyntaxError, v
+            raise SyntaxError(v)
         except TypeError, v: # end of data (ord)
             if Image.DEBUG > 1:
                 traceback.print_exc()
-            raise SyntaxError, v
+            raise SyntaxError(v)
         except KeyError, v: # unsupported mode
             if Image.DEBUG > 1:
                 traceback.print_exc()
-            raise SyntaxError, v
+            raise SyntaxError(v)
         except EOFError, v: # got header but not the first frame
             if Image.DEBUG > 1:
                 traceback.print_exc()
-            raise SyntaxError, v
+            raise SyntaxError(v)
 
         if not self.mode or self.size[0] <= 0:
-            raise SyntaxError, "not identified by this driver"
+            raise SyntaxError("not identified by this driver")
 
     def draft(self, mode, size):
         "Set draft mode"
@@ -140,7 +154,7 @@ class ImageFile(Image.Image):
             d, e, o, a = self.tile[0]
             if d == "raw" and a[0] == self.mode and a[0] in Image._MAPMODES:
                 try:
-                    if hasattr(Image.core, "map"):
+                    if Image.has_feature("map"):
                         # use built-in mapper
                         self.map = Image.core.map(self.filename)
                         self.map.seek(o)
@@ -194,8 +208,10 @@ class ImageFile(Image.Image):
                     continue
                 b = prefix
                 t = len(b)
-                while 1:
+                while True:
                     s = read(self.decodermaxblock)
+                    if isinstance(s, ImageSupport.ByteArray):
+                        s = s.tostring()
                     if not s:
                         self.tile = []
                         raise IOError("image file is truncated (%d bytes not processed)" % len(b))
@@ -226,8 +242,7 @@ class ImageFile(Image.Image):
 
     def load_prepare(self):
         # create image memory if necessary
-        if not self.im or\
-           self.im.mode != self.mode or self.im.size != self.size:
+        if not self.im or self.im.mode != self.mode or self.im.size != self.size:
             self.im = Image.core.new(self.mode, self.size)
         # create palette (optional)
         if self.mode == "P":
@@ -244,6 +259,7 @@ class ImageFile(Image.Image):
     # may be defined for blocked formats (e.g. PNG)
     # def load_read(self, bytes):
     #     pass
+
 
 ##
 # Base class for stub image loaders.
@@ -278,9 +294,9 @@ class StubImageFile(ImageFile):
             )
 
 ##
-# (Internal) Support class for the <b>Parser</b> file.
+# (Internal) Support class for the <b>Parser</b> class.
 
-class _ParserFile:
+class _ParserFile(object):
     # parser support class.
 
     def __init__(self, data):
@@ -314,7 +330,7 @@ class _ParserFile:
     def readline(self):
         # FIXME: this is slow!
         s = ""
-        while 1:
+        while True:
             c = self.read(1)
             if not c:
                 break
@@ -327,7 +343,7 @@ class _ParserFile:
 # Incremental image parser.  This class implements the standard
 # feed/close consumer interface.
 
-class Parser:
+class Parser(object):
 
     incremental = None
     image = None
@@ -482,7 +498,7 @@ def _save(im, fp, tile):
             if o > 0:
                 fp.seek(o, 0)
             e.setimage(im.im, b)
-            while 1:
+            while True:
                 l, s, d = e.encode(bufsize)
                 fp.write(d)
                 if s:
@@ -502,27 +518,3 @@ def _save(im, fp, tile):
     try:
         fp.flush()
     except: pass
-
-
-##
-# Reads large blocks in a safe way.  Unlike fp.read(n), this function
-# doesn't trust the user.  If the requested size is larger than
-# SAFEBLOCK, the file is read block by block.
-#
-# @param fp File handle.  Must implement a <b>read</b> method.
-# @param size Number of bytes to read.
-# @return A string containing up to <i>size</i> bytes of data.
-
-def _safe_read(fp, size):
-    if size <= 0:
-        return ""
-    if size <= SAFEBLOCK:
-        return fp.read(size)
-    data = []
-    while size > 0:
-        block = fp.read(min(size, SAFEBLOCK))
-        if not block:
-            break
-        data.append(block)
-        size = size - len(block)
-    return string.join(data, "")

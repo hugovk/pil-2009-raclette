@@ -19,8 +19,6 @@
 import Image
 import FontFile
 
-import string
-
 # --------------------------------------------------------------------
 # declarations
 
@@ -55,7 +53,7 @@ def b32(c):
     return ord(c[3]) + (ord(c[2])<<8) + (ord(c[1])<<16) + (ord(c[0])<<24)
 
 def sz(s, o):
-    return s[o:string.index(s, "\0", o)]
+    return s[o:s.index("\0", o)]
 
 ##
 # Font file plugin for the X11 PCF format.
@@ -68,7 +66,7 @@ class PcfFontFile(FontFile.FontFile):
 
         magic = l32(fp.read(4))
         if magic != PCF_MAGIC:
-            raise SyntaxError, "not a PCF file"
+            raise SyntaxError("not a PCF file")
 
         FontFile.FontFile.__init__(self)
 
@@ -198,7 +196,7 @@ class PcfFontFile(FontFile.FontFile):
         nbitmaps = i32(fp.read(4))
 
         if nbitmaps != len(metrics):
-            raise IOError, "Wrong number of bitmaps"
+            raise IOError("Wrong number of bitmaps")
 
         offsets = []
         for i in range(nbitmaps):

@@ -14,21 +14,21 @@
 # See the README file for information on usage and redistribution.
 #
 
-import re, string
+import re
 
 ##
 # File handler for GIMP's palette format.
 
-class GimpPaletteFile:
+class GimpPaletteFile(object):
 
     rawmode = "RGB"
 
     def __init__(self, fp):
 
-        self.palette = map(lambda i: chr(i)*3, range(256))
+        self.palette = [chr(i)*3 for i in range(256)]
 
         if fp.readline()[:12] != "GIMP Palette":
-            raise SyntaxError, "not a GIMP palette file"
+            raise SyntaxError("not a GIMP palette file")
 
         i = 0
 
@@ -42,20 +42,19 @@ class GimpPaletteFile:
             if re.match("\w+:|#", s):
                 continue
             if len(s) > 100:
-                raise SyntaxError, "bad palette file"
+                raise SyntaxError("bad palette file")
 
-            v = tuple(map(int, string.split(s)[:3]))
+            v = tuple(map(int, s.split()[:3]))
             if len(v) != 3:
-                raise ValueError, "bad palette entry"
+                raise ValueError("bad palette entry")
 
             if 0 <= i <= 255:
                 self.palette[i] = chr(v[0]) + chr(v[1]) + chr(v[2])
 
             i = i + 1
 
-        self.palette = string.join(self.palette, "")
+        self.palette = "".join(self.palette)
 
 
     def getpalette(self):
-
         return self.palette, self.rawmode

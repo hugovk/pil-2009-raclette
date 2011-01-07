@@ -22,7 +22,9 @@
 
 __version__ = "0.4"
 
-import Image, ImageFile
+import Image
+import ImageFile
+
 import StringIO
 
 
@@ -168,11 +170,12 @@ def _save(im, fp, filename):
 
     xref[4] = fp.tell()
     _obj(fp, 4)
-    fp.write("<<\n/Type /Page\n/Parent 2 0 R\n"\
-             "/Resources <<\n/ProcSet [ /PDF %s ]\n"\
-             "/XObject << /image 3 0 R >>\n>>\n"\
-             "/MediaBox [ 0 0 %d %d ]\n/Contents 5 0 R\n>>\n" %\
-             (procset, int(width * 72.0 /resolution) , int(height * 72.0 / resolution)))
+    fp.write("<<\n/Type /Page\n/Parent 2 0 R\n"
+             "/Resources <<\n/ProcSet [ /PDF %s ]\n"
+             "/XObject << /image 3 0 R >>\n>>\n"
+             "/MediaBox [ 0 0 %d %d ]\n/Contents 5 0 R\n>>\n" %
+             (procset, int(width * 72.0 /resolution),
+              int(height * 72.0 / resolution)))
     _endobj(fp)
 
     #
@@ -180,7 +183,9 @@ def _save(im, fp, filename):
 
     op = StringIO.StringIO()
 
-    op.write("q %d 0 0 %d 0 0 cm /image Do Q\n" % (int(width * 72.0 / resolution), int(height * 72.0 / resolution)))
+    op.write("q %d 0 0 %d 0 0 cm /image Do Q\n" %
+             (int(width * 72.0 / resolution),
+              int(height * 72.0 / resolution)))
 
     xref[5] = fp.tell()
     _obj(fp, 5, Length = len(op.getvalue()))
