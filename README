@@ -1,7 +1,7 @@
 The Python Imaging Library
 $Id$
 
-Release 1.2a0 (January 5, 2011)
+Release 1.2a0 (January 8, 2011)
 
 ====================================================================
 The Python Imaging Library 1.2a0
@@ -27,7 +27,8 @@ format support, an efficient internal representation, and powerful
 image processing capabilities.
 
 This source kit has been built and tested with Python 2.3 and newer,
-on Windows, Mac OS X, and major Unix platforms.
+on Windows, Mac OS X, and major Unix platforms.  The kit installs
+under Python 3.1, but doesn't provide much functionality yet.
 
 The main distribution site for this software is:
 
@@ -80,8 +81,8 @@ Software License
 
 The Python Imaging Library is
 
-Copyright (c) 1997-2010 by Secret Labs AB
-Copyright (c) 1995-2010 by Fredrik Lundh
+Copyright (c) 1997-2011 by Secret Labs AB
+Copyright (c) 1995-2011 by Fredrik Lundh
 
 By obtaining, using, and/or copying this software and/or its
 associated documentation, you agree that you have read, understood,
@@ -113,8 +114,8 @@ For a list of changes in this release, see the CHANGES document.
 
 0. If you're in a hurry, try this:
 
-        $ tar xvfz Imaging-1.2.tar.gz
-        $ cd Imaging-1.2
+        $ tar xvfz Imaging-1.2a0.tar.gz
+        $ cd Imaging-1.2a0
         $ python setup.py install
 
    If you prefer to know what you're doing, read on.
@@ -180,17 +181,17 @@ For a list of changes in this release, see the CHANGES document.
 
 
 3. When you have everything you need, unpack the PIL distribution
-   (the file Imaging-1.2.tar.gz) in a suitable work directory:
+   (the file Imaging-1.2a0.tar.gz) in a suitable work directory:
 
         $ cd MyExtensions # example
-        $ gunzip Imaging-1.2.tar.gz
-        $ tar xvf Imaging-1.2.tar
+        $ gunzip Imaging-1.2a0.tar.gz
+        $ tar xvf Imaging-1.2a0.tar
 
 
 4. Build the library.  We recommend that you do an in-place build,
    and run the self test before installing.
 
-        $ cd Imaging-1.2
+        $ cd Imaging-1.2a0
         $ python setup.py build_ext -i
         $ python selftest.py
 
@@ -200,7 +201,7 @@ For a list of changes in this release, see the CHANGES document.
    components the tests found in the actual build files:
 
         ----------------------------------------------------------------
-        PIL 1.2 SETUP SUMMARY
+        PIL 1.2a0 SETUP SUMMARY
         ----------------------------------------------------------------
         *** TKINTER support not available (Tcl/Tk 8.5 libraries needed)
         --- JPEG support available

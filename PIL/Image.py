@@ -17,7 +17,7 @@
 # 2005-03-28 fl   PIL release 1.1.5
 # 2006-12-02 fl   PIL release 1.1.6
 # 2009-11-15 fl   PIL release 1.1.7
-# 2011-01-05 fl   PIL release 1.2a0 (pre-release snapshot)
+# 2011-01-08 fl   PIL release 1.2a0 (pre-release snapshot)
 #
 # Copyright (c) 1997-2011 by Secret Labs AB.  All rights reserved.
 # Copyright (c) 1995-2011 by Fredrik Lundh.

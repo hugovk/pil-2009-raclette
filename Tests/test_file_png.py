@@ -127,6 +127,8 @@ def test_load_verify():
     im.load()
     assert_exception(RuntimeError, lambda: im.verify())
 
+    # see test_image_verify for additional tests
+
 def test_roundtrip_dpi():
     # Check dpi roundtripping
 

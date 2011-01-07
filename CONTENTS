@@ -10,7 +10,6 @@ Imaging/BUILDME
 Imaging/setup.py
 
 Imaging/selftest.py
-Imaging/doctest.py
 
 Imaging/libImaging/Imaging.h
 Imaging/libImaging/ImDib.h
