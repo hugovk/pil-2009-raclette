@@ -1163,7 +1163,9 @@ PySane_get_devices(PyObject *self, PyObject *args)
       return NULL;
     }
   
+  Py_BEGIN_ALLOW_THREADS
   st=sane_get_devices(&devlist, local_only);
+  Py_END_ALLOW_THREADS
   if (st) return PySane_Error(st);
   if (!(list = PyList_New(0)))
 	    return NULL;
@@ -1191,7 +1193,9 @@ PySane_open(PyObject *self, PyObject *args)
 	rv = newSaneDevObject();
 	if ( rv == NULL )
 	    return NULL;
+	Py_BEGIN_ALLOW_THREADS
 	st = sane_open(name, &(rv->h));
+	Py_BEGIN_END_THREADS
 	if (st) 
 	  {
 	    Py_DECREF(rv);
