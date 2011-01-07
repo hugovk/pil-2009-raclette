@@ -31,7 +31,7 @@ VERSION = __version__  # compatibility with 1.1.7 and earlier
 
 class _imaging_not_installed(object):
     # module placeholder
-    def __getattr__(self, id):
+    def __getattr__(self, attribute):
         raise ImportError("The _imaging C module is not installed")
 
 try:
@@ -63,6 +63,12 @@ except ImportError, v:
             "of Python; most PIL functions will be disabled",
             RuntimeWarning
             )
+
+def has_feature(attribute):
+    try:
+        return hasattr(core, attribute)
+    except ImportError:
+        return False
 
 import os, sys
 

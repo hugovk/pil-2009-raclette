@@ -154,7 +154,7 @@ class ImageFile(Image.Image):
             d, e, o, a = self.tile[0]
             if d == "raw" and a[0] == self.mode and a[0] in Image._MAPMODES:
                 try:
-                    if hasattr(Image.core, "map"):
+                    if Image.has_feature("map"):
                         # use built-in mapper
                         self.map = Image.core.map(self.filename)
                         self.map.seek(o)

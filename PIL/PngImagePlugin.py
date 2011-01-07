@@ -77,7 +77,7 @@ class ChunkStream(object):
         self.fp = fp
         self.queue = []
 
-        if not hasattr(Image.core, "crc32"):
+        if not Image.has_feature("crc32"):
             self.crc = self.crc_skip
 
     def read(self):

@@ -31,7 +31,7 @@ def register_handler(handler):
     global _handler
     _handler = handler
 
-if hasattr(Image.core, "drawwmf"):
+if Image.has_feature("drawwmf"):
     # install default handler (windows only)
 
     class WmfHandler(object):
