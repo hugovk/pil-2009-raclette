@@ -5,7 +5,7 @@
 # Usage: python setup.py install
 #
 
-import glob, os, re, struct, sys, textwrap
+import glob, os, re, struct, sys
 
 # make it possible to run the setup script from another directory
 try:
@@ -412,7 +412,7 @@ class pil_build_ext(build_ext):
         out("-" * 68)
         out("version      ", VERSION)
         v = "Python " + sys.version + " on " + sys.platform
-        v = textwrap.wrap(v, 52)
+        v = v.splitlines()
         out("platform     ", v[0].strip())
         for v in v[1:]:
             out("             ", v.strip())
@@ -493,6 +493,12 @@ if __name__ == "__main__":
     if sys.version_info >= (3, 0) and build_py_2to3:
         cmdclass["build_py"] = build_py_2to3
 
+    try:
+        dict(one=1)
+    except TypeError:
+        def dict(**options):
+            return options
+
     # Basic metadata
     configuration = dict(
         author=AUTHOR[0], author_email=AUTHOR[1],
@@ -508,7 +514,7 @@ if __name__ == "__main__":
         cmdclass=cmdclass,
         description=DESCRIPTION,
         download_url=DOWNLOAD_URL % (NAME, VERSION),
-        ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
+        ext_modules=[Extension("_imaging", ["_imaging.c"])], # dummy
         license="Python (MIT style)",
         long_description=DESCRIPTION,
         name=NAME,

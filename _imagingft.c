@@ -47,6 +47,10 @@
 #endif
 #endif
 
+#if PY_VERSION_HEX < 0x02030000
+#define PyMODINIT_FUNC DL_EXPORT(void)
+#endif
+
 #if !defined(Py_RETURN_NONE)
 #define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
 #endif

@@ -15,8 +15,15 @@
 
 import struct
 
-def isStringType(t):
-    return isinstance(t, basestring)
+try:
+    basestring
+except NameError:
+    def isStringType(t):
+        return isinstance(t, str) or isinstance(t, unicode)
+else:
+    def isStringType(t):
+        return isinstance(t, basestring)
+
 
 from operator import isNumberType
 
