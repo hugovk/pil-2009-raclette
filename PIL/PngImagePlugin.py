@@ -244,9 +244,6 @@ class PngStream(ChunkStream):
         # transparency
         s = self.fp.saferead(len)
         if self.im_mode == "P":
-            i = s.find(chr(0))
-            if i >= 0:
-                self.im_info["transparency"] = i
             if _simple_palette.match(s.tostring()):
                 i = s.find(s, chr(0))
                 if i >= 0:
