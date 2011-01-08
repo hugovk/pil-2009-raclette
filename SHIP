@@ -7,5 +7,5 @@ if [ ! -d $RELEASE ]
 then
     ln -s $SOURCE $RELEASE
 fi
-tar cvf $RELEASE.tar `sed s/^Imaging/$RELEASE/g $RELEASE/CONTENTS`
+tar --owner=0 --group=0 -cvf $RELEASE.tar `sed s/^Imaging/$RELEASE/g $RELEASE/CONTENTS`
 gzip $RELEASE.tar
