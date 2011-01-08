@@ -67,6 +67,8 @@ _MODES = {
 }
 
 
+_simple_palette = re.compile('^\xff+\x00+$')
+
 # --------------------------------------------------------------------
 # Support classes.  Suitable for PNG and related formats like MNG etc.
 
@@ -239,13 +241,18 @@ class PngStream(ChunkStream):
         return s
 
     def chunk_tRNS(self, pos, len):
-
         # transparency
         s = self.fp.saferead(len)
         if self.im_mode == "P":
             i = s.find(chr(0))
             if i >= 0:
                 self.im_info["transparency"] = i
+            if _simple_palette.match(s.tostring()):
+                i = s.find(s, chr(0))
+                if i >= 0:
+                    self.im_info["transparency"] = i
+            else:
+                self.im_info["transparency"] = list(s)
         elif self.im_mode == "L":
             self.im_info["transparency"] = s.unpack("!H")
         elif self.im_mode == "RGB":
@@ -504,6 +511,10 @@ def _save(im, fp, filename, chunk=putchunk, check=0):
         dictionary = ""
 
     im.encoderconfig = ("optimize" in im.encoderinfo, dictionary)
+    im.encoderconfig = ("optimize" in im.encoderinfo,
+        im.encoderinfo.get("compress_level", -1),
+        im.encoderinfo.get("compress_type", -1),
+        dictionary)
 
     # get the corresponding PNG mode
     try:
@@ -541,6 +552,10 @@ def _save(im, fp, filename, chunk=putchunk, check=0):
             chunk(fp, "tRNS", o16(red) + o16(green) + o16(blue))
         else:
             raise IOError("cannot use transparency for this mode")
+    else:
+        if im.mode == "P" and im.im.getpalettemode() == "RGBA":
+            alpha = im.im.getpalette("RGBA", "A")
+            chunk(fp, "tRNS", alpha)
 
     if 0:
         # FIXME: to be supported some day

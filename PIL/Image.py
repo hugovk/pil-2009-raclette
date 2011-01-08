@@ -135,10 +135,22 @@ FLOYDSTEINBERG = 3 # default
 WEB = 0
 ADAPTIVE = 1
 
+MEDIANCUT = 0
+MAXCOVERAGE = 1
+FASTOCTREE = 2
+
 # categories
 NORMAL = 0
 SEQUENCE = 1
 CONTAINER = 2
+
+if hasattr(core, 'DEFAULT_STRATEGY'):
+    DEFAULT_STRATEGY = core.DEFAULT_STRATEGY
+    FILTERED = core.FILTERED
+    HUFFMAN_ONLY = core.HUFFMAN_ONLY
+    RLE = core.RLE
+    FIXED = core.FIXED
+    
 
 # --------------------------------------------------------------------
 # Registries
@@ -625,7 +637,11 @@ class Image(object):
             self.palette.mode = "RGB"
             self.palette.rawmode = None
             if "transparency" in self.info:
-                self.im.putpalettealpha(self.info["transparency"], 0)
+                if isNumberType(self.info["transparency"]):
+                    self.im.putpalettealpha(self.info["transparency"], 0)
+                else:
+                    alphas = "".join(map(chr, self.info["transparency"]))
+                    self.im.putpalettealphas(alphas)
                 self.palette.mode = "RGBA"
         if self.im:
             return self.im.pixel_access(self.readonly)
@@ -723,6 +739,7 @@ class Image(object):
         # methods:
         #    0 = median cut
         #    1 = maximum coverage
+        #    2 = fast octree
 
         # NOTE: this functionality will be moved to the extended
         # quantizer interface in a later version of PIL.

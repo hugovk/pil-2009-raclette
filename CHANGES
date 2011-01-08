@@ -35,7 +35,19 @@ was last updated, see the repository revision history:
 
   http://bitbucket.org/effbot/pil-2009-raclette/changesets/
 
-(1.2a0 snapshot)
++ Added Oliver Tonnhofer's PNG and Quantization work:
+
+  - Added support for PNG8 images with transparency
+  - Added a new color quantizer: Image.FASTOCTTREE
+  - Added new compress_level and compress_type options to
+    the PNG writer to get more control over ZIP compression
+
++ Restored support for Python 2.2, for now.
+
+(1.2a0-20110108 snapshot)
+
++ Setup now migrates all Python files if installing under Python
+  3.1 or later.
 
 + Modules must now be imported using the full package name.  The
   PIL.pth helper has been removed.
