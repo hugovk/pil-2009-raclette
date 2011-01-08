@@ -32,6 +32,10 @@ http://www.cazabon.com\n\
 #define PyObject_Del PyMem_DEL
 #endif
 
+#if PY_VERSION_HEX < 0x02030000
+#define PyMODINIT_FUNC DL_EXPORT(void)
+#endif
+
 #if LCMS_VERSION < 117
 #define LCMSBOOL BOOL
 #endif

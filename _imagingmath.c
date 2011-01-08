@@ -23,6 +23,10 @@
 #define MAX_INT32 2147483647.0
 #define MIN_INT32 -2147483648.0
 
+#if PY_VERSION_HEX < 0x02030000
+#define PyMODINIT_FUNC DL_EXPORT(void)
+#endif
+
 #if defined(_MSC_VER) && _MSC_VER < 1500
 /* python 2.1/2.2/2.3 = VC98 = VER 1200 */
 /* python 2.4/2.5 = VS.NET 2003 = VER 1310 */

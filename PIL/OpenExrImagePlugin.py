@@ -56,6 +56,12 @@ def preview(x):
         "RGBA", struct.unpack("<II", x[:8]), x[8:], "raw", "RGBA", 0, 1
         )
 
+try:
+    dict(one=1)
+except TypeError:
+    def dict(**kwargs):
+        return kwargs
+
 converters = dict(
     box2f=lambda x: struct.unpack("<4f", x),
     box2i=lambda x: struct.unpack("<4i", x),

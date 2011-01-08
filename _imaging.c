@@ -106,6 +106,7 @@
 #endif
 
 #if PY_VERSION_HEX < 0x02030000
+#define PyMODINIT_FUNC DL_EXPORT(void)
 #define PyLong_AsUnsignedLongMask PyLong_AsUnsignedLong
 #endif
 
