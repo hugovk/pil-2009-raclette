@@ -5,7 +5,17 @@
 # Usage: python setup.py install
 #
 
-import glob, os, re, struct, string, sys
+import glob, os, re, struct, sys
+
+try:
+    from platform import architecture
+except ImportError:
+    # Python 2.2
+    def architecture():
+        if isinstance(2**40, long):
+            return ("32bit", "")
+        else:
+            return ("64bit", "")
 
 # make it possible to run the setup script from another directory
 try:
@@ -13,15 +23,8 @@ try:
 except OSError:
     pass
 
-try:
-    from platform import architecture
-except ImportError:
-    # python < 2.3
-    def architecture():
-        if isinstance(2**40, long):
-            return ("32bit", '')
-        else:
-            return ("64bit", '')
+def out(*args, **opts):
+    sys.stdout.write(" ".join(args) + opts.get("end", "\n"))
 
 def libinclude(root):
     # map root to (root/lib, root/include)
@@ -42,6 +45,9 @@ def libinclude(root):
 # you can use the "libinclude" helper:
 #
 # TIFF_ROOT = libinclude("/opt/tiff")
+#
+# Alternatively, you can set the variables outside the script via
+# environment variables of the form PIL_SETUP_TCL_ROOT etc.
 
 TCL_ROOT = None
 JPEG_ROOT = None
@@ -53,26 +59,18 @@ LCMS_ROOT = None
 # FIXME: add mechanism to explicitly *disable* the use of a library
 
 # --------------------------------------------------------------------
-# Update library pointers from environment
+# Handle external library overrides.
 
-def paths_from_env(prefix):
-    root = os.environ.get('%s_ROOT' % prefix)
-    lib = os.environ.get('%s_LIB' % prefix)
-    inc = os.environ.get('%s_INCLUDE' % prefix)
-    if root:
-        root_lib, root_inc = libinclude(root)
-        if not lib:
-            lib = root_lib
-        if not inc:
-            inc = root_inc
-    if not lib and not inc:
-        return None
-    return (lib, inc)
+module = sys.modules[__name__]
 
-for prefix in ('TCL', 'JPEG', 'TIFF', 'ZLIB', 'FREETYPE', 'LCMS'):
-    setting_name = '%s_ROOT' % prefix
-    if globals()[setting_name] is None:
-        globals()[setting_name] = paths_from_env(prefix)
+for name in dir(module):
+    if name.endswith("_ROOT") and getattr(module, name) is None:
+        value = os.environ.get("PIL_SETUP_" + name)
+        if value:
+            if os.pathsep in value:
+                value = tuple(value.split(os.pathsep)[:2])
+            out("---", name, "set to", value, "by environment variable")
+            setattr(module, name, value)
 
 # --------------------------------------------------------------------
 # Identification
@@ -97,7 +95,7 @@ LIBIMAGING = [
     "Geometry", "GetBBox", "GifDecode", "GifEncode", "HexDecode",
     "Histo", "JpegDecode", "JpegEncode", "LzwDecode", "Matrix",
     "ModeFilter", "MspDecode", "Negative", "Offset", "Pack",
-    "PackDecode", "Palette", "Paste", "Quant", "QuantHash",
+    "PackDecode", "Palette", "Paste", "Quant", "QuantOctree", "QuantHash",
     "QuantHeap", "PcdDecode", "PcxDecode", "PcxEncode", "Point",
     "RankFilter", "RawDecode", "RawEncode", "Storage", "SunRleDecode",
     "TgaRleDecode", "Unpack", "UnpackYCC", "UnsharpMask", "XbmDecode",
@@ -117,6 +115,10 @@ except ImportError:
 from distutils import sysconfig
 from distutils.core import Extension, setup
 from distutils.command.build_ext import build_ext
+try:
+    from distutils.command.build_py import build_py_2to3
+except ImportError:
+    build_py_2to3 = None
 
 try:
     import _tkinter
@@ -219,8 +221,8 @@ class pil_build_ext(build_ext):
                 TCL_ROOT = os.path.abspath(TCL_ROOT)
                 if os.path.isfile(os.path.join(TCL_ROOT, "include", "tk.h")):
                     # FIXME: use distutils logging (?)
-                    print "--- using Tcl/Tk libraries at", TCL_ROOT
-                    print "--- using Tcl/Tk version", TCL_VERSION
+                    out("--- using Tcl/Tk libraries at", TCL_ROOT)
+                    out("--- using Tcl/Tk version", TCL_VERSION)
                     TCL_ROOT = libinclude(TCL_ROOT)
                     break
             else:
@@ -231,7 +233,7 @@ class pil_build_ext(build_ext):
 
         for root in (TCL_ROOT, JPEG_ROOT, TCL_ROOT, TIFF_ROOT, ZLIB_ROOT,
                      FREETYPE_ROOT, LCMS_ROOT):
-            if isinstance(root, type(())):
+            if isinstance(root, tuple):
                 lib_root, include_root = root
             else:
                 lib_root = include_root = root
@@ -339,12 +341,14 @@ class pil_build_ext(build_ext):
             defs.append(("HAVE_LIBZ", None))
         if sys.platform == "win32":
             libs.extend(["kernel32", "user32", "gdi32"])
-        if struct.unpack("h", "\0\1")[0] == 1:
+        if sys.byteorder == "big":
             defs.append(("WORDS_BIGENDIAN", None))
 
         exts = [(Extension(
             "_imaging", files, libraries=libs, define_macros=defs
             ))]
+
+        del self.extensions[:]
 
         #
         # additional libraries
@@ -381,7 +385,7 @@ class pil_build_ext(build_ext):
             for root in framework_roots:
                 if (os.path.exists(os.path.join(root, "Tcl.framework")) and
                     os.path.exists(os.path.join(root, "Tk.framework"))):
-                    print "--- using frameworks at", root
+                    out("--- using frameworks at", root)
                     frameworks = ["-framework", "Tcl", "-framework", "Tk"]
                     dir = os.path.join(root, "Tcl.framework", "Headers")
                     add_directory(self.compiler.include_dirs, dir, 0)
@@ -403,7 +407,9 @@ class pil_build_ext(build_ext):
         if os.path.isfile("_imagingmath.c"):
             exts.append(Extension("_imagingmath", ["_imagingmath.c"]))
 
-        self.extensions[:] = exts
+        # only build extensions for Python 2.X, for now
+        if sys.version_info < (3, 0):
+            self.extensions[:] = exts
 
         build_ext.build_extensions(self)
 
@@ -419,15 +425,16 @@ class pil_build_ext(build_ext):
 
     def summary_report(self, feature, unsafe_zlib):
 
-        print "-" * 68
-        print "PIL", VERSION, "SETUP SUMMARY"
-        print "-" * 68
-        print "version      ", VERSION
-        v = string.split(sys.version, "[")
-        print "platform     ", sys.platform, string.strip(v[0])
+        out("-" * 68)
+        out("PIL", VERSION, "SETUP SUMMARY")
+        out("-" * 68)
+        out("version      ", VERSION)
+        v = "Python " + sys.version + " on " + sys.platform
+        v = v.splitlines()
+        out("platform     ", v[0].strip())
         for v in v[1:]:
-            print "             ", string.strip("[" + v)
-        print "-" * 68
+            out("             ", v.strip())
+        out("-" * 68)
 
         options = [
             (feature.tcl and feature.tk, "TKINTER"),
@@ -441,34 +448,34 @@ class pil_build_ext(build_ext):
         all = 1
         for option in options:
             if option[0]:
-                print "---", option[1], "support available"
+                out("---", option[1], "support available")
             else:
-                print "***", option[1], "support not available",
+                out("***", option[1], "support not available", end=' ')
                 if option[1] == "TKINTER" and _tkinter:
                     version = _tkinter.TCL_VERSION
-                    print "(Tcl/Tk %s libraries needed)" % version,
-                print
+                    out("(Tcl/Tk %s libraries needed)" % version, end=' ')
+                out()
                 all = 0
 
         if feature.zlib and unsafe_zlib:
-            print
-            print "*** Warning: zlib", unsafe_zlib,
-            print "may contain a security vulnerability."
-            print "*** Consider upgrading to zlib 1.2.3 or newer."
-            print "*** See: http://www.kb.cert.org/vuls/id/238678"
-            print "         http://www.kb.cert.org/vuls/id/680620"
-            print "         http://www.gzip.org/zlib/advisory-2002-03-11.txt"
-            print
+            out()
+            out("*** Warning: zlib", unsafe_zlib, end=' ')
+            out("may contain a security vulnerability.")
+            out("*** Consider upgrading to zlib 1.2.3 or newer.")
+            out("*** See: http://www.kb.cert.org/vuls/id/238678")
+            out("         http://www.kb.cert.org/vuls/id/680620")
+            out("         http://www.gzip.org/zlib/advisory-2002-03-11.txt")
+            out()
 
-        print "-" * 68
+        out("-" * 68)
 
         if not all:
-            print "To add a missing option, make sure you have the required"
-            print "library, and set the corresponding ROOT variable in the"
-            print "setup.py script."
-            print
+            out("To add a missing option, make sure you have the required")
+            out("library, and set the corresponding ROOT variable in the")
+            out("setup.py script.")
+            out()
 
-        print "To check the build, run the selftest.py script."
+        out("To check the build, run the selftest.py script.")
 
     def check_zlib_version(self, include_dirs):
         # look for unsafe versions of zlib
@@ -499,6 +506,17 @@ if __name__ == "__main__":
     except:
         pass
 
+    # command implementations
+    cmdclass = {"build_ext": pil_build_ext}
+    if sys.version_info >= (3, 0) and build_py_2to3:
+        cmdclass["build_py"] = build_py_2to3
+
+    try:
+        dict(one=1)
+    except TypeError:
+        def dict(**options):
+            return options
+
     # Basic metadata
     configuration = dict(
         author=AUTHOR[0], author_email=AUTHOR[1],
@@ -511,28 +529,18 @@ if __name__ == "__main__":
             "Topic :: Multimedia :: Graphics :: Graphics Conversion",
             "Topic :: Multimedia :: Graphics :: Viewers",
             ],
+        cmdclass=cmdclass,
         description=DESCRIPTION,
         download_url=DOWNLOAD_URL % (NAME, VERSION),
+        ext_modules=[Extension("_imaging", ["_imaging.c"])], # dummy
         license="Python (MIT style)",
         long_description=DESCRIPTION,
         name=NAME,
-        platforms="Python 1.5.2 and later.",
+        platforms="Python 2.3 and later.",
+        packages=["PIL"],
         scripts = glob.glob("Scripts/pil*.py"),
         url=HOMEPAGE,
         version=VERSION,
         )
 
-    # Standard configuration for PIL package
-    configuration.update(dict(
-        packages=["PIL"],
-        package_data={"PIL": ["../PIL.pth"]}, # To support import Image
-        ))
-
-    # Extensions
-    configuration.update(dict(
-        cmdclass = {"build_ext": pil_build_ext},
-        ext_modules = [Extension("_imaging", ["_imaging.c"])], # dummy
-        ext_package = "PIL",
-        ))
-
-    apply(setup, (), configuration)  # old school :-)
+    setup(**configuration)

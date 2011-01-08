@@ -90,4 +90,4 @@ for file in argv:
 
     except:
         print "cannot print image",
-        print "(%s:%s)" % (sys.exc_type, sys.exc_value)
+        print "(%s:%s)" % sys.exc_info()[:2]

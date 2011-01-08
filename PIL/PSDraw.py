@@ -16,12 +16,11 @@
 #
 
 import EpsImagePlugin
-import string
 
 ##
 # Simple Postscript graphics interface.
 
-class PSDraw:
+class PSDraw(object):
 
     def __init__(self, fp=None):
         if not fp:
@@ -52,9 +51,9 @@ class PSDraw:
             self.fp.flush()
 
     def setfont(self, font, size):
-        if not self.isofont.has_key(font):
+        if font not in self.isofont:
             # reencode font
-            self.fp.write("/PSDraw-%s ISOLatin1Encoding /%s E\n" %\
+            self.fp.write("/PSDraw-%s ISOLatin1Encoding /%s E\n" %
                           (font, font))
             self.isofont[font] = 1
         # rough
@@ -71,8 +70,8 @@ class PSDraw:
         self.fp.write("%d %d M %d %d 0 Vr\n" % box)
 
     def text(self, xy, text):
-        text = string.joinfields(string.splitfields(text, "("), "\\(")
-        text = string.joinfields(string.splitfields(text, ")"), "\\)")
+        text = text.replace("(", "\\(")
+        text = text.replace(")", "\\)")
         xy = xy + (text,)
         self.fp.write("%d %d M (%s) S\n" % xy)
 

@@ -26,14 +26,6 @@ import Image
 # @since 1.1.3
 ##
 
-try:
-    # built-in driver (1.1.3 and later)
-    grabber = Image.core.grabscreen
-except AttributeError:
-    # stand-alone driver (pil plus)
-    import _grabscreen
-    grabber = _grabscreen.grab
-
 ##
 # (New in 1.1.3) Take a snapshot of the screen.  The pixels inside the
 # bounding box are returned as an "RGB" image.  If the bounding box is
@@ -44,7 +36,7 @@ except AttributeError:
 # @since 1.1.3
 
 def grab(bbox=None):
-    size, data = grabber()
+    size, data = Image.core.grabscreen()
     im = Image.fromstring(
         "RGB", size, data,
         # RGB, 32-bit line padding, origo in lower left corner
@@ -66,6 +58,7 @@ def grabclipboard():
     debug = 0 # temporary interface
     data = Image.core.grabclipboard(debug)
     if Image.isStringType(data):
-        import BmpImagePlugin, StringIO
+        import StringIO
+        import BmpImagePlugin
         return BmpImagePlugin.DibImageFile(StringIO.StringIO(data))
     return data

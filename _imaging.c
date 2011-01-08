@@ -92,9 +92,6 @@
 
 #define WITH_DEBUG /* extra debugging interfaces */
 
-/* PIL Plus extensions */
-#undef  WITH_CRACKCODE /* pil plus */
-
 #undef	VERBOSE
 
 #define CLIP(x) ((x) <= 0 ? 0 : (x) < 256 ? (x) : 255)
@@ -109,11 +106,13 @@
 #endif
 
 #if PY_VERSION_HEX < 0x02030000
+#define PyMODINIT_FUNC DL_EXPORT(void)
 #define PyLong_AsUnsignedLongMask PyLong_AsUnsignedLong
 #endif
 
 #if PY_VERSION_HEX < 0x02050000
 #define Py_ssize_t int
+#define lenfunc inquiry
 #define ssizeargfunc intargfunc
 #define ssizessizeargfunc intintargfunc
 #define ssizeobjargproc intobjargproc
@@ -917,6 +916,17 @@ _getpalette(ImagingObject* self, PyObject* args)
     return palette;
 }
 
+static PyObject* 
+_getpalettemode(ImagingObject* self, PyObject* args)
+{
+    if (!self->image->palette) {
+	PyErr_SetString(PyExc_ValueError, no_palette);
+	return NULL;
+    }
+
+    return PyString_FromString(self->image->palette->mode);
+}
+
 static inline int
 _getxy(PyObject* xy, int* x, int *y)
 {
@@ -1418,6 +1428,34 @@ _putpalettealpha(ImagingObject* self, PyObject* args)
 
     strcpy(self->image->palette->mode, "RGBA");
     self->image->palette->palette[index*4+3] = (UINT8) alpha;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject* 
+_putpalettealphas(ImagingObject* self, PyObject* args)
+{
+    int i;
+    UINT8 *values;
+    int length;
+    if (!PyArg_ParseTuple(args, "s#", &values, &length))
+	return NULL;
+
+    if (!self->image->palette) {
+	PyErr_SetString(PyExc_ValueError, no_palette);
+	return NULL;
+    }
+
+    if (length  > 256) {
+	PyErr_SetString(PyExc_ValueError, outside_palette);
+	return NULL;
+    }
+
+    strcpy(self->image->palette->mode, "RGBA");
+    for (i=0; i<length; i++) {
+	self->image->palette->palette[i*4+3] = (UINT8) values[i];
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -2885,9 +2923,6 @@ static struct PyMethodDef methods[] = {
     {"convert_matrix", (PyCFunction)_convert_matrix, 1},
     {"copy", (PyCFunction)_copy, 1},
     {"copy2", (PyCFunction)_copy2, 1},
-#ifdef WITH_CRACKCODE
-    {"crackcode", (PyCFunction)_crackcode, 1},
-#endif
     {"crop", (PyCFunction)_crop, 1},
     {"expand", (PyCFunction)_expand, 1},
     {"filter", (PyCFunction)_filter, 1},
@@ -2926,8 +2961,10 @@ static struct PyMethodDef methods[] = {
     {"setmode", (PyCFunction)im_setmode, 1},
     
     {"getpalette", (PyCFunction)_getpalette, 1},
+    {"getpalettemode", (PyCFunction)_getpalettemode, 1},
     {"putpalette", (PyCFunction)_putpalette, 1},
     {"putpalettealpha", (PyCFunction)_putpalettealpha, 1},
+    {"putpalettealphas", (PyCFunction)_putpalettealphas, 1},
 
 #ifdef WITH_IMAGECHOPS
     /* Channel operations (ImageChops) */
@@ -3021,7 +3058,7 @@ image_item(ImagingObject *self, Py_ssize_t i)
 }
 
 static PySequenceMethods image_as_sequence = {
-    (inquiry) image_length, /*sq_length*/
+    (lenfunc) image_length, /*sq_length*/
     (binaryfunc) NULL, /*sq_concat*/
     (ssizeargfunc) NULL, /*sq_repeat*/
     (ssizeargfunc) image_item, /*sq_item*/
@@ -3081,7 +3118,7 @@ statichere PyTypeObject ImagingDraw_Type = {
 #endif
 
 static PyMappingMethods pixel_access_as_mapping = {
-    (inquiry) NULL, /*mp_length*/
+    (lenfunc) NULL, /*mp_length*/
     (binaryfunc) pixel_access_getitem, /*mp_subscript*/
     (objobjargproc) pixel_access_setitem, /*mp_ass_subscript*/
 };
@@ -3253,7 +3290,7 @@ static PyMethodDef functions[] = {
     {NULL, NULL} /* sentinel */
 };
 
-DL_EXPORT(void)
+PyMODINIT_FUNC
 init_imaging(void)
 {
     PyObject* m;
@@ -3280,9 +3317,17 @@ init_imaging(void)
 #endif
 
 #ifdef HAVE_LIBZ
+#include "zlib.h"
+  /* zip encoding strategies */
+  PyModule_AddIntConstant(m, "DEFAULT_STRATEGY", Z_DEFAULT_STRATEGY);
+  PyModule_AddIntConstant(m, "FILTERED", Z_FILTERED);
+  PyModule_AddIntConstant(m, "HUFFMAN_ONLY", Z_HUFFMAN_ONLY);
+  PyModule_AddIntConstant(m, "RLE", Z_RLE);
+  PyModule_AddIntConstant(m, "FIXED", Z_FIXED);
   {
     extern const char* ImagingZipVersion(void);
     PyDict_SetItemString(d, "zlib_version", PyString_FromString(ImagingZipVersion()));
   }
 #endif
+
 }

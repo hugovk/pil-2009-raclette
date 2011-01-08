@@ -25,7 +25,8 @@
 # See the README file for information on usage and redistribution.
 #
 
-import Tkinter, Image
+import Tkinter
+import Image
 
 ##
 # The <b>ImageTk</b> module contains support to create and modify
@@ -59,7 +60,7 @@ def _pilbitmap_check():
 # everywhere Tkinter expects an image object.  If the image is an RGBA
 # image, pixels having alpha 0 are treated as transparent.
 
-class PhotoImage:
+class PhotoImage(object):
 
     ##
     # Create a photo image object. The constructor takes either
@@ -81,10 +82,10 @@ class PhotoImage:
 
         # Tk compatibility: file or data
         if image is None:
-            if kw.has_key("file"):
+            if "file" in kw:
                 image = Image.open(kw["file"])
                 del kw["file"]
-            elif kw.has_key("data"):
+            elif "data" in kw:
                 from StringIO import StringIO
                 image = Image.open(StringIO(kw["data"]))
                 del kw["data"]
@@ -110,7 +111,7 @@ class PhotoImage:
 
         self.__mode = mode
         self.__size = size
-        self.__photo = apply(Tkinter.PhotoImage, (), kw)
+        self.__photo = Tkinter.PhotoImage(**kw)
         self.tk = self.__photo.tk
         if image:
             self.paste(image)
@@ -194,7 +195,7 @@ class PhotoImage:
 # Create a Tkinter-compatible bitmap image.  This can be used
 # everywhere Tkinter expects an image object.
 
-class BitmapImage:
+class BitmapImage(object):
 
     ##
     # Create a Tkinter-compatible bitmap image.
@@ -213,10 +214,10 @@ class BitmapImage:
 
         # Tk compatibility: file or data
         if image is None:
-            if kw.has_key("file"):
+            if "file" in kw:
                 image = Image.open(kw["file"])
                 del kw["file"]
-            elif kw.has_key("data"):
+            elif "data" in kw:
                 from StringIO import StringIO
                 image = Image.open(StringIO(kw["data"]))
                 del kw["data"]
@@ -232,7 +233,7 @@ class BitmapImage:
         else:
             # slow but safe way
             kw["data"] = image.tobitmap()
-        self.__photo = apply(Tkinter.BitmapImage, (), kw)
+        self.__photo = Tkinter.BitmapImage(**kw)
 
     def __del__(self):
         name = self.__photo.name
@@ -289,7 +290,7 @@ def _show(image, title):
                 bg="black", bd=0)
 
     if not Tkinter._default_root:
-        raise IOError, "tkinter not initialized"
+        raise IOError("tkinter not initialized")
     top = Tkinter.Toplevel()
     if title:
         top.title(title)

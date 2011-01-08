@@ -43,8 +43,7 @@ verbose = quiet = verify = 0
 for o, a in opt:
     if o == "-f":
         Image.init()
-        id = Image.ID[:]
-        id.sort()
+        id = sorted(Image.ID)
         print "Supported formats:"
         for i in id:
             print i,
@@ -83,7 +82,7 @@ for file in globfix(args):
             except:
                 if not quiet:
                     print "failed to verify image",
-                    print "(%s:%s)" % (sys.exc_type, sys.exc_value)
+                    print "(%s:%s)" % sys.exc_info()[:2]
     except IOError, v:
         if not quiet:
             print file, "failed:", v

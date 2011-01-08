@@ -34,7 +34,7 @@ import operator, math
 # only the regions covered by that mask are included in the
 # statistics.
 
-class Stat:
+class Stat(object):
     "Get image or feature statistics"
 
     ##
@@ -52,14 +52,14 @@ class Stat:
                 self.h = image_or_list.histogram()
         except AttributeError:
             self.h = image_or_list # assume it to be a histogram list
-        if type(self.h) != type([]):
-            raise TypeError, "first argument must be image or list"
-        self.bands = range(len(self.h) / 256)
+        if not isinstance(self.h, list):
+            raise TypeError("first argument must be image or list")
+        self.bands = range(len(self.h) // 256)
 
     def __getattr__(self, id):
         "Calculate missing attribute"
         if id[:4] == "_get":
-            raise AttributeError, id
+            raise AttributeError(id)
         # calculate missing attribute
         v = getattr(self, "_get" + id)()
         setattr(self, id, v)
@@ -126,7 +126,7 @@ class Stat:
         v = []
         for i in self.bands:
             s = 0
-            l = self.count[i]/2
+            l = self.count[i]//2
             b = i * 256
             for j in range(256):
                 s = s + self.h[b+j]

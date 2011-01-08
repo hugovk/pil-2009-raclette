@@ -95,7 +95,7 @@ def test_icc_big():
         # The ICC APP marker can store 65519 bytes per marker, so
         # using a 4-byte test code should allow us to detect out of
         # order issues.
-        icc_profile = ("Test"*int(n/4+1))[:n]
+        icc_profile = ("Test"*(n//4+1))[:n]
         assert len(icc_profile) == n # sanity
         im1 = roundtrip(lena(), icc_profile=icc_profile)
         assert_equal(im1.info.get("icc_profile"), icc_profile or None)

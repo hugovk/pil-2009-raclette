@@ -33,7 +33,9 @@
 # http://www.wadsworth.org/spider_doc/spider/docs/image_doc.html
 #
 
-import Image, ImageFile
+import Image
+import ImageFile
+
 import os, struct, sys
 
 def isInt(f):
@@ -101,14 +103,14 @@ class SpiderImageFile(ImageFile.ImageFile):
                 t = struct.unpack('<27f',f)  # little-endian
                 hdrlen = isSpiderHeader(t)
             if hdrlen == 0:
-                raise SyntaxError, "not a valid Spider file"
+                raise SyntaxError("not a valid Spider file")
         except struct.error:
-            raise SyntaxError, "not a valid Spider file"
+            raise SyntaxError("not a valid Spider file")
 
         h = (99,) + t   # add 1 value : spider header index starts at 1
         iform = int(h[5])
         if iform != 1:
-            raise SyntaxError, "not a Spider 2D image"
+            raise SyntaxError("not a Spider 2D image")
 
         self.size = int(h[12]), int(h[2]) # size in pixels (width, height)
         self.istack = int(h[24])
@@ -131,7 +133,7 @@ class SpiderImageFile(ImageFile.ImageFile):
             offset = hdrlen + self.stkoffset
             self.istack = 2  # So Image knows it's still a stack
         else:
-            raise SyntaxError, "inconsistent stack header values"
+            raise SyntaxError("inconsistent stack header values")
 
         if self.bigendian:
             self.rawmode = "F;32BF"
@@ -154,7 +156,7 @@ class SpiderImageFile(ImageFile.ImageFile):
         if self.istack == 0:
             return
         if frame >= self.nimages:
-            raise EOFError, "attempt to seek past end of file"
+            raise EOFError("attempt to seek past end of file")
         self.stkoffset = self.hdrlen + frame * (self.hdrlen + self.imgbytes)
         self.fp = self.__fp
         self.fp.seek(self.stkoffset)
@@ -239,13 +241,13 @@ def _save(im, fp, filename):
 
     hdr = makeSpiderHeader(im)
     if len(hdr) < 256:
-        raise IOError, "Error creating Spider header"
+        raise IOError("Error creating Spider header")
 
     # write the SPIDER header
     try:
         fp = open(filename, 'wb')
     except:
-        raise IOError, "Unable to open %s for writing" % filename
+        raise IOError("Unable to open %s for writing" % filename)
     fp.writelines(hdr)
 
     rawmode = "F;32NF"  #32-bit native floating point

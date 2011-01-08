@@ -28,7 +28,9 @@
 __version__ = "0.9"
 
 
-import Image, ImageFile, ImagePalette
+import Image
+import ImageFile
+import ImagePalette
 
 
 # --------------------------------------------------------------------
@@ -69,7 +71,7 @@ class GifImageFile(ImageFile.ImageFile):
         # Screen
         s = self.fp.read(13)
         if s[:6] not in ["GIF87a", "GIF89a"]:
-            raise SyntaxError, "not a GIF file"
+            raise SyntaxError("not a GIF file")
 
         self.info["version"] = s[:6]
 
@@ -87,7 +89,7 @@ class GifImageFile(ImageFile.ImageFile):
             # check if palette contains colour indices
             p = self.fp.read(3<<bits)
             for i in range(0, len(p), 3):
-                if not (chr(i/3) == p[i] == p[i+1] == p[i+2]):
+                if not (chr(i//3) == p[i] == p[i+1] == p[i+2]):
                     p = ImagePalette.raw("RGB", p)
                     self.global_palette = self.palette = p
                     break
@@ -106,7 +108,7 @@ class GifImageFile(ImageFile.ImageFile):
             self.__fp.seek(self.__rewind)
 
         if frame != self.__frame + 1:
-            raise ValueError, "cannot seek to frame %d" % frame
+            raise ValueError("cannot seek to frame %d" % frame)
         self.__frame = frame
 
         self.tile = []
@@ -125,7 +127,7 @@ class GifImageFile(ImageFile.ImageFile):
 
         self.palette = self.global_palette
 
-        while 1:
+        while True:
 
             s = self.fp.read(1)
             if not s or s == ";":
@@ -183,8 +185,7 @@ class GifImageFile(ImageFile.ImageFile):
 
                 if flags & 128:
                     bits = (flags & 7) + 1
-                    self.palette =\
-                        ImagePalette.raw("RGB", self.fp.read(3<<bits))
+                    self.palette = ImagePalette.raw("RGB", self.fp.read(3<<bits))
 
                 # image data
                 bits = ord(self.fp.read(1))
@@ -197,11 +198,11 @@ class GifImageFile(ImageFile.ImageFile):
 
             else:
                 pass
-                # raise IOError, "illegal GIF tag `%x`" % ord(s)
+                # raise IOError("illegal GIF tag `%x`" % ord(s))
 
         if not self.tile:
             # self.__fp = None
-            raise EOFError, "no more images in GIF file"
+            raise EOFError("no more images in GIF file")
 
         self.mode = "L"
         if self.palette:
@@ -361,7 +362,7 @@ def getdata(im, offset = (0, 0), **params):
        The first string is a local image header, the rest contains
        encoded image data."""
 
-    class collector:
+    class collector(object):
         data = []
         def write(self, data):
             self.data.append(data)

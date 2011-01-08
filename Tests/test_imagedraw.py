@@ -23,6 +23,6 @@ def test_deprecated():
 
     draw = ImageDraw.Draw(im)
 
-    assert_warning(DeprecationWarning, lambda: draw.setink(0))
-    assert_warning(DeprecationWarning, lambda: draw.setfill(0))
+    assert_exception(AttributeError, lambda: draw.setink(0))
+    assert_exception(AttributeError, lambda: draw.setfill(0))
 

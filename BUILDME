@@ -2,10 +2,12 @@
 # quick build (for lazy programmers).  for more information on the
 # build process, see the README file.
 
+PYTHON=${PYTHON-python}
+
 if [ "$1" = "clean" ]; then
-  python setup.py clean
+  $PYTHON setup.py clean
   rm -f *.so PIL/*.so
 fi
 
-python setup.py build_ext -i
-python selftest.py
+$PYTHON setup.py build_ext -i
+$PYTHON selftest.py

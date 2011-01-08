@@ -36,7 +36,7 @@
 # See the README file for information on usage and redistribution.
 #
 
-import string, StringIO
+import StringIO
 
 
 def i16(c, o = 0):
@@ -105,7 +105,7 @@ class _OleStream(StringIO.StringIO):
             data.append(fp.read(sectorsize))
             sect = fat[sect]
 
-        data = string.join(data, "")
+        data = "".join(data)
 
         # print len(data), size
 
@@ -117,7 +117,7 @@ class _OleStream(StringIO.StringIO):
 # FIXME: should add a counter in here to avoid looping forever
 # if the tree is broken.
 
-class _OleDirectoryEntry:
+class _OleDirectoryEntry(object):
 
     """OLE2 Directory Entry
 
@@ -173,7 +173,7 @@ class _OleDirectoryEntry:
                 if right != -1: # 0xFFFFFFFFL:
                     # and then back to the left
                     sid = right
-                    while 1:
+                    while True:
                         left, right, child = sidlist[sid][4]
                         if left == -1: # 0xFFFFFFFFL:
                             break
@@ -181,7 +181,7 @@ class _OleDirectoryEntry:
                         sid = left
                 else:
                     # couldn't move right; move up instead
-                    while 1:
+                    while True:
                         ptr = stack[-1]
                         del stack[-1]
                         left, right, child = sidlist[ptr][4]
@@ -226,7 +226,7 @@ class _OleDirectoryEntry:
 # storage file.  Use the {@link listdir} and {@link openstream}
 # methods to access the contents of this file.
 
-class OleFileIO:
+class OleFileIO(object):
     """OLE container object
 
     This class encapsulates the interface to an OLE 2 structured
@@ -265,7 +265,7 @@ class OleFileIO:
     def open(self, filename):
         """Open an OLE2 file"""
 
-        if type(filename) == type(""):
+        if not hasattr(filename, "read"):
             self.fp = open(filename, "rb")
         else:
             self.fp = filename
@@ -273,7 +273,7 @@ class OleFileIO:
         header = self.fp.read(512)
 
         if len(header) != 512 or header[:8] != MAGIC:
-            raise IOError, "not an OLE2 structured storage file"
+            raise IOError("not an OLE2 structured storage file")
 
         # file clsid (probably never used, so we don't store it)
         clsid = self._clsid(header[8:24])
@@ -324,13 +324,6 @@ class OleFileIO:
         self.fp.seek(512 + self.sectorsize * sect)
         return self.fp.read(self.sectorsize)
 
-    def _unicode(self, s):
-        # Map unicode string to Latin 1
-
-        # FIXME: some day, Python will provide an official way to handle
-        # Unicode strings, but until then, this will have to do...
-        return filter(ord, s)
-
     def loaddirectory(self, sect):
         # Load the directory.  The directory is stored in a standard
         # substream, independent of its size.
@@ -340,12 +333,12 @@ class OleFileIO:
 
         # create list of sid entries
         self.sidlist = []
-        while 1:
+        while True:
             entry = fp.read(128)
             if not entry:
                 break
             type = ord(entry[66])
-            name = self._unicode(entry[0:0+i16(entry, 64)])
+            name = entry[0:0+i16(entry, 64)].decode("utf-16")
             ptrs = i32(entry, 68), i32(entry, 72), i32(entry, 76)
             sect, size = i32(entry, 116), i32(entry, 120)
             clsid = self._clsid(entry[80:96])
@@ -385,7 +378,7 @@ class OleFileIO:
                 if kid.name == name:
                     break
             else:
-                raise IOError, "file not found"
+                raise IOError("file not found")
             node = kid
         return node.sid
 
@@ -423,7 +416,7 @@ class OleFileIO:
         slot = self._find(filename)
         name, type, sect, size, sids, clsid = self.sidlist[slot]
         if type != 2:
-            raise IOError, "this file is not a stream"
+            raise IOError("this file is not a stream")
         return self._open(sect, size)
 
     ##
@@ -475,7 +468,7 @@ class OleFileIO:
                 value = s[offset+8:offset+8+count]
             elif type == VT_LPWSTR:
                 count = i32(s, offset+4)
-                value = self._unicode(s[offset+8:offset+8+count*2])
+                value = s[offset+8:offset+8+count*2].decode("utf-16")
             elif type == VT_FILETIME:
                 value = long(i32(s, offset+4)) + (long(i32(s, offset+8))<<32)
                 # FIXME: this is a 64-bit int: "number of 100ns periods
@@ -520,7 +513,7 @@ if __name__ == "__main__":
                 if file[-1][0] == "\005":
                     print file
                     props = ole.getproperties(file)
-                    props = props.items()
+                    props = list(props.items())
                     props.sort()
                     for k, v in props:
                         print "   ", k, v

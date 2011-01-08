@@ -28,24 +28,54 @@ Vasiliev, Sasha Voynow, Charles Waldman, Collin Winter, Dan Wolfe,
 Ka-Ping Yee, and many others (if your name should be on this list, let
 me know.)
 
-*** Changes from release 1.1.7 to 1.1.8 ***
-
-+ Add lib64 directories on Linux.
-
-+ On darwin look in /usr/x11 for freetype.
-
-+ Update library pointers from environment.
-
-+ Use PIL namespace when installing with easy_install.
-
-+ Added support for reading 16-bit RGB TIFF file.
-
-*** Changes from release 1.1.6 to 1.1.7 ***
+*** Changes from release 1.1.7 to 1.2 ***
 
 This section may not be fully complete.  For changes since this file
 was last updated, see the repository revision history:
 
   http://bitbucket.org/effbot/pil-2009-raclette/changesets/
+
++ Added Oliver Tonnhofer's PNG and Quantization work:
+
+  - Added support for PNG8 images with transparency
+  - Added a new color quantizer: Image.FASTOCTTREE
+  - Added new compress_level and compress_type options to
+    the PNG writer to get more control over ZIP compression
+
++ Add lib64 directories on Linux (from Laurence Rowe).
+
++ On Darwin look in /usr/x11 for freetype (from Laurence Rowe)..
+
++ Restored support for Python 2.2, for now.
+
+(1.2a0-20110108 snapshot)
+
++ Setup now migrates all Python files if installing under Python
+  3.1 or later.
+
++ Modules must now be imported using the full package name.  The
+  PIL.pth helper has been removed.
+
++ Added support for identifying OpenEXR files.
+
++ Removed obsolete ARG codec.
+
++ Removed deprecated Image.offset and ImageDraw.setink/setfill
+  methods.
+
++ All classes now inherit from object.
+
++ Added support for binary file streams (currently used by PNG and JPEG
+  only).
+
++ Dropped support for versions older than 2.3, and removed many
+  obsolete constructs from the code.
+
++ Added support for reading 16-bit RGB TIFF files.
+
++ Fixed numpy conversion for YCbCr images (from David Coles).
+
+*** Changes from release 1.1.6 to 1.1.7 ***
 
 (1.1.7 final)
 

@@ -27,8 +27,9 @@
 __version__ = "0.7"
 
 
-import string
-import Image, ImageFile, ImagePalette
+import Image
+import ImageFile
+import ImagePalette
 
 
 #
@@ -72,7 +73,7 @@ class BmpImageFile(ImageFile.ImageFile):
 
         # CORE/INFO
         s = read(4)
-        s = s + ImageFile._safe_read(self.fp, i32(s)-4)
+        s = s + self.fp.saferead(i32(s)-4)
 
         if len(s) == 12:
 
@@ -146,7 +147,7 @@ class BmpImageFile(ImageFile.ImageFile):
             else:
                 self.mode = "P"
                 self.palette = ImagePalette.raw(
-                    "BGR", string.join(palette, "")
+                    "BGR", "".join(palette)
                     )
 
         if not offset:
@@ -205,7 +206,7 @@ def _save(im, fp, filename, check=0):
     if check:
         return check
 
-    stride = ((im.size[0]*bits+7)/8+3)&(~3)
+    stride = ((im.size[0]*bits+7)//8+3)&(~3)
     header = 40 # or 64 for OS/2 version 2
     offset = 14 + header + colors * 4
     image  = stride * im.size[1]

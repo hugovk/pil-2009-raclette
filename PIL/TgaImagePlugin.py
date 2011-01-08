@@ -19,7 +19,9 @@
 
 __version__ = "0.3"
 
-import Image, ImageFile, ImagePalette
+import Image
+import ImageFile
+import ImagePalette
 
 
 #
@@ -72,10 +74,10 @@ class TgaImageFile(ImageFile.ImageFile):
         self.size = i16(s[12:]), i16(s[14:])
 
         # validate header fields
-        if id != 0 or colormaptype not in (0, 1) or\
-           self.size[0] <= 0 or self.size[1] <= 0 or\
-           depth not in (1, 8, 16, 24, 32):
-            raise SyntaxError, "not a TGA file"
+        if (id != 0 or colormaptype not in (0, 1) or
+            self.size[0] <= 0 or self.size[1] <= 0 or
+                depth not in (1, 8, 16, 24, 32)):
+            raise SyntaxError("not a TGA file")
 
         # image mode
         if imagetype in (3, 11):
@@ -89,7 +91,7 @@ class TgaImageFile(ImageFile.ImageFile):
             if depth == 32:
                 self.mode = "RGBA"
         else:
-            raise SyntaxError, "unknown TGA mode"
+            raise SyntaxError("unknown TGA mode")
 
         # orientation
         orientation = flags & 0x30
@@ -98,7 +100,7 @@ class TgaImageFile(ImageFile.ImageFile):
         elif not orientation:
             orientation = -1
         else:
-            raise SyntaxError, "unknown TGA orientation"
+            raise SyntaxError("unknown TGA orientation")
 
         self.info["orientation"] = orientation
 

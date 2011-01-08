@@ -19,7 +19,8 @@ __version__ = "0.2"
 
 import re
 
-import Image, ImageFile
+import Image
+import ImageFile
 
 #
 # --------------------------------------------------------------------
@@ -40,12 +41,12 @@ class ImtImageFile(ImageFile.ImageFile):
         # 100 bytes, this is (probably) not a text header.
 
         if not "\n" in self.fp.read(100):
-            raise SyntaxError, "not an IM file"
+            raise SyntaxError("not an IM file")
         self.fp.seek(0)
 
         xsize = ysize = 0
 
-        while 1:
+        while True:
 
             s = self.fp.read(1)
             if not s:

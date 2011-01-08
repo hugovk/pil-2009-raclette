@@ -10,33 +10,14 @@ import sys
 
 Image.DEBUG = 0
 
-
-# --------------------------------------------------------------------
-# experimental: support ARG animation scripts
-
-import ArgImagePlugin
-
-def applet_hook(animation, images):
-    app = animation(animation_display, images)
-    app.run()
-
-ArgImagePlugin.APPLET_HOOK = applet_hook
-
-class AppletDisplay:
-    def __init__(self, ui):
-        self.__ui = ui
-    def paste(self, im, bbox):
-        self.__ui.image.paste(im, bbox)
-    def update(self):
-        self.__ui.update_idletasks()
-
 # --------------------------------------------------------------------
 # an image animation player
 
 class UI(Label):
 
     def __init__(self, master, im):
-        if type(im) == type([]):
+
+        if isinstance(im, list):
             # list of images
             self.im = im[1:]
             im = self.im[0]
@@ -49,10 +30,6 @@ class UI(Label):
         else:
             self.image = ImageTk.PhotoImage(im)
 
-        # APPLET SUPPORT (very crude, and not 100% safe)
-        global animation_display
-        animation_display = AppletDisplay(self)
-
         Label.__init__(self, master, image=self.image, bg="black", bd=0)
 
         self.update()
@@ -61,21 +38,19 @@ class UI(Label):
             duration = im.info["duration"]
         except KeyError:
             duration = 100
-        self.after(duration, self.next)
 
-    def next(self):
+        self.after(duration, self.next_frame)
 
-        if type(self.im) == type([]):
+    def next_frame(self):
 
+        if isinstance(self.im, list):
             try:
                 im = self.im[0]
                 del self.im[0]
                 self.image.paste(im)
             except IndexError:
                 return # end of list
-
         else:
-
             try:
                 im = self.im
                 im.seek(im.tell() + 1)
@@ -87,7 +62,8 @@ class UI(Label):
             duration = im.info["duration"]
         except KeyError:
             duration = 100
-        self.after(duration, self.next)
+
+        self.after(duration, self.next_frame)
 
         self.update_idletasks()
 
