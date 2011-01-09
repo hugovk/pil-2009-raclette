@@ -195,12 +195,12 @@ if __name__ == "__main__":
     print "Python modules loaded from", os.path.dirname(Image.__file__)
     print "Binary modules loaded from", os.path.dirname(Image.core.__file__)
     print "-"*68
-    check_module("PIL CORE", "_imaging")
-    check_module("TKINTER", "_imagingtk")
+    check_module("PIL CORE", "PIL._imaging")
+    check_module("TKINTER", "PIL._imagingtk")
     check_codec("JPEG", "jpeg", "jpeglib_version")
     check_codec("ZLIB (PNG/ZIP)", "zip", "zlib_version")
-    check_module("FREETYPE2", "_imagingft", "freetype2_version")
-    check_module("LITTLECMS", "_imagingcms", "littlecms_version")
+    check_module("FREETYPE2", "PIL._imagingft", "freetype2_version")
+    check_module("LITTLECMS", "PIL._imagingcms", "littlecms_version")
     print "-"*68
 
     # use doctest to make sure the test program behaves as documented!
