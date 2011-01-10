@@ -41,7 +41,7 @@ tester_options = " ".join(tester_options)
 
 for file in files:
     test, ext = os.path.splitext(os.path.basename(file))
-    if include and test not in include:
+    if include and test not in include and test+ext not in include:
         continue
     print "running", test, "..."
     # 2>&1 works on unix and on modern windowses.  we might care about
