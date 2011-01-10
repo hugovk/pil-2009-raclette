@@ -105,6 +105,13 @@
 #define PyObject_Del PyMem_DEL
 #endif
 
+#if PY_VERSION_HEX >= 0x01060000
+#if PY_VERSION_HEX  < 0x02020000 || defined(Py_USING_UNICODE)
+/* defining this enables unicode support (default under 1.6a1 and later) */
+#define HAVE_UNICODE
+#endif
+#endif
+
 #if PY_VERSION_HEX < 0x02030000
 #define PyMODINIT_FUNC DL_EXPORT(void)
 #define PyLong_AsUnsignedLongMask PyLong_AsUnsignedLong
@@ -2123,6 +2130,8 @@ _chop_subtract_modulo(ImagingObject* self, PyObject* args)
 
 #ifdef WITH_IMAGEDRAW
 
+#define REPLACEMENT_CHAR '?'
+
 static PyObject*
 _font_new(PyObject* self_, PyObject* args)
 {
@@ -2188,13 +2197,42 @@ _font_dealloc(ImagingFontObject* self)
     PyObject_Del(self);
 }
 
-static inline int
-textwidth(ImagingFontObject* self, const unsigned char* text)
+static int
+textchar(PyObject* string, int index, int* char_out)
 {
-    int xsize;
+#if defined(HAVE_UNICODE)
+    if (PyUnicode_Check(string)) {
+        Py_UNICODE* p = PyUnicode_AS_UNICODE(string);
+        int size = PyUnicode_GET_SIZE(string);
+        if (index >= size)
+            return 0;
+        *char_out = p[index];
+        return 1;
+    }
+#endif
+    if (PyString_Check(string)) {
+        unsigned char* p = (unsigned char*) PyString_AS_STRING(string);
+        int size = PyString_GET_SIZE(string);
+        if (index >= size)
+            return 0;
+        *char_out = (unsigned char) p[index];
+        return 1;
+    }
+    return 0;
+}
 
-    for (xsize = 0; *text; text++)
-        xsize += self->glyphs[*text].dx;
+static inline int
+textwidth(ImagingFontObject* self, PyObject* text)
+{
+    int xsize, i, ch;
+
+    xsize = 0;
+
+    for (i = 0; textchar(text, i, &ch); i++) {
+        if (ch >= 256)
+	    ch = REPLACEMENT_CHAR;
+        xsize += self->glyphs[ch].dx;
+    }
 
     return xsize;
 }
@@ -2204,25 +2242,37 @@ _font_getmask(ImagingFontObject* self, PyObject* args)
 {
     Imaging im;
     Imaging bitmap;
-    int x, b;
+    int x, i, b, ch;
     int status;
     Glyph* glyph;
 
-    unsigned char* text;
+    PyObject* text;
     char* mode = "";
-    if (!PyArg_ParseTuple(args, "s|s:getmask", &text, &mode))
+    if (!PyArg_ParseTuple(args, "O|s:getmask", &text, &mode))
         return NULL;
+
+#if defined(HAVE_UNICODE)
+    if (!PyUnicode_Check(text) && !PyString_Check(text)) {
+#else
+    if (!PyString_Check(text)) {
+#endif
+        PyErr_SetString(PyExc_TypeError, "expected string");
+        return NULL;
+    }
 
     im = ImagingNew(self->bitmap->mode, textwidth(self, text), self->ysize);
     if (!im)
         return NULL;
 
-    b = 0;
+    x = b = 0;
     (void) ImagingFill(im, &b);
 
     b = self->baseline;
-    for (x = 0; *text; text++) {
-        glyph = &self->glyphs[*text];
+
+    for (i = 0; textchar(text, i, &ch); i++) {
+        if (ch >= 256)
+	    ch = REPLACEMENT_CHAR;
+        glyph = &self->glyphs[ch];
         bitmap = ImagingCrop(
             self->bitmap,
             glyph->sx0, glyph->sy0, glyph->sx1, glyph->sy1
@@ -2250,9 +2300,18 @@ _font_getmask(ImagingFontObject* self, PyObject* args)
 static PyObject*
 _font_getsize(ImagingFontObject* self, PyObject* args)
 {
-    unsigned char* text;
-    if (!PyArg_ParseTuple(args, "s:getsize", &text))
+    PyObject* text;
+    if (!PyArg_ParseTuple(args, "O:getsize", &text))
         return NULL;
+
+#if defined(HAVE_UNICODE)
+    if (!PyUnicode_Check(text) && !PyString_Check(text)) {
+#else
+    if (!PyString_Check(text)) {
+#endif
+        PyErr_SetString(PyExc_TypeError, "expected string");
+        return NULL;
+    }
 
     return Py_BuildValue("ii", textwidth(self, text), self->ysize);
 }

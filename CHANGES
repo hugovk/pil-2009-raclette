@@ -35,6 +35,9 @@ was last updated, see the repository revision history:
 
   http://bitbucket.org/effbot/pil-2009-raclette/changesets/
 
++ Don't choke on Unicode strings when using bitmap fonts; render
+  replace characters instead.
+
 + Added Oliver Tonnhofer's PNG and Quantization work:
 
   - Added support for PNG8 images with transparency
