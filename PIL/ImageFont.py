@@ -15,12 +15,13 @@
 # 2002-12-04 fl   skip non-directory entries in the system path
 # 2003-04-29 fl   add embedded default font
 # 2003-09-27 fl   added support for truetype charmap encodings
+# 2011-01-10 fl   search for truetype fonts in "well-known directories"
 #
 # Todo:
 # Adapt to PILFONT2 format (16-bit fonts, compressed, single file)
 #
-# Copyright (c) 1997-2003 by Secret Labs AB
-# Copyright (c) 1996-2003 by Fredrik Lundh
+# Copyright (c) 1997-2010 by Secret Labs AB
+# Copyright (c) 1996-2010 by Fredrik Lundh
 #
 # See the README file for information on usage and redistribution.
 #
@@ -42,6 +43,29 @@ except ImportError:
     core = _imagingft_not_installed()
 
 # FIXME: add support for pilfont2 format (see FontFile.py)
+
+#
+# look for "well-known" font directories
+
+DIRS = []
+
+if sys.platform == "win32":
+    # check the windows font repository
+    # NOTE: must use uppercase WINDIR, to work around bugs in
+    # 1.5.2's os.environ.get()
+    windir = os.environ.get("WINDIR")
+    if windir:
+        FONTDIRS.append(os.path.join(windir, "fonts"))
+else:
+    for dir in [
+        # some common linux font directories
+        "/usr/share/fonts/truetype",
+        "/usr/share/fonts/truetype/msttcorefonts",
+        "/usr/share/fonts/truetype/ttf-dejavu",
+        "/usr/share/fonts/truetype/ttf-liberation",
+        ]:
+        if os.path.isdir(dir):
+            DIRS.append(dir)
 
 # --------------------------------------------------------------------
 # Font metrics format:
@@ -218,14 +242,13 @@ def truetype(filename, size, index=0, encoding=""):
     try:
         return FreeTypeFont(filename, size, index, encoding)
     except IOError:
-        if sys.platform == "win32":
-            # check the windows font repository
-            # NOTE: must use uppercase WINDIR, to work around bugs in
-            # 1.5.2's os.environ.get()
-            windir = os.environ.get("WINDIR")
-            if windir:
-                filename = os.path.join(windir, "fonts", filename)
-                return FreeTypeFont(filename, size, index, encoding)
+        for directory in DIRS:
+            # look for font in well-known directories
+            try:
+                path = os.path.join(directory, filename)
+                return FreeTypeFont(path, size, index, encoding)
+            except IOError:
+                pass
         raise
 
 ##
