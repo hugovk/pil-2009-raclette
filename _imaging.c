@@ -2877,11 +2877,9 @@ _crc32(PyObject* self, PyObject* args)
 
     unsigned char* buffer;
     int bytes;
-    int hi, lo;
+    int hi=0, lo=0;
     if (!PyArg_ParseTuple(args, ARG("s#|(ii)", "y#|(ii)"), &buffer, &bytes, &hi, &lo))
 	return NULL;
-
-    hi = lo = 0;
 
     crc = ((UINT32) (hi & 0xFFFF) << 16) + (lo & 0xFFFF);
 
