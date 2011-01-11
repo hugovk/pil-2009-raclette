@@ -344,16 +344,16 @@ class pil_build_ext(build_ext):
         if sys.byteorder == "big":
             defs.append(("WORDS_BIGENDIAN", None))
 
+        python2 = sys.version_info < (3, 0)
+
         exts = [(Extension(
             "_imaging", files, libraries=libs, define_macros=defs
             ))]
 
-        del self.extensions[:]
-
         #
         # additional libraries
 
-        if feature.freetype:
+        if feature.freetype and python2:
             defs = []
             if feature.freetype_version == 20:
                 defs.append(("USE_FREETYPE_2_0", None))
@@ -362,12 +362,12 @@ class pil_build_ext(build_ext):
                 define_macros=defs
                 ))
 
-        if os.path.isfile("_imagingtiff.c") and feature.tiff:
+        if os.path.isfile("_imagingtiff.c") and feature.tiff and python2:
             exts.append(Extension(
                 "_imagingtiff", ["_imagingtiff.c"], libraries=["tiff"]
                 ))
 
-        if os.path.isfile("_imagingcms.c") and feature.lcms:
+        if os.path.isfile("_imagingcms.c") and feature.lcms and python2:
             extra = []
             if sys.platform == "win32":
                 extra.extend(["user32", "gdi32"])
@@ -392,24 +392,22 @@ class pil_build_ext(build_ext):
                     dir = os.path.join(root, "Tk.framework", "Headers")
                     add_directory(self.compiler.include_dirs, dir, 1)
                     break
-            if frameworks:
+            if frameworks and python2:
                 exts.append(Extension(
                     "_imagingtk", ["_imagingtk.c", "Tk/tkImaging.c"],
                     extra_compile_args=frameworks, extra_link_args=frameworks
                     ))
                 feature.tcl = feature.tk = 1 # mark as present
-        elif feature.tcl and feature.tk:
+        elif feature.tcl and feature.tk and python2:
             exts.append(Extension(
                 "_imagingtk", ["_imagingtk.c", "Tk/tkImaging.c"],
                 libraries=[feature.tcl, feature.tk]
                 ))
 
-        if os.path.isfile("_imagingmath.c"):
+        if os.path.isfile("_imagingmath.c") and python2:
             exts.append(Extension("_imagingmath", ["_imagingmath.c"]))
 
-        # only build extensions for Python 2.X, for now
-        if sys.version_info < (3, 0):
-            self.extensions[:] = exts
+        self.extensions[:] = exts
 
         build_ext.build_extensions(self)
 
