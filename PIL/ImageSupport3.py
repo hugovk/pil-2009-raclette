@@ -24,7 +24,7 @@ def isNumberType(t):
 def isTupleType(t):
     return isinstance(t, tuple)
 
-def isCallable(f):
+def isCallable(t):
     return isinstance(t, collections.Callable)
 
 def str2bytes(s):

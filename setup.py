@@ -7,16 +7,6 @@
 
 import glob, os, re, struct, sys
 
-try:
-    from platform import architecture
-except ImportError:
-    # Python 2.2
-    def architecture():
-        if isinstance(2**40, long):
-            return ("32bit", "")
-        else:
-            return ("64bit", "")
-
 # make it possible to run the setup script from another directory
 try:
     os.chdir(os.path.dirname(sys.argv[0]))
@@ -185,9 +175,8 @@ class pil_build_ext(build_ext):
             add_directory(include_dirs, "/usr/x11/include")
 
         elif sys.platform == "linux2":
-            if architecture()[0] == "64bit":
-                add_directory(library_dirs, "/lib64")
-                add_directory(library_dirs, "/usr/lib64")
+            add_directory(library_dirs, "/lib64")
+            add_directory(library_dirs, "/usr/lib64")
 
         add_directory(library_dirs, "/usr/local/lib")
         # FIXME: check /opt/stuff directories here?
