@@ -59,15 +59,18 @@ def raise_ioerror(error):
 
 #
 # --------------------------------------------------------------------
-# Helpers
-
-def _tilesort(t1, t2):
-    # sort on offset
-    return cmp(t1[2], t2[2])
-
-#
-# --------------------------------------------------------------------
 # ImageFile base class
+
+def sort_tiles(tiles):
+    # sort on offset
+    key = lambda x: x[2]
+    try:
+        tiles.sort(key=key)
+    except TypeError:
+        # Python 2.2, 2.3
+        tiles[:] = [(key(tile), tile) for tile in tiles]
+        tiles.sort()
+        tiles[:] = [tile[0] for tile in seq]
 
 ##
 # Base class for image file handlers.
@@ -190,8 +193,7 @@ class ImageFile(Image.Image):
 
         if not self.map:
 
-            # sort tiles in file order
-            self.tile.sort(_tilesort)
+            sort_tiles(self.tile)
 
             try:
                 # FIXME: This is a hack to handle TIFF's JpegTables tag.
@@ -485,7 +487,7 @@ def _save(im, fp, tile):
     im.load()
     if not hasattr(im, "encoderconfig"):
         im.encoderconfig = ()
-    tile.sort(_tilesort)
+    sort_tiles(tile)
     # FIXME: make MAXBLOCK a configuration parameter
     bufsize = max(MAXBLOCK, im.size[0] * 4) # see RawEncode.c
     try:
