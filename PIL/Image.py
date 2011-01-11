@@ -49,7 +49,7 @@ try:
     # the "open" function to identify files, but you cannot load
     # them.  Note that other modules should not refer to _imaging
     # directly; import Image and use the Image.core variable instead.
-    import _imaging
+    from PIL import _imaging
     core = _imaging
     del _imaging
 except ImportError, v:
