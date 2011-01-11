@@ -30,11 +30,7 @@
 /* FIXME: make these pluggable! */
 
 #include "Python.h"
-
-#if PY_VERSION_HEX < 0x01060000
-#define PyObject_New PyObject_NEW
-#define PyObject_Del PyMem_DEL
-#endif
+#include "compat.h"
 
 #include "Imaging.h"
 
@@ -59,13 +55,23 @@ typedef struct {
 
 staticforward PyTypeObject ImagingDecoderType;
 
+int
+PyImaging_DecoderInit(void)
+{
+#ifdef PY2
+    ImagingDecoderType.ob_type = &PyType_Type;
+#else
+    if (PyType_Ready(&ImagingDecoderType) < 0)
+        return 0;
+#endif
+    return 1;
+}
+
 static ImagingDecoderObject*
 PyImaging_DecoderNew(int contextsize)
 {
     ImagingDecoderObject *decoder;
     void *context;
-
-    ImagingDecoderType.ob_type = &PyType_Type;
 
     decoder = PyObject_New(ImagingDecoderObject, &ImagingDecoderType);
     if (decoder == NULL)
@@ -185,14 +191,17 @@ static struct PyMethodDef methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
+#ifdef PY2
 static PyObject*  
 _getattr(ImagingDecoderObject* self, char* name)
 {
     return Py_FindMethod(methods, (PyObject*) self, name);
 }
+#endif
 
 statichere PyTypeObject ImagingDecoderType = {
 	PyObject_HEAD_INIT(NULL)
+#ifdef PY2
 	0,				/*ob_size*/
 	"ImagingDecoder",		/*tp_name*/
 	sizeof(ImagingDecoderObject),	/*tp_size*/
@@ -205,6 +214,35 @@ statichere PyTypeObject ImagingDecoderType = {
 	0,				/*tp_compare*/
 	0,				/*tp_repr*/
 	0,                              /*tp_hash*/
+#else
+    "ImagingDecoder", sizeof(ImagingDecoderObject),	0,
+    /* methods */
+    (destructor) _dealloc, /* tp_dealloc */
+    0, /* tp_print */
+    0, /* tp_getattr */
+    0, /* tp_setattr */
+    0, /* tp_reserved */
+    0, /* tp_repr */
+    0, /* tp_as_number */
+    0, /* tp_as_sequence */
+    0, /* tp_as_mapping */
+    0, /* tp_hash */
+    0, /* tp_call */
+    0, /* tp_str */
+    0, /* tp_getattro */
+    0, /* tp_setattro */
+    0, /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT, /* tp_flags */
+    0, /* tp_doc */
+    0, /* tp_traverse */
+    0, /* tp_clear */
+    0, /* tp_richcompare */
+    0, /* tp_weaklistoffset */
+    0, /* tp_iter */
+    0, /* tp_iternext */
+    methods, /* tp_methods */
+    0, /* tp_members */
+#endif
 };
 
 /* -------------------------------------------------------------------- */

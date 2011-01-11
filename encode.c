@@ -23,11 +23,7 @@
 /* FIXME: make these pluggable! */
 
 #include "Python.h"
-
-#if PY_VERSION_HEX < 0x01060000
-#define PyObject_New PyObject_NEW
-#define PyObject_Del PyMem_DEL
-#endif
+#include "compat.h"
 
 #include "Imaging.h"
 #include "Gif.h"
@@ -51,13 +47,23 @@ typedef struct {
 
 staticforward PyTypeObject ImagingEncoderType;
 
+int
+PyImaging_EncoderInit(void)
+{
+#ifdef PY2
+    ImagingEncoderType.ob_type = &PyType_Type;
+#else
+    if (PyType_Ready(&ImagingEncoderType) < 0)
+        return 0;
+#endif
+    return 1;
+}
+
 static ImagingEncoderObject*
 PyImaging_EncoderNew(int contextsize)
 {
     ImagingEncoderObject *encoder;
     void *context;
-
-    ImagingEncoderType.ob_type = &PyType_Type;
 
     encoder = PyObject_New(ImagingEncoderObject, &ImagingEncoderType);
     if (encoder == NULL)
@@ -241,14 +247,17 @@ static struct PyMethodDef methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
+#ifdef PY2
 static PyObject*  
 _getattr(ImagingEncoderObject* self, char* name)
 {
     return Py_FindMethod(methods, (PyObject*) self, name);
 }
+#endif
 
 statichere PyTypeObject ImagingEncoderType = {
 	PyObject_HEAD_INIT(NULL)
+#ifdef PY2
 	0,				/*ob_size*/
 	"ImagingEncoder",		/*tp_name*/
 	sizeof(ImagingEncoderObject),	/*tp_size*/
@@ -261,6 +270,35 @@ statichere PyTypeObject ImagingEncoderType = {
 	0,				/*tp_compare*/
 	0,				/*tp_repr*/
 	0,                              /*tp_hash*/
+#else
+    "ImagingEncoder", sizeof(ImagingEncoderObject),	0,
+    /* methods */
+    (destructor) _dealloc, /* tp_dealloc */
+    0, /* tp_print */
+    0, /* tp_getattr */
+    0, /* tp_setattr */
+    0, /* tp_reserved */
+    0, /* tp_repr */
+    0, /* tp_as_number */
+    0, /* tp_as_sequence */
+    0, /* tp_as_mapping */
+    0, /* tp_hash */
+    0, /* tp_call */
+    0, /* tp_str */
+    0, /* tp_getattro */
+    0, /* tp_setattro */
+    0, /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT, /* tp_flags */
+    0, /* tp_doc */
+    0, /* tp_traverse */
+    0, /* tp_clear */
+    0, /* tp_richcompare */
+    0, /* tp_weaklistoffset */
+    0, /* tp_iter */
+    0, /* tp_iternext */
+    methods, /* tp_methods */
+    0, /* tp_members */
+#endif
 };
 
 /* -------------------------------------------------------------------- */
@@ -440,7 +478,8 @@ PyImaging_ZipEncoderNew(PyObject* self, PyObject* args)
     int compress_type = -1;
     char* dictionary = NULL;
     int dictionary_size = 0;
-    if (!PyArg_ParseTuple(args, "ss|iiis#", &mode, &rawmode, &optimize,
+    if (!PyArg_ParseTuple(args, ARG("ss|iiis#", "ss|iiiy#"),
+			  &mode, &rawmode, &optimize,
 			  &compress_level, &compress_type,
 			  &dictionary, &dictionary_size))
 	return NULL;
@@ -505,7 +544,8 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
     int xdpi = 0, ydpi = 0;
     int subsampling = -1; /* -1=default, 0=none, 1=medium, 2=high */
     char* extra = NULL; int extra_size;
-    if (!PyArg_ParseTuple(args, "ss|iiiiiiiis#", &mode, &rawmode, &quality,
+    if (!PyArg_ParseTuple(args, ARG("ss|iiiiiiiis#", "ss|iiiiiiiiy#"),
+			  &mode, &rawmode, &quality,
 			  &progressive, &smooth, &optimize, &streamtype,
                           &xdpi, &ydpi, &subsampling, &extra, &extra_size))
 	return NULL;

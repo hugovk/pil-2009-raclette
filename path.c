@@ -44,6 +44,19 @@
 #define ssizessizeobjargproc intintobjargproc
 #endif
 
+#if PY_VERSION_HEX < 0x02060000
+#define Py_TYPE(op) (op)->ob_type
+#endif
+
+#if PY_VERSION_HEX < 0x03000000
+#define PY2
+#else
+#define staticforward static /* FIXME: are these needed for 2.x? */
+#define statichere static
+#define PyInt_Check PyLong_Check
+#define PyInt_AS_LONG PyLong_AS_LONG
+#endif
+
 /* compatibility wrappers (defined in _imaging.c) */
 extern int PyImaging_CheckBuffer(PyObject* buffer);
 extern int PyImaging_ReadBuffer(PyObject* buffer, const void** ptr);
@@ -110,7 +123,7 @@ path_dealloc(PyPathObject* path)
 /* Helpers								*/
 /* -------------------------------------------------------------------- */
 
-#define PyPath_Check(op) ((op)->ob_type == &PyPathType)
+#define PyPath_Check(op) (Py_TYPE(op) == &PyPathType)
 
 int
 PyPath_Flatten(PyObject* data, double **pxy)
@@ -542,11 +555,13 @@ static struct PyMethodDef methods[] = {
 static PyObject*  
 path_getattr(PyPathObject* self, char* name)
 {
+#ifdef PY2
     PyObject* res;
 
     res = Py_FindMethod(methods, (PyObject*) self, name);
     if (res)
 	return res;
+#endif
 
     PyErr_Clear();
 
@@ -569,6 +584,7 @@ static PySequenceMethods path_as_sequence = {
 
 statichere PyTypeObject PyPathType = {
 	PyObject_HEAD_INIT(NULL)
+#ifdef PY2
 	0,				/*ob_size*/
 	"Path",				/*tp_name*/
 	sizeof(PyPathObject),		/*tp_size*/
@@ -584,4 +600,33 @@ statichere PyTypeObject PyPathType = {
 	&path_as_sequence,              /*tp_as_sequence */
 	0,                              /*tp_as_mapping */
 	0,                              /*tp_hash*/
+#else
+	"Path", sizeof(PyPathObject), 0,
+	/* methods */
+        (destructor) path_dealloc, /* tp_dealloc */
+        0, /* tp_print */
+        (getattrfunc) path_getattr, /* tp_getattr */
+        0, /* tp_setattr */
+        0, /* tp_reserved */
+        0, /* tp_repr */
+        0, /* tp_as_number */
+        &path_as_sequence, /* tp_as_sequence */
+        0, /* tp_as_mapping */
+        0, /* tp_hash */
+        0, /* tp_call */
+        0, /* tp_str */
+        0, /* tp_getattro */
+        0, /* tp_setattro */
+        0, /* tp_as_buffer */
+        Py_TPFLAGS_DEFAULT, /* tp_flags */
+        0, /* tp_doc */
+        0, /* tp_traverse */
+        0, /* tp_clear */
+        0, /* tp_richcompare */
+        0, /* tp_weaklistoffset */
+        0, /* tp_iter */
+        0, /* tp_iternext */
+        methods, /* tp_methods */
+        0, /* tp_members */
+#endif
 };

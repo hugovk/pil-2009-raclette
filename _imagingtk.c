@@ -14,13 +14,11 @@
 
 
 #include "Python.h"
+#include "compat.h"
+
 #include "Imaging.h"
 
 #include "tk.h"
-
-#if PY_VERSION_HEX < 0x02030000
-#define PyMODINIT_FUNC DL_EXPORT(void)
-#endif
 
 /* must link with Tk/tkImaging.c */
 extern void TkImaging_Init(Tcl_Interp* interp);

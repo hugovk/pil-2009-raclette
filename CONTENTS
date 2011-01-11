@@ -97,6 +97,8 @@ Imaging/map.c
 Imaging/outline.c
 Imaging/path.c
 
+Imaging/compat.h
+
 Imaging/_imagingtk.c
 Imaging/_imagingft.c
 Imaging/_imagingcms.c

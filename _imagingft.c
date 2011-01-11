@@ -19,6 +19,8 @@
  */
 
 #include "Python.h"
+#include "compat.h"
+
 #include "Imaging.h"
 
 #if !defined(USE_FREETYPE_2_0)
@@ -33,22 +35,6 @@
 #else
 /* freetype 2.0 */
 #include <freetype/freetype.h>
-#endif
-
-#if PY_VERSION_HEX < 0x01060000
-#define PyObject_New PyObject_NEW
-#define PyObject_Del PyMem_DEL
-#endif
-
-#if PY_VERSION_HEX >= 0x01060000
-#if PY_VERSION_HEX  < 0x02020000 || defined(Py_USING_UNICODE)
-/* defining this enables unicode support (default under 1.6a1 and later) */
-#define HAVE_UNICODE
-#endif
-#endif
-
-#if PY_VERSION_HEX < 0x02030000
-#define PyMODINIT_FUNC DL_EXPORT(void)
 #endif
 
 #if !defined(Py_RETURN_NONE)

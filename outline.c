@@ -18,14 +18,9 @@
  */
 
 #include "Python.h"
-
-#if PY_VERSION_HEX < 0x01060000
-#define PyObject_New PyObject_NEW
-#define PyObject_Del PyMem_DEL
-#endif
+#include "compat.h"
 
 #include "Imaging.h"
-
 
 /* -------------------------------------------------------------------- */
 /* Class								*/
@@ -37,7 +32,7 @@ typedef struct {
 
 staticforward PyTypeObject OutlineType;
 
-#define PyOutline_Check(op) ((op)->ob_type == &OutlineType)
+#define PyOutline_Check(op) (Py_TYPE(op) == &OutlineType)
 
 static OutlineObject*
 _outline_new(void)
@@ -159,14 +154,17 @@ static struct PyMethodDef _outline_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
+#ifdef PY2
 static PyObject*  
 _outline_getattr(OutlineObject* self, char* name)
 {
     return Py_FindMethod(_outline_methods, (PyObject*) self, name);
 }
+#endif
 
 statichere PyTypeObject OutlineType = {
 	PyObject_HEAD_INIT(NULL)
+#ifdef PY2
 	0,				/*ob_size*/
 	"Outline",			/*tp_name*/
 	sizeof(OutlineObject),		/*tp_size*/
@@ -176,4 +174,33 @@ statichere PyTypeObject OutlineType = {
 	0,				/*tp_print*/
 	(getattrfunc)_outline_getattr,	/*tp_getattr*/
 	0				/*tp_setattr*/
+#else
+    "Outline", sizeof(OutlineObject), 0,
+    /* methods */
+    (destructor) _outline_dealloc, /* tp_dealloc */
+    0, /* tp_print */
+    0, /* tp_getattr */
+    0, /* tp_setattr */
+    0, /* tp_reserved */
+    0, /* tp_repr */
+    0, /* tp_as_number */
+    0, /* tp_as_sequence */
+    0, /* tp_as_mapping */
+    0, /* tp_hash */
+    0, /* tp_call */
+    0, /* tp_str */
+    0, /* tp_getattro */
+    0, /* tp_setattro */
+    0, /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT, /* tp_flags */
+    0, /* tp_doc */
+    0, /* tp_traverse */
+    0, /* tp_clear */
+    0, /* tp_richcompare */
+    0, /* tp_weaklistoffset */
+    0, /* tp_iter */
+    0, /* tp_iternext */
+    _outline_methods, /* tp_methods */
+    0, /* tp_members */
+#endif
 };

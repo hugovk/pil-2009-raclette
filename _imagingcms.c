@@ -24,17 +24,11 @@ http://www.cazabon.com\n\
 "
 
 #include "Python.h"
+#include "compat.h"
+
 #include "lcms.h"
+
 #include "Imaging.h"
-
-#if PY_VERSION_HEX < 0x01060000
-#define PyObject_New PyObject_NEW
-#define PyObject_Del PyMem_DEL
-#endif
-
-#if PY_VERSION_HEX < 0x02030000
-#define PyMODINIT_FUNC DL_EXPORT(void)
-#endif
 
 #if LCMS_VERSION < 117
 #define LCMSBOOL BOOL
