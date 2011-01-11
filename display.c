@@ -40,7 +40,7 @@ typedef struct {
     ImagingDIB dib;
 } ImagingDisplayObject;
 
-staticforward PyTypeObject ImagingDisplayType;
+static PyTypeObject ImagingDisplayType;
 
 static ImagingDisplayObject*
 _new(const char* mode, int xsize, int ysize)
@@ -230,7 +230,7 @@ _getattr(ImagingDisplayObject* self, char* name)
     return NULL;
 }
 
-statichere PyTypeObject ImagingDisplayType = {
+static PyTypeObject ImagingDisplayType = {
 	PyObject_HEAD_INIT(NULL)
 	0,				/*ob_size*/
 	"ImagingDisplay",		/*tp_name*/

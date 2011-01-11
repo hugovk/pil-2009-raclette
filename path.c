@@ -27,35 +27,9 @@
 
 
 #include "Python.h"
+#include "compat.h"
 
 #include <math.h>
-
-#if PY_VERSION_HEX < 0x01060000
-#define PyObject_New PyObject_NEW
-#define PyObject_Del PyMem_DEL
-#endif
-
-#if PY_VERSION_HEX < 0x02050000
-#define Py_ssize_t int
-#define lenfunc inquiry
-#define ssizeargfunc intargfunc
-#define ssizessizeargfunc intintargfunc
-#define ssizeobjargproc intobjargproc
-#define ssizessizeobjargproc intintobjargproc
-#endif
-
-#if PY_VERSION_HEX < 0x02060000
-#define Py_TYPE(op) (op)->ob_type
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-#define PY2
-#else
-#define staticforward static /* FIXME: are these needed for 2.x? */
-#define statichere static
-#define PyInt_Check PyLong_Check
-#define PyInt_AS_LONG PyLong_AS_LONG
-#endif
 
 /* compatibility wrappers (defined in _imaging.c) */
 extern int PyImaging_CheckBuffer(PyObject* buffer);
@@ -72,7 +46,7 @@ typedef struct {
     int index; /* temporary use, e.g. in decimate */
 } PyPathObject;
 
-staticforward PyTypeObject PyPathType;
+static PyTypeObject PyPathType;
 
 static double*
 alloc_array(int count)
@@ -582,7 +556,7 @@ static PySequenceMethods path_as_sequence = {
 	(ssizessizeobjargproc)0, /*sq_ass_slice*/
 };
 
-statichere PyTypeObject PyPathType = {
+static PyTypeObject PyPathType = {
 	PyObject_HEAD_INIT(NULL)
 #ifdef PY2
 	0,				/*ob_size*/

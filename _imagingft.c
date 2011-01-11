@@ -72,7 +72,7 @@ typedef struct {
     FT_Face face;
 } FontObject;
 
-staticforward PyTypeObject Font_Type;
+static PyTypeObject Font_Type;
 
 /* round a 26.6 pixel coordinate to the nearest larger integer */
 #define PIXEL(x) ((((x)+63) & -64)>>6)
@@ -446,7 +446,7 @@ font_getattr(FontObject* self, char* name)
     return NULL;
 }
 
-statichere PyTypeObject Font_Type = {
+static PyTypeObject Font_Type = {
     PyObject_HEAD_INIT(NULL)
     0, "Font", sizeof(FontObject), 0,
     /* methods */

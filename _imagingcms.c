@@ -81,7 +81,7 @@ typedef struct {
     cmsHPROFILE profile;
 } CmsProfileObject;
 
-staticforward PyTypeObject CmsProfile_Type;
+static PyTypeObject CmsProfile_Type;
 
 #define CmsProfile_Check(op) ((op)->ob_type == &CmsProfile_Type)
 
@@ -154,7 +154,7 @@ typedef struct {
     cmsHTRANSFORM transform;
 } CmsTransformObject;
 
-staticforward PyTypeObject CmsTransform_Type;
+static PyTypeObject CmsTransform_Type;
 
 #define CmsTransform_Check(op) ((op)->ob_type == &CmsTransform_Type)
 
@@ -531,7 +531,7 @@ cms_profile_getattr(CmsProfileObject* self, char* name)
     return Py_FindMethod(cms_profile_methods, (PyObject*) self, name);
 }
 
-statichere PyTypeObject CmsProfile_Type = {
+static PyTypeObject CmsProfile_Type = {
     PyObject_HEAD_INIT(NULL)
     0, "CmsProfile", sizeof(CmsProfileObject), 0,
     /* methods */
@@ -563,7 +563,7 @@ cms_transform_getattr(CmsTransformObject* self, char* name)
     return Py_FindMethod(cms_transform_methods, (PyObject*) self, name);
 }
 
-statichere PyTypeObject CmsTransform_Type = {
+static PyTypeObject CmsTransform_Type = {
     PyObject_HEAD_INIT(NULL)
     0, "CmsTransform", sizeof(CmsTransformObject), 0,
     /* methods */

@@ -47,8 +47,6 @@
 #define ARG(a,b) a
 #else
 #define ARG(a,b) b
-#define staticforward static /* FIXME: are these needed for 2.x? */
-#define statichere static
 #define PyIntObject PyLongObject
 #define PyInt_Check PyLong_Check
 #define PyInt_AsLong PyLong_AsLong

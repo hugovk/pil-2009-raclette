@@ -49,7 +49,7 @@ typedef struct {
 #endif
 } ImagingMapperObject;
 
-staticforward PyTypeObject ImagingMapperType;
+static PyTypeObject ImagingMapperType;
 
 int
 PyImaging_MappingInit(void)
@@ -270,7 +270,7 @@ mapping_getattr(ImagingMapperObject* self, char* name)
 }
 #endif
 
-statichere PyTypeObject ImagingMapperType = {
+static PyTypeObject ImagingMapperType = {
 	PyObject_HEAD_INIT(NULL)
 #ifdef PY2
 	0,				/*ob_size*/

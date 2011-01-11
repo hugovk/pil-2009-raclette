@@ -110,7 +110,7 @@ typedef struct {
     ImagingAccess access;
 } ImagingObject;
 
-staticforward PyTypeObject Imaging_Type;
+static PyTypeObject Imaging_Type;
 
 #ifdef WITH_IMAGEDRAW
 
@@ -132,7 +132,7 @@ typedef struct {
     Glyph glyphs[256];
 } ImagingFontObject;
 
-staticforward PyTypeObject ImagingFont_Type;
+static PyTypeObject ImagingFont_Type;
 
 typedef struct {
     PyObject_HEAD
@@ -141,7 +141,7 @@ typedef struct {
     int blend;
 } ImagingDrawObject;
 
-staticforward PyTypeObject ImagingDraw_Type;
+static PyTypeObject ImagingDraw_Type;
 
 #endif
 
@@ -151,7 +151,7 @@ typedef struct {
     int readonly;
 } PixelAccessObject;
 
-staticforward PyTypeObject PixelAccess_Type;
+static PyTypeObject PixelAccess_Type;
 
 PyObject* 
 PyImagingNew(Imaging imOut)
@@ -3129,7 +3129,7 @@ static PySequenceMethods image_as_sequence = {
 
 /* type description */
 
-statichere PyTypeObject Imaging_Type = {
+static PyTypeObject Imaging_Type = {
     PyObject_HEAD_INIT(NULL)
 #ifdef PY2
     0,				/*ob_size*/
@@ -3180,7 +3180,7 @@ statichere PyTypeObject Imaging_Type = {
 
 #ifdef WITH_IMAGEDRAW
 
-statichere PyTypeObject ImagingFont_Type = {
+static PyTypeObject ImagingFont_Type = {
     PyObject_HEAD_INIT(NULL)
 #ifdef PY2
     0,				/*ob_size*/
@@ -3222,7 +3222,7 @@ statichere PyTypeObject ImagingFont_Type = {
 #endif
 };
 
-statichere PyTypeObject ImagingDraw_Type = {
+static PyTypeObject ImagingDraw_Type = {
     PyObject_HEAD_INIT(NULL)
 #ifdef PY2
     0,				/*ob_size*/
@@ -3274,7 +3274,7 @@ static PyMappingMethods pixel_access_as_mapping = {
 
 /* type description */
 
-statichere PyTypeObject PixelAccess_Type = {
+static PyTypeObject PixelAccess_Type = {
     PyObject_HEAD_INIT(NULL)
 #ifdef PY2
     0, "PixelAccess", sizeof(PixelAccessObject), 0,

@@ -45,7 +45,7 @@ typedef struct {
     PyObject* lock;
 } ImagingEncoderObject;
 
-staticforward PyTypeObject ImagingEncoderType;
+static PyTypeObject ImagingEncoderType;
 
 int
 PyImaging_EncoderInit(void)
@@ -255,7 +255,7 @@ _getattr(ImagingEncoderObject* self, char* name)
 }
 #endif
 
-statichere PyTypeObject ImagingEncoderType = {
+static PyTypeObject ImagingEncoderType = {
 	PyObject_HEAD_INIT(NULL)
 #ifdef PY2
 	0,				/*ob_size*/
