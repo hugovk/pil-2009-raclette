@@ -496,24 +496,24 @@ cms_get_display_profile_win32(PyObject* self, PyObject* args)
 
 static PyMethodDef pyCMSdll_methods[] = {
 
-    {"profile_open", cms_profile_open, 1},
-    {"profile_fromstring", cms_profile_fromstring, 1},
+    {"profile_open", cms_profile_open, METH_VARARGS},
+    {"profile_fromstring", cms_profile_fromstring, METH_VARARGS},
 
     /* profile and transform functions */
-    {"buildTransform", buildTransform, 1},
-    {"buildProofTransform", buildProofTransform, 1},
-    {"createProfile", createProfile, 1},
+    {"buildTransform", buildTransform, METH_VARARGS},
+    {"buildProofTransform", buildProofTransform, METH_VARARGS},
+    {"createProfile", createProfile, METH_VARARGS},
 
     /* platform specific tools */
 #ifdef WIN32
-    {"get_display_profile_win32", cms_get_display_profile_win32, 1},
+    {"get_display_profile_win32", cms_get_display_profile_win32, METH_VARARGS},
 #endif
 
     {NULL, NULL}
 };
 
 static struct PyMethodDef cms_profile_methods[] = {
-    {"is_intent_supported", (PyCFunction) cms_profile_is_intent_supported, 1},
+    {"is_intent_supported", (PyCFunction) cms_profile_is_intent_supported, METH_VARARGS},
     {NULL, NULL} /* sentinel */
 };
 
@@ -554,7 +554,7 @@ statichere PyTypeObject CmsProfile_Type = {
 };
 
 static struct PyMethodDef cms_transform_methods[] = {
-    {"apply", (PyCFunction) cms_transform_apply, 1},
+    {"apply", (PyCFunction) cms_transform_apply, METH_VARARGS},
     {NULL, NULL} /* sentinel */
 };
 

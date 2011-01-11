@@ -235,9 +235,9 @@ _setimage(ImagingEncoderObject* encoder, PyObject* args)
 }
 
 static struct PyMethodDef methods[] = {
-    {"encode", (PyCFunction)_encode, 1},
-    {"encode_to_file", (PyCFunction)_encode_to_file, 1},
-    {"setimage", (PyCFunction)_setimage, 1},
+    {"encode", (PyCFunction)_encode, METH_VARARGS},
+    {"encode_to_file", (PyCFunction)_encode_to_file, METH_VARARGS},
+    {"setimage", (PyCFunction)_setimage, METH_VARARGS},
     {NULL, NULL} /* sentinel */
 };
 

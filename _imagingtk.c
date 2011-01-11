@@ -63,7 +63,7 @@ _tkinit(PyObject* self, PyObject* args)
 
 static PyMethodDef functions[] = {
     /* Tkinter interface stuff */
-    {"tkinit", (PyCFunction)_tkinit, 1},
+    {"tkinit", (PyCFunction)_tkinit, METH_VARARGS},
     {NULL, NULL} /* sentinel */
 };
 

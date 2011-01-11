@@ -249,10 +249,10 @@ mapping_readimage(ImagingMapperObject* mapper, PyObject* args)
 
 static struct PyMethodDef methods[] = {
     /* standard file interface */
-    {"read", (PyCFunction)mapping_read, 1},
-    {"seek", (PyCFunction)mapping_seek, 1},
+    {"read", (PyCFunction)mapping_read, METH_VARARGS},
+    {"seek", (PyCFunction)mapping_seek, METH_VARARGS},
     /* extensions */
-    {"readimage", (PyCFunction)mapping_readimage, 1},
+    {"readimage", (PyCFunction)mapping_readimage, METH_VARARGS},
     {NULL, NULL} /* sentinel */
 };
 

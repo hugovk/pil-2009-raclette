@@ -180,8 +180,8 @@ _setimage(ImagingDecoderObject* decoder, PyObject* args)
 }
 
 static struct PyMethodDef methods[] = {
-    {"decode", (PyCFunction)_decode, 1},
-    {"setimage", (PyCFunction)_setimage, 1},
+    {"decode", (PyCFunction)_decode, METH_VARARGS},
+    {"setimage", (PyCFunction)_setimage, METH_VARARGS},
     {NULL, NULL} /* sentinel */
 };
 

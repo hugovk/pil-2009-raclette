@@ -217,8 +217,8 @@ _binop(PyObject* self, PyObject* args)
 }
 
 static PyMethodDef _functions[] = {
-    {"unop", _unop, 1},
-    {"binop", _binop, 1},
+    {"unop", _unop, METH_VARARGS},
+    {"binop", _binop, METH_VARARGS},
     {NULL, NULL}
 };
 

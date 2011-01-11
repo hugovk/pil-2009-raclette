@@ -206,14 +206,14 @@ _tostring(ImagingDisplayObject* display, PyObject* args)
 }
 
 static struct PyMethodDef methods[] = {
-    {"draw", (PyCFunction)_draw, 1},
-    {"expose", (PyCFunction)_expose, 1},
-    {"paste", (PyCFunction)_paste, 1},
-    {"query_palette", (PyCFunction)_query_palette, 1},
-    {"getdc", (PyCFunction)_getdc, 1},
-    {"releasedc", (PyCFunction)_releasedc, 1},
-    {"fromstring", (PyCFunction)_fromstring, 1},
-    {"tostring", (PyCFunction)_tostring, 1},
+    {"draw", (PyCFunction)_draw, METH_VARARGS},
+    {"expose", (PyCFunction)_expose, METH_VARARGS},
+    {"paste", (PyCFunction)_paste, METH_VARARGS},
+    {"query_palette", (PyCFunction)_query_palette, METH_VARARGS},
+    {"getdc", (PyCFunction)_getdc, METH_VARARGS},
+    {"releasedc", (PyCFunction)_releasedc, METH_VARARGS},
+    {"fromstring", (PyCFunction)_fromstring, METH_VARARGS},
+    {"tostring", (PyCFunction)_tostring, METH_VARARGS},
     {NULL, NULL} /* sentinel */
 };
 
