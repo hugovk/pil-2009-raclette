@@ -404,6 +404,12 @@ class JpegImageFile(ImageFile.ImageFile):
                 gps[key] = fixup(value)
         return exif
 
+    def _getiptc(self):
+        # Extract IPTC information (experimental API).
+        import IptcImagePlugin
+        return IptcImagePlugin.getiptcinfo(self)
+
+
 # --------------------------------------------------------------------
 # stuff to save JPEG files
 
