@@ -17,7 +17,6 @@ except AttributeError:
 
 from PIL import ImageDraw
 from PIL import ImageFilter
-from PIL import ImageMath
 
 def _info(im):
     im.load()
@@ -50,19 +49,19 @@ def testimage():
     ('PPM', 'RGB', (128, 128))
     >>> try:
     ...  _info(Image.open(os.path.join(ROOT, "Images/lena.jpg")))
-    ... except IOError, v:
-    ...  print v
+    ... except IOError:
+    ...  pass
     ('JPEG', 'RGB', (128, 128))
 
     PIL doesn't actually load the image data until it's needed,
     or you call the "load" method:
 
     >>> im = Image.open(os.path.join(ROOT, "Images/lena.ppm"))
-    >>> print im.im # internal image attribute
+    >>> print(im.im) # internal image attribute
     None
     >>> a = im.load()
-    >>> type(im.im)
-    <type 'ImagingCore'>
+    >>> im.im is not None
+    True
 
     You can apply many different operations on images.  Most
     operations return a new image:
@@ -143,6 +142,7 @@ def testimage():
     In 1.1.6, you can use the ImageMath module to do image
     calculations.
 
+    >>> from PIL import ImageMath
     >>> im = ImageMath.eval("float(im + 20)", im=im.convert("L"))
     >>> im.mode, im.size
     ('F', (128, 128))
