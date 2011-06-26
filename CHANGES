@@ -35,6 +35,8 @@ was last updated, see the repository revision history:
 
   http://bitbucket.org/effbot/pil-2009-raclette/changesets/
 
++ Added support for identifying WebP files.
+
 + Don't choke on Unicode strings when using bitmap fonts; render
   replace characters instead.
 

@@ -183,6 +183,7 @@ Imaging/PIL/TgaImagePlugin.py
 Imaging/PIL/TiffImagePlugin.py
 Imaging/PIL/TiffTags.py
 Imaging/PIL/WalImageFile.py
+Imaging/PIL/WebPImagePlugin.py
 Imaging/PIL/WmfImagePlugin.py
 Imaging/PIL/XbmImagePlugin.py
 Imaging/PIL/XpmImagePlugin.py
