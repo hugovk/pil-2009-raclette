@@ -43,6 +43,7 @@ class WebPImageFile(ImageFile.ImageFile):
 
         # read frame tag
         tag = data[0] | (data[1] << 8) | (data[2] << 16)
+
         frame_type = (tag & 1) # 0=key frame, 1=interframe
         version = (((tag >> 1) & 7) > 3)
         show_frame = ((tag >> 4) & 1)
@@ -51,11 +52,10 @@ class WebPImageFile(ImageFile.ImageFile):
         if frame_type != 0 or not show_frame:
             raise SyntaxError("not a visible WebP frame")
 
-        # size is stored in 2x14 bits
         xsize = ((data[7] << 8) | data[6]) & 0x3fff
         ysize = ((data[9] << 8) | data[8]) & 0x3fff
 
-        self.mode = "RGB" # file is always YUV2
+        self.mode = "RGB" # file is always YCbCr (w. chroma subsampling)
         self.size = xsize, ysize
         self.tile = [("webp", (0, 0) + self.size, 0, (self.mode, 0, 1))]
 
