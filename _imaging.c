@@ -3337,6 +3337,7 @@ extern PyObject* PyImaging_PcxDecoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_RawDecoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_SunRleDecoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_TgaRleDecoderNew(PyObject* self, PyObject* args);
+extern PyObject* PyImaging_WebPDecoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_XbmDecoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_ZipDecoderNew(PyObject* self, PyObject* args);
 
@@ -3346,6 +3347,7 @@ extern PyObject* PyImaging_GifEncoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_JpegEncoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_PcxEncoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_RawEncoderNew(PyObject* self, PyObject* args);
+extern PyObject* PyImaging_WebPEncoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_XbmEncoderNew(PyObject* self, PyObject* args);
 extern PyObject* PyImaging_ZipEncoderNew(PyObject* self, PyObject* args);
 
@@ -3405,6 +3407,10 @@ static PyMethodDef functions[] = {
     {"raw_encoder", (PyCFunction)PyImaging_RawEncoderNew, METH_VARARGS},
     {"sun_rle_decoder", (PyCFunction)PyImaging_SunRleDecoderNew, METH_VARARGS},
     {"tga_rle_decoder", (PyCFunction)PyImaging_TgaRleDecoderNew, METH_VARARGS},
+#ifdef HAVE_LIBWEBP
+    {"webp_decoder", (PyCFunction)PyImaging_WebPDecoderNew, METH_VARARGS},
+    {"webp_encoder", (PyCFunction)PyImaging_WebPEncoderNew, METH_VARARGS},
+#endif
     {"xbm_decoder", (PyCFunction)PyImaging_XbmDecoderNew, METH_VARARGS},
     {"xbm_encoder", (PyCFunction)PyImaging_XbmEncoderNew, METH_VARARGS},
 #ifdef HAVE_LIBZ
@@ -3541,6 +3547,10 @@ PyInit__imaging(void)
     PyDict_SetItemString(d, "jpeglib_version", PyUnicode_FromString(ImagingJpegVersion()));
 #endif
   }
+#endif
+
+#ifdef HAVE_WEBP
+  /* FIXME */
 #endif
 
 #ifdef HAVE_LIBZ

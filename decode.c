@@ -38,6 +38,7 @@
 #include "Lzw.h"
 #include "Raw.h"
 #include "Bit.h"
+#include "WebP.h"
 
 
 /* -------------------------------------------------------------------- */
@@ -668,6 +669,32 @@ PyImaging_ZipDecoderNew(PyObject* self, PyObject* args)
 }
 #endif
 
+
+/* -------------------------------------------------------------------- */
+/* WebP                                                                 */
+/* -------------------------------------------------------------------- */
+
+PyObject*
+PyImaging_WebPDecoderNew(PyObject* self, PyObject* args)
+{
+    ImagingDecoderObject* decoder;
+
+    char* mode;
+    char* rawmode;
+    if (!PyArg_ParseTuple(args, "ss", &mode, &rawmode))
+	return NULL;
+
+    decoder = PyImaging_DecoderNew(0);
+    if (decoder == NULL)
+	return NULL;
+
+    if (get_unpacker(decoder, mode, rawmode) < 0)
+	return NULL;
+
+    decoder->decode = ImagingWebPDecode;
+
+    return (PyObject*) decoder;
+}
 
 /* -------------------------------------------------------------------- */
 /* JPEG									*/

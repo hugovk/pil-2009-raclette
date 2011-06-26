@@ -198,6 +198,7 @@ if __name__ == "__main__":
     check_module("PIL CORE", "PIL._imaging")
     check_module("TKINTER", "PIL._imagingtk")
     check_codec("JPEG", "jpeg", "jpeglib_version")
+    check_codec("WEBP", "webp", "webplib_version")
     check_codec("ZLIB (PNG/ZIP)", "zip", "zlib_version")
     check_module("FREETYPE2", "PIL._imagingft", "freetype2_version")
     check_module("LITTLECMS", "PIL._imagingcms", "littlecms_version")

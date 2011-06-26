@@ -5,8 +5,8 @@ from PIL import WebPImagePlugin
 
 codecs = dir(Image.core)
 
-# if "webp_decoder" not in codecs:
-#     skip("webp support not available")
+if "webp_decoder" not in codecs or "webp_encoder" not in codecs:
+    skip("webp support not available")
 
 def test_sanity():
 
@@ -14,7 +14,7 @@ def test_sanity():
     # assert_match(Image.core.webp_version, "\d+\.\d+\.\d+(\.\d+)?$")
 
     im = Image.open("Images/lena.webp")
-    # im.load()
+    im.load()
     assert_equal(im.mode, "RGB")
     assert_equal(im.size, (128, 128))
     assert_equal(im.format, "WEBP")

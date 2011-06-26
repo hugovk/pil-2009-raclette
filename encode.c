@@ -459,6 +459,38 @@ PyImaging_XbmEncoderNew(PyObject* self, PyObject* args)
 
 
 /* -------------------------------------------------------------------- */
+/* WEBP									*/
+/* -------------------------------------------------------------------- */
+
+#ifdef HAVE_LIBWEBP
+
+#include "WebP.h"
+
+PyObject*
+PyImaging_WebPEncoderNew(PyObject* self, PyObject* args)
+{
+    ImagingEncoderObject* encoder;
+
+    char* mode;
+    char* rawmode;
+    if (!PyArg_ParseTuple(args, ARG("ss", "ss"), &mode, &rawmode))
+	return NULL;
+
+    encoder = PyImaging_EncoderNew(sizeof(WEBPSTATE));
+    if (encoder == NULL)
+	return NULL;
+
+    if (get_packer(encoder, mode, rawmode) < 0)
+	return NULL;
+
+    encoder->encode = ImagingWebPEncode;
+
+    return (PyObject*) encoder;
+}
+#endif
+
+
+/* -------------------------------------------------------------------- */
 /* ZIP									*/
 /* -------------------------------------------------------------------- */
 

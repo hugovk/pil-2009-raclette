@@ -45,7 +45,7 @@ class WebPImageFile(ImageFile.ImageFile):
         tag = data[0] | (data[1] << 8) | (data[2] << 16)
 
         frame_type = (tag & 1) # 0=key frame, 1=interframe
-        version = (((tag >> 1) & 7) > 3)
+        version = (((tag >> 1) & 7) > 3) # scaling filter
         show_frame = ((tag >> 4) & 1)
         partition_size = (tag >> 5)
 
@@ -57,7 +57,18 @@ class WebPImageFile(ImageFile.ImageFile):
 
         self.mode = "RGB" # file is always YCbCr (w. chroma subsampling)
         self.size = xsize, ysize
-        self.tile = [("webp", (0, 0) + self.size, 0, (self.mode, 0, 1))]
+        self.tile = [("webp", (0, 0) + self.size, 0, (self.mode,))]
+
+        # make sure the decoder sees the data we've already parsed
+        self.tile_prefix = container_header + frame_header
+
+    def draft(self, mode, size):
+        if len(self.tile) != 1:
+            return
+        d, e, o, a = self.tile[0]
+        # FIXME: add support for RGBA and YCbCr
+        self.tile = [(d, e, o, a)]
+        return self
 
 #
 # --------------------------------------------------------------------

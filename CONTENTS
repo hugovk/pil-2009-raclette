@@ -65,6 +65,7 @@ Imaging/libImaging/Gif.h
 Imaging/libImaging/Jpeg.h
 Imaging/libImaging/Lzw.h
 Imaging/libImaging/Raw.h
+Imaging/libImaging/WebP.h
 Imaging/libImaging/Zip.h
 Imaging/libImaging/BitDecode.c
 Imaging/libImaging/EpsEncode.c
@@ -84,6 +85,8 @@ Imaging/libImaging/RawDecode.c
 Imaging/libImaging/RawEncode.c
 Imaging/libImaging/SunRleDecode.c
 Imaging/libImaging/TgaRleDecode.c
+Imaging/libImaging/WebPDecode.c
+Imaging/libImaging/WebPEncode.c
 Imaging/libImaging/XbmDecode.c
 Imaging/libImaging/XbmEncode.c
 Imaging/libImaging/ZipDecode.c

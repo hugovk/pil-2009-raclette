@@ -41,8 +41,9 @@ def libinclude(root):
 
 TCL_ROOT = None
 JPEG_ROOT = None
-ZLIB_ROOT = None
 TIFF_ROOT = None
+WEBP_ROOT = None
+ZLIB_ROOT = None
 FREETYPE_ROOT = None
 LCMS_ROOT = None
 
@@ -88,8 +89,8 @@ LIBIMAGING = [
     "PackDecode", "Palette", "Paste", "Quant", "QuantOctree", "QuantHash",
     "QuantHeap", "PcdDecode", "PcxDecode", "PcxEncode", "Point",
     "RankFilter", "RawDecode", "RawEncode", "Storage", "SunRleDecode",
-    "TgaRleDecode", "Unpack", "UnpackYCC", "UnsharpMask", "XbmDecode",
-    "XbmEncode", "ZipDecode", "ZipEncode"
+    "TgaRleDecode", "Unpack", "UnpackYCC", "UnsharpMask", "WebPDecode",
+    "WebPEncode", "XbmDecode", "XbmEncode", "ZipDecode", "ZipEncode"
     ]
 
 # --------------------------------------------------------------------
@@ -256,14 +257,8 @@ class pil_build_ext(build_ext):
         # look for available libraries
 
         class feature:
-            zlib = jpeg = tiff = freetype = tcl = tk = lcms = None
+            jpeg = tiff = webp = zlib = freetype = tcl = tk = lcms = None
         feature = feature()
-
-        if find_include_file(self, "zlib.h"):
-            if find_library_file(self, "z"):
-                feature.zlib = "z"
-            elif sys.platform == "win32" and find_library_file(self, "zlib"):
-                feature.zlib = "zlib" # alternative name
 
         if find_include_file(self, "jpeglib.h"):
             if find_library_file(self, "jpeg"):
@@ -273,6 +268,16 @@ class pil_build_ext(build_ext):
 
         if find_library_file(self, "tiff"):
             feature.tiff = "tiff"
+
+        if find_include_file(self, "webp/decode.h") and find_include_file(self, "webp/encode.h"):
+            if find_library_file(self, "webp"):
+                feature.webp = "webp"
+
+        if find_include_file(self, "zlib.h"):
+            if find_library_file(self, "z"):
+                feature.zlib = "z"
+            elif sys.platform == "win32" and find_library_file(self, "zlib"):
+                feature.zlib = "zlib" # alternative name
 
         if find_library_file(self, "freetype"):
             # look for freetype2 include files
@@ -325,6 +330,9 @@ class pil_build_ext(build_ext):
         if feature.jpeg:
             libs.append(feature.jpeg)
             defs.append(("HAVE_LIBJPEG", None))
+        if feature.webp:
+            libs.append(feature.webp)
+            defs.append(("HAVE_LIBWEBP", None))
         if feature.zlib:
             libs.append(feature.zlib)
             defs.append(("HAVE_LIBZ", None))
@@ -426,6 +434,7 @@ class pil_build_ext(build_ext):
         options = [
             (feature.tcl and feature.tk, "TKINTER"),
             (feature.jpeg, "JPEG"),
+            (feature.webp, "WEBP"),
             (feature.zlib, "ZLIB (PNG/ZIP)"),
             # (feature.tiff, "experimental TIFF G3/G4 read"),
             (feature.freetype, "FREETYPE2"),

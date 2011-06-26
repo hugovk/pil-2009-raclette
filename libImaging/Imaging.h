@@ -441,6 +441,12 @@ extern int ImagingSunRleDecode(Imaging im, ImagingCodecState state,
 			       UINT8* buffer, int bytes);
 extern int ImagingTgaRleDecode(Imaging im, ImagingCodecState state,
 			       UINT8* buffer, int bytes);
+#ifdef	HAVE_LIBWEBP
+extern int ImagingWebPDecode(Imaging im, ImagingCodecState state,
+			     UINT8* buffer, int bytes);
+extern int ImagingWebPEncode(Imaging im, ImagingCodecState state,
+			     UINT8* buffer, int bytes);
+#endif
 extern int ImagingXbmDecode(Imaging im, ImagingCodecState state,
 			    UINT8* buffer, int bytes);
 extern int ImagingXbmEncode(Imaging im, ImagingCodecState state,
