@@ -68,9 +68,9 @@ def sort_tiles(tiles):
         tiles.sort(key=key)
     except TypeError:
         # Python 2.2, 2.3
-        tiles[:] = [(key(tile), tile) for tile in tiles]
-        tiles.sort()
-        tiles[:] = [tile[0] for tile in seq]
+        seq = [(key(tile), tile) for tile in tiles]
+        seq.sort()
+        tiles[:] = [tile[1] for tile in seq]
 
 ##
 # Base class for image file handlers.
