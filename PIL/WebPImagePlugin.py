@@ -36,7 +36,7 @@ class WebPImageFile(ImageFile.ImageFile):
             raise SyntaxError("not a WebP file")
 
         frame_header = self.fp.read(10)
-        if frame_header[3:6] != "\x9d\x01\x2a":
+        if frame_header[3:6] != "\x9d\x01\x2a" or len(frame_header) != 10:
             raise SyntaxError("unsupported WebP frame signature")
 
         data = map(ord, frame_header)
@@ -59,14 +59,11 @@ class WebPImageFile(ImageFile.ImageFile):
         self.size = xsize, ysize
         self.tile = [("webp", (0, 0) + self.size, 0, (self.mode,))]
 
-        # make sure the decoder sees the data we've already parsed
-        self.tile_prefix = container_header + frame_header
-
     def draft(self, mode, size):
         if len(self.tile) != 1:
             return
         d, e, o, a = self.tile[0]
-        # FIXME: add support for RGBA and YCbCr
+        # FIXME: add support for YCbCr (and RGBA?)
         self.tile = [(d, e, o, a)]
         return self
 
