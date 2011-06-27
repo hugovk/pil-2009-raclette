@@ -26,8 +26,6 @@ ImagingWebPEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 
     UINT8* buffer;
     UINT8* ptr;
-    uint8_t* output_ptr;
-    size_t output_size;
     int y, stride;
     float quality = 75.0F;
 
