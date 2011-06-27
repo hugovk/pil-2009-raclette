@@ -1,5 +1,9 @@
 /* WebP.h */
 
+#if PY_VERSION_HEX < 0x02040000
+#include <stdint.h>
+#endif
+
 typedef struct {
 
     /* CONFIGURATION */
