@@ -22,7 +22,6 @@
 int
 ImagingWebPDecode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 {
-    /* WEBPSTATE* webpstate = state->context; */
     UINT32 image_size;
     UINT8* image_data;
     int y, xsize, ysize;

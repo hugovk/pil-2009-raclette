@@ -71,6 +71,9 @@ class WebPImageFile(ImageFile.ImageFile):
 def _save(im, fp, filename):
     if im.mode != "RGB":
         raise IOError("cannot write mode %s as WEBP" % im.mode)
+    im.encoderconfig = (
+        im.encoderinfo.get("quality", 0),
+        )
     ImageFile._save(im, fp, [("webp", (0, 0) + im.size, 0, (im.mode,))])
 
 #

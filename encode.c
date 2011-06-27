@@ -473,10 +473,12 @@ PyImaging_WebPEncoderNew(PyObject* self, PyObject* args)
 
     char* mode;
     char* rawmode;
-    if (!PyArg_ParseTuple(args, ARG("ss", "ss"), &mode, &rawmode))
+    int quality = 0;
+    if (!PyArg_ParseTuple(args, ARG("ss|i", "ss|i"), &mode, &rawmode,
+			  &quality))
 	return NULL;
 
-    encoder = PyImaging_EncoderNew(sizeof(WEBPSTATE));
+    encoder = PyImaging_EncoderNew(sizeof(WEBPCONTEXT));
     if (encoder == NULL)
 	return NULL;
 
@@ -484,6 +486,8 @@ PyImaging_WebPEncoderNew(PyObject* self, PyObject* args)
 	return NULL;
 
     encoder->encode = ImagingWebPEncode;
+
+    ((WEBPCONTEXT*)encoder->state.context)->quality = quality;
 
     return (PyObject*) encoder;
 }
