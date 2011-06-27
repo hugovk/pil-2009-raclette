@@ -2,7 +2,7 @@
 # The Python Imaging Library.
 # $Id$
 #
-# (Limited) WebP support for PIL
+# Basic WebP support for PIL
 #
 # History:
 # 2011-06-26 fl     Created
@@ -67,10 +67,16 @@ class WebPImageFile(ImageFile.ImageFile):
         self.tile = [(d, e, o, a)]
         return self
 
+
+def _save(im, fp, filename):
+    if im.mode != "RGB":
+        raise IOError("cannot write mode %s as WEBP" % im.mode)
+    ImageFile._save(im, fp, [("webp", (0, 0) + im.size, 0, (im.mode,))])
+
 #
 # --------------------------------------------------------------------
 
 Image.register_open("WEBP", WebPImageFile, _accept)
-# Image.register_save("WEBP", _save)
+Image.register_save("WEBP", _save)
 
 Image.register_extension("WEBP", ".webp")

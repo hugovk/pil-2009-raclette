@@ -28,13 +28,17 @@ ImagingWebPDecode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
     int y, xsize, ysize;
     UINT8* p;
 
-    if (bytes < 20)
+    /* wait until we have enough data */
+
+    if (bytes < 8)
         return 0;
 
-    image_size = (buf[4] | (buf[5] << 8) | (buf[6] << 16) | (buf[7] << 24)) + 8;
+    image_size = (buf[4] | (buf[5] << 8) | (buf[6] << 16) | (buf[7] << 24));
 
-    if (bytes < image_size)
+    if (bytes < 8 + image_size)
         return 0;
+
+    /* decode and unpack everything in one go */
 
     image_data = WebPDecodeRGB(buf, bytes, &xsize, &ysize);
 
