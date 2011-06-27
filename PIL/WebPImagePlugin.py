@@ -60,10 +60,13 @@ class WebPImageFile(ImageFile.ImageFile):
         self.tile = [("webp", (0, 0) + self.size, 0, (self.mode,))]
 
     def draft(self, mode, size):
+        """Configure image decoder."""
         if len(self.tile) != 1:
             return
         d, e, o, a = self.tile[0]
-        # FIXME: add support for YCbCr (and RGBA?)
+        if a[0] == "RGB" and mode in ["YCbCr"]:
+            self.mode = mode
+            a = (self.mode,)
         self.tile = [(d, e, o, a)]
         return self
 

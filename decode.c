@@ -674,6 +674,8 @@ PyImaging_ZipDecoderNew(PyObject* self, PyObject* args)
 /* WebP                                                                 */
 /* -------------------------------------------------------------------- */
 
+#ifdef HAVE_LIBWEBP
+
 PyObject*
 PyImaging_WebPDecoderNew(PyObject* self, PyObject* args)
 {
@@ -684,17 +686,21 @@ PyImaging_WebPDecoderNew(PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple(args, "ss", &mode, &rawmode))
 	return NULL;
 
-    decoder = PyImaging_DecoderNew(0);
+    decoder = PyImaging_DecoderNew(sizeof(WEBPCONTEXT));
     if (decoder == NULL)
 	return NULL;
 
     if (get_unpacker(decoder, mode, rawmode) < 0)
 	return NULL;
 
+    strncpy(((WEBPCONTEXT*)decoder->state.context)->rawmode, rawmode, 8);
+
     decoder->decode = ImagingWebPDecode;
 
     return (PyObject*) decoder;
 }
+
+#endif
 
 /* -------------------------------------------------------------------- */
 /* JPEG									*/

@@ -22,6 +22,8 @@
 int
 ImagingWebPDecode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 {
+    WEBPCONTEXT* context = (WEBPCONTEXT*) state->context;
+
     UINT32 image_size;
     UINT8* image_data;
     int y, xsize, ysize;
@@ -38,8 +40,13 @@ ImagingWebPDecode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
         return 0;
 
     /* decode and unpack everything in one go */
-
-    image_data = WebPDecodeRGB(buf, bytes, &xsize, &ysize);
+    if (strcmp(context->rawmode, "RGB") == 0)
+        image_data = WebPDecodeRGB(buf, bytes, &xsize, &ysize);
+    else {
+        /* FIXME: add YCbCr support */
+        state->errcode = IMAGING_CODEC_CONFIG;
+	return -1;
+    }
 
     if (!image_data) {
         state->errcode = IMAGING_CODEC_BROKEN;

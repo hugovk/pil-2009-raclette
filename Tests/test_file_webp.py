@@ -37,6 +37,20 @@ def test_save():
     assert_equal(im1.mode, im2.mode)
     assert_equal(im1.size, im2.size)
 
+# def test_draft():
+#     # test draft mode
+#     im = Image.open("Images/lena.webp")
+#     px = im.getpixel((0, 0))
+#     im = Image.open("Images/lena.webp")
+#     im.draft("YCbCr", im.size)
+#     assert_equal(im.mode, "YCbCr")
+#     assert_equal(im.size, (128, 128))
+#     im.load()
+#     assert_equal(im.mode, "YCbCr")
+#     assert_equal(im.size, (128, 128))
+#     # make sure the codec doesn't read RGB
+#     assert_false(px == im.getpixel((0, 0)))
+
 def test_quality():
     # test saving with different qualities
     im80 = roundtrip(lena(), quality=80)
