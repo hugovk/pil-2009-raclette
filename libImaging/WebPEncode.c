@@ -33,13 +33,12 @@ ImagingWebPEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 	/* copy image contents to packed buffer and compress it */
 
 	stride = state->xsize * 3;
-
 	buffer = malloc(im->ysize * stride);
-
 	if (!buffer) {
 	    state->errcode = IMAGING_CODEC_MEMORY;
 	    return -1;
 	}
+
 	for (ptr = buffer, y = 0; y < state->ysize; ptr += stride, y++) {
 	    state->shuffle(ptr, (UINT8*) im->image[y + state->yoff] +
 			   state->xoff * im->pixelsize, state->xsize);
@@ -52,6 +51,8 @@ ImagingWebPEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 					     state->xsize, state->ysize,
 					     stride, quality,
 					     &context->output_data);
+
+	free(buffer);
 
 	if (!context->output_size) {
 	    state->errcode = IMAGING_CODEC_BROKEN;
@@ -72,7 +73,7 @@ ImagingWebPEncode(Imaging im, ImagingCodecState state, UINT8* buf, int bytes)
 	free(context->output_buffer);
 	return context->output_size;
     } else {
-	/* fill the buffer */
+	/* not enough space; fill the buffer and try again next time */
 	memcpy(buf, context->output_data, bytes);
 	context->output_data += bytes;
 	context->output_size -= bytes;
