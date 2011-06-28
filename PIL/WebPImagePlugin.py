@@ -64,11 +64,11 @@ class WebPImageFile(ImageFile.ImageFile):
         if len(self.tile) != 1:
             return
         d, e, o, a = self.tile[0]
-        if a[0] == "RGB" and mode in ["YCbCr"]:
-            self.mode = mode
-            a = (self.mode,)
+        # FIXME: enable YCbCr support in decoder
+        # if a[0] == "RGB" and mode in ["YCbCr"]:
+        #     self.mode = mode
+        #     a = (self.mode,)
         self.tile = [(d, e, o, a)]
-        return self
 
 
 def _save(im, fp, filename):
